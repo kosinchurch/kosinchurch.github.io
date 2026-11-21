@@ -40,7 +40,7 @@
 | ☐ | 새가족 등록 절차 | `data/about.js` → `faq`, `newcomer/index.html` 등록 안내 샘플 |
 | ☐ | 행사 정확한 날짜 | `data/news.js` → `events` (현재는 기존 사이트의 행사일 또는 게시일 기준) |
 | ☐ | 주보 PDF | `assets/bulletins` + `data/news.js` → `bulletins` |
-| ☐ | 교회 시설·행사 사진 | `assets/img/album` + `data/news.js` → `gallery` |
+| ☐ | 교회 행사 사진·영상 | `assets/img/events` + `data/news.js` → `events` (`photos` 장 수, `videos`) |
 | ☐ | 설교 영상 ID, 본문, 요약 | `data/sermons.js` (현재 제목만 있음. 기존 사이트의 일부 설교 제목을 옮겨 둠) |
 
 ## D. 법적·운영 확인
