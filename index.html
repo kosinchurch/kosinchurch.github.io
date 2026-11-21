@@ -84,10 +84,11 @@
     <div class="container">
       <div class="section-head">
         <div><span class="eyebrow">NEWS</span><h2>교회 소식</h2></div>
-        <a class="more-link" href="news/index.html">더보기 &rarr;</a>
+        <a class="more-link" href="news/bulletin.html">주보 더보기 &rarr;</a>
       </div>
       <div class="news-wrap">
-        <div data-render="post-list" data-source="notices" data-limit="4"></div>
+        <!-- 왼쪽: 최근 주보 목록 (PDF), 오른쪽: 이번 주 주보 미리보기 -->
+        <div data-render="bulletin-list" data-limit="5"></div>
         <div data-render="bulletin-card"></div>
       </div>
     </div>
@@ -118,14 +119,25 @@
     </div>
   </section>
 
-  <!-- 9) 교회 사진 갤러리 -->
+  <!-- 9) 앨범: 왼쪽 교회 앨범(교회 행사 사진), 오른쪽 선교 앨범(선교 행사 사진). 사진은 data/news.js 의 events 에서 가져옵니다. -->
   <section class="section" id="album">
     <div class="container">
-      <div class="section-head">
-        <div><span class="eyebrow">ALBUM</span><h2>교회 사진</h2></div>
-        <a class="more-link" href="news/album.html">앨범 더보기 &rarr;</a>
+      <div class="album-split">
+        <div class="album-col">
+          <div class="section-head">
+            <div><span class="eyebrow">ALBUM</span><h2>교회 앨범</h2></div>
+            <a class="more-link" href="news/events.html">더보기 &rarr;</a>
+          </div>
+          <div data-render="gallery" data-category="교회행사" data-limit="4" data-empty="교회 앨범 사진을 준비하고 있습니다."></div>
+        </div>
+        <div class="album-col">
+          <div class="section-head">
+            <div><span class="eyebrow">MISSION ALBUM</span><h2>선교 앨범</h2></div>
+            <a class="more-link" href="news/mission-events.html">더보기 &rarr;</a>
+          </div>
+          <div data-render="gallery" data-category="선교행사" data-limit="4" data-empty="선교 앨범 사진을 준비하고 있습니다."></div>
+        </div>
       </div>
-      <div data-render="gallery" data-limit="6"></div>
     </div>
   </section>
 
