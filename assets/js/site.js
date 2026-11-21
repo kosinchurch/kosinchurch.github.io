@@ -601,12 +601,22 @@
       b.addEventListener('click', function () { track.scrollBy({ left: (+b.getAttribute('data-slide')) * 264, behavior: 'smooth' }); });
     });
   };
+  /* "서문 중에서" 같은 글귀: 빈 줄 = 문단, 줄바꿈 = 그대로. (영문은 따로 작게, 사34:16 처럼 짧은 출처는 오른쪽으로) */
+  function excerptHtml(text, compact) {
+    var paras = String(text).split(/\n\s*\n/).map(function (p) {
+      var cls = /^[A-Za-z]/.test(p.trim()) ? ' class="ex-en"' : (/^[가-힣]{1,3}\d/.test(p.trim()) && p.trim().length < 14 ? ' class="ex-ref"' : '');
+      return '<p' + cls + '>' + p.split('\n').map(esc).join('<br>') + '</p>';
+    }).join('');
+    return '<blockquote class="excerpt' + (compact ? ' excerpt--compact' : '') + '">' + paras + '</blockquote>';
+  }
   R['book-grid'] = function (el) {
     var kind = el.getAttribute('data-kind') === 'church' ? 'church' : 'pastor', list = booksOf(kind);
     if (el.getAttribute('data-layout') === 'rows' && list.length) {   // 책 표지(왼쪽) + 책 속 미리보기(오른쪽, 좌우로 넘겨 보기)
       el.innerHTML = '<div class="book-rows">' + list.map(function (b) {
         var pv = b.previews || [], strip = '';
-        if (pv.length) {
+        if (b.excerpt && b.excerpt.text) {   // "서문 중에서" 글 (궁서체)
+          strip = '<div class="book-row__preview book-row__excerpt"><h3 class="excerpt-title">' + esc(b.excerpt.title || '서문 중에서') + '</h3>' + excerptHtml(b.excerpt.text, b.excerpt.compact) + '</div>';
+        } else if (pv.length) {
           strip = '<div class="book-row__preview"><div class="rail__head"><h3>책 속으로 미리보기</h3><div class="slider-btns"><button type="button" class="slider-btn" data-strip="-1" aria-label="이전 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" class="slider-btn" data-strip="1" aria-label="다음 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div></div>' +
             '<div class="photo-grid book-strip" tabindex="0" aria-label="책 속 미리보기 (좌우로 넘겨 보세요)">' + pv.map(function (p) {
               var f = link(p.img);
@@ -652,6 +662,7 @@
       (buy ? '<div class="btn-row">' + buy + '</div>' : '') +
       (b.inChurch ? '<p style="margin-top:18px"><strong>교회 비치 안내</strong><br>' + rich(b.inChurch) + '</p>' : '') + '</div></div>' +
       block('책 소개', b.intro ? '<div class="prose">' + rich(b.intro) + '</div>' : '', '책 소개글을 입력하세요. (data/books.js 의 intro)') +
+      ((b.excerpt && b.excerpt.text) ? '<section class="detail-block"><h2>' + esc(b.excerpt.title || '서문 중에서') + '</h2>' + excerptHtml(b.excerpt.text, b.excerpt.compact) + '</section>' : '') +
       ((b.previews && b.previews.length) ? '<section class="detail-block"><h2>책 속으로</h2><div class="photo-grid book-previews">' + b.previews.map(function (p) {
         var f = link(p.img);
         return '<a href="' + esc(f) + '" data-full="' + esc(f) + '" data-caption="' + esc(b.title + (p.caption ? ' · ' + p.caption : '')) + '"><img src="' + esc(f) + '" alt="' + esc(b.title + ' ' + (p.caption || '미리보기')) + '" loading="lazy">' + (p.caption ? '<span>' + esc(p.caption) + '</span>' : '') + '</a>';
