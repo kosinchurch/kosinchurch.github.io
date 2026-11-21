@@ -111,6 +111,8 @@
       return m;
     });
   }
+  /* 메뉴 칸에 sub: [...] 가 있으면, 그 칸의 페이지에서 아래 줄(하위 메뉴)에 sub 의 칸들이 나옵니다. (위 드롭다운에는 나오지 않음) */
+  function hasCurrent(m) { return isCurrent(m.url) || (m.children || []).some(hasCurrent) || (m.sub || []).some(hasCurrent); }
   function absParts(u) { var a = document.createElement('a'); a.href = ROOT + u; return { path: a.pathname.replace(/index\.html$/, ''), search: a.search }; }
   function isCurrent(u) {
     if (u.indexOf('#') > -1) return false;
@@ -130,7 +132,7 @@
     var host = $('#site-header'); if (!host) return;
     var c = church(), items = menu();
     var nav = items.map(function (m) {
-      var cur = isCurrent(m.url) || (m.children || []).some(function (ch) { return isCurrent(ch.url); });
+      var cur = hasCurrent(m);
       var sub = (m.children && m.children.length)
         ? '<ul class="sub">' + m.children.map(function (ch) { return '<li><a href="' + esc(link(ch.url)) + '">' + esc(ch.label) + '</a></li>'; }).join('') + '</ul>' : '';
       return '<li' + (cur ? ' class="is-current"' : '') + '><a href="' + esc(link(m.url)) + '">' + esc(m.label) + '</a>' + sub + '</li>';
@@ -211,8 +213,8 @@
     add(D.meditations, '3분 묵상', 'worship/meditation.html');
     add(D.wednesday, '수요성경공부', 'worship/wednesday.html');
     add(D.notices, '공지사항', 'news/index.html');
-    add(D.events, '행사', function (x) { return 'news/events.html' + (x.id ? '#' + x.id : ''); });
-    add(D.books, '담임목사 저서', function (b) { return 'books/detail.html?id=' + encodeURIComponent(b.id); });
+    add(D.events, '행사', function (x) { return eventPage(x) + (x.id ? '#' + x.id : ''); });
+    add(D.books, '책 소개', function (b) { return 'books/detail.html?id=' + encodeURIComponent(b.id); });
     (D.missionFields || []).forEach(function (f) { (f.reports || []).forEach(function (r) { idx.push({ t: r.title + ' (' + f.name + ')', s: '선교보고 · ' + fmtDate(r.date), u: reportPath(f, reportId(r)) }); }); });
     visible(D.departments).forEach(function (d) { idx.push({ t: d.name, s: '다음세대·모임', u: deptUrl(d) }); });
     return idx;
@@ -283,7 +285,11 @@
      (고정하고 싶으면 data 항목에 id: '원하는-id' 를 직접 적으세요.) */
   function hash36(s) { var h = 5381, i; s = String(s); for (i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
   function reportId(r) { return r.id || 'r-' + (r.date || 'x') + '-' + hash36(r.title); }
-  function reportPath(f, id) { return 'mission/field.html?id=' + encodeURIComponent(f.id) + '#' + id; }
+  /* 선교보고·공사 소식은 선교지(id)와 갈래(type: mission=선교, construction=공사) 두 가지로 주소가 정해집니다 */
+  function fieldType(r) { return r && r.type === 'construction' ? 'construction' : 'mission'; }
+  function fieldPath(f, type) { return 'mission/field.html?id=' + encodeURIComponent(f.id) + '&type=' + (type === 'construction' ? 'construction' : 'mission'); }
+  function reportPath(f, id, type) { return fieldPath(f, type) + '#' + id; }
+  function eventPage(x) { return x && x.category === '선교행사' ? 'news/mission-events.html' : 'news/events.html'; }
   function shareBtn(x, extraClass) {
     if (!x.sharePath) return '';
     return '<button type="button" class="row-share' + (extraClass ? ' ' + extraClass : '') + '" data-share-item data-title="' + esc(x.shareTitle || x.title) + '" data-text="' + esc(x.shareText || '') + '" data-path="' + esc(x.sharePath) + '" aria-label="' + esc(x.title) + ' 카카오톡으로 공유">' + ico('chat') + '<span>카카오톡 공유</span></button>';
@@ -292,15 +298,54 @@
     if (src !== 'events') return items;
     return items.map(function (x) {
       if (x.category !== '선교행사' || !x.id) return x;
-      return Object.assign({}, x, { sharePath: 'news/events.html#' + x.id, shareTitle: x.title, shareText: '선교행사 · ' + fmtDate(x.date) });
+      return Object.assign({}, x, { sharePath: 'news/mission-events.html#' + x.id, shareTitle: x.title, shareText: '선교행사 · ' + fmtDate(x.date) });
+    });
+  }
+  /* ---- 행사 글의 사진·영상 ----
+     photos : 12   → assets/img/events/ 폴더의 <행사id>_001.jpg ~ <행사id>_012.jpg 12장 (사진 수만 적으면 됩니다)
+              또는 ['a.jpg', 'b.jpg'] 처럼 파일 이름을 직접 적어도 됩니다 (같은 폴더, 전체 경로도 가능)
+     videos : ['유튜브영상ID', 'clip.mp4']  → 유튜브는 영상 ID, 짧은 mp4 파일은 같은 폴더에 올리고 파일 이름을 적습니다 */
+  function eventFile(x, f) { return /^(https?:|assets\/)/.test(f) ? f : 'assets/img/events/' + f; }
+  function photoNames(x) {
+    var p = x.photos;
+    if (typeof p === 'number') { var a = []; for (var i = 1; i <= p; i++) a.push(x.id + '_' + ('00' + i).slice(-3) + '.jpg'); return a; }
+    return p || [];
+  }
+  function videoItem(x, v) {
+    var o = typeof v === 'string' ? { id: v } : (v || {}), id = o.id || o.file || '';
+    if (/\.(mp4|webm|mov)$/i.test(id)) return '<video class="event-video" controls preload="metadata" playsinline src="' + esc(link(eventFile(x, id))) + '"></video>';
+    return '<a class="event-video" href="' + ytWatch(id) + '" target="_blank" rel="noopener" aria-label="' + esc(o.title || x.title) + ' 영상 보기 (유튜브)"><img src="https://i.ytimg.com/vi/' + encodeURIComponent(id) + '/hqdefault.jpg" alt="" loading="lazy" width="480" height="270"><span class="card__play" aria-hidden="true">' + ico('play') + '</span></a>';
+  }
+  var EV_FIRST = 24;   // 사진이 많은 행사는 처음 24장만 보이고 "사진 더 보기"로 펼칩니다
+  function eventMedia(x) {
+    var ph = photoNames(x), vd = x.videos || [], html = '';
+    if (vd.length) html += '<div class="event-videos">' + vd.map(function (v) { return videoItem(x, v); }).join('') + '</div>';
+    if (ph.length) {
+      html += '<div class="photo-grid event-photos">' + ph.map(function (p, i) {
+        var f = link(eventFile(x, p));
+        return '<a' + (i >= EV_FIRST ? ' hidden' : '') + ' href="' + esc(f) + '" data-full="' + esc(f) + '" data-caption="' + esc(x.title + ' (' + (i + 1) + '/' + ph.length + ')') + '"><img src="' + esc(f) + '" alt="' + esc(x.title + ' 사진 ' + (i + 1)) + '" loading="lazy"></a>';
+      }).join('') + '</div>';
+      if (ph.length > EV_FIRST) html += '<p class="event-more-wrap"><button type="button" class="btn btn--outline btn--sm event-more">사진 더 보기 (' + EV_FIRST + ' / ' + ph.length + ')</button></p>';
+    }
+    return html;
+  }
+  function setupEventMore() {
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('.event-more'); if (!b) return;
+      var grid = $('.event-photos', b.closest('.post-body')), total = $$('a', grid).length;
+      $$('a[hidden]', grid).slice(0, 48).forEach(function (a) { a.removeAttribute('hidden'); });
+      var left = $$('a[hidden]', grid).length;
+      if (left) b.textContent = '사진 더 보기 (' + (total - left) + ' / ' + total + ')'; else b.parentNode.removeChild(b);
     });
   }
   function postRow(x) {
-    var badges = (x.pinned ? '<span class="badge badge--pin">고정</span> ' : '') + (x.category ? '<span class="badge">' + esc(x.category) + '</span>' : '') + sampleTag(x);
+    var media = eventMedia(x), nph = photoNames(x).length;
+    var counts = (nph ? ' <span class="badge badge--gold">사진 ' + nph + '</span>' : '') + ((x.videos || []).length ? ' <span class="badge badge--gold">영상 ' + x.videos.length + '</span>' : '');
+    var badges = (x.pinned ? '<span class="badge badge--pin">고정</span> ' : '') + (x.category ? '<span class="badge">' + esc(x.category) + '</span>' : '') + counts + sampleTag(x);
     var head = '<span class="post-date">' + fmtDate(x.date) + '</span><span class="post-title">' + esc(x.title) + '</span><span>' + badges + '</span>';
     var open = '<li' + (x.id ? ' id="' + esc(x.id) + '"' : '') + (x.sharePath ? ' class="has-share"' : '') + '>', tail = shareBtn(x) + '</li>';
-    if (x.link) return open + '<a class="post-row" href="' + esc(link(x.link)) + '"' + (/^https?:/.test(x.link) ? ' target="_blank" rel="noopener"' : '') + '>' + head + '</a>' + tail;
-    if (x.body) return open + '<details><summary class="post-row">' + head + '</summary><div class="post-body">' + rich(x.body) + '</div></details>' + tail;
+    if (x.link) return open + '<a class="post-row" href="' + esc(link(x.link)) + '"' + (/^https?:|\.pdf$/i.test(x.link) ? ' target="_blank" rel="noopener"' : '') + '>' + head + '</a>' + tail;
+    if (x.body || media) return open + '<details><summary class="post-row">' + head + '</summary><div class="post-body">' + (x.body ? rich(x.body) : '') + media + '</div></details>' + tail;
     return open + '<div class="post-row">' + head + '</div>' + tail;
   }
   function sermonRow(x) {
@@ -308,9 +353,12 @@
     return x.youtube ? '<a class="mini-row" href="' + ytWatch(x.youtube) + '" target="_blank" rel="noopener">' + inner + '</a>' : '<div class="mini-row">' + inner + '</div>';
   }
   function sermonCard(s) {
-    var thumb = s.youtube ? '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(s.youtube) + '/hqdefault.jpg" alt="" loading="lazy">' : ico('play');
-    var inner = '<div class="card__thumb">' + thumb + '</div><div class="card__body"><p class="card__meta">' + fmtDate(s.date) + (s.scripture ? ' · ' + esc(s.scripture) : '') + '</p><h3>' + esc(s.title) + '</h3>' + (s.preacher ? '<p>' + esc(s.preacher) + '</p>' : '') + '</div>';
-    return s.youtube ? '<a class="card" href="' + ytWatch(s.youtube) + '" target="_blank" rel="noopener">' + inner + '</a>' : '<div class="card">' + inner + '</div>';
+    /* 유튜브 영상 ID 만 있으면 썸네일(대표 사진)이 자동으로 보입니다. 누르면 유튜브에서 영상이 열립니다. */
+    var thumb = s.youtube
+      ? '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(s.youtube) + '/hqdefault.jpg" alt="" loading="lazy" width="480" height="270"><span class="card__play" aria-hidden="true">' + ico('play') + '</span>'
+      : ico('play');
+    var inner = '<div class="card__thumb">' + thumb + '</div><div class="card__body"><p class="card__meta">' + fmtDate(s.date) + (s.scripture ? ' · ' + esc(s.scripture) : '') + '</p><h3>' + esc(s.title) + (s.note ? ' <span class="badge badge--gold">' + esc(s.note) + '</span>' : '') + '</h3>' + (s.preacher ? '<p>' + esc(s.preacher) + '</p>' : '') + '</div>';
+    return s.youtube ? '<a class="card" href="' + ytWatch(s.youtube) + '" target="_blank" rel="noopener" aria-label="' + esc(s.title) + ' · ' + fmtDate(s.date) + ' · 유튜브에서 보기">' + inner + '</a>' : '<div class="card">' + inner + '</div>';
   }
   function bookCover(b) {
     return '<div class="book-cover">' + (b.cover
@@ -321,8 +369,8 @@
   function bookCard(b) {
     return '<a class="book-card" href="' + esc(link('books/detail.html?id=' + encodeURIComponent(b.id))) + '">' + bookCover(b) + '<h3>' + esc(b.title) + '</h3>' + (b.oneLine ? '<p>' + esc(b.oneLine) + '</p>' : '') + '<span class="more">자세히 보기 ' + ico('arrow') + '</span></a>';
   }
-  function galleryItem(g) {
-    return '<figure class="gallery__item' + (g.img ? '' : ' has-ph') + '" style="margin:0">' + (g.img ? '<img src="' + esc(link(g.img)) + '" alt="' + esc(g.title) + '" loading="lazy">' : ico('camera')) + '<figcaption>' + esc(g.title) + (g.date ? ' · ' + fmtDate(g.date) : '') + '</figcaption></figure>';
+  function galleryItem(g) {   // 메인의 "행사 사진" 한 장 (누르면 그 행사 글로 이동)
+    return '<a class="gallery__item" href="' + esc(link(g.href)) + '"><img src="' + esc(link(g.img)) + '" alt="' + esc(g.title) + '" loading="lazy"><span class="gallery__cap">' + esc(g.title) + (g.date ? ' · ' + fmtDate(g.date) : '') + '</span></a>';
   }
   function deptTimeObj(d) { var id = d.timeId || d.id; return (D.worshipTimes || []).filter(function (t) { return t.id === id; })[0]; }
   function deptTime(d) { var t = deptTimeObj(d); return t ? t.day + ' ' + t.time : (d.timeText || ''); }
@@ -331,11 +379,16 @@
   R['page-hero'] = function (el) {
     var title = el.getAttribute('data-title') || '', lead = el.getAttribute('data-lead') || '';
     var group = null;
-    menu().forEach(function (m) { if (!group && (isCurrent(m.url) || (m.children || []).some(function (ch) { return isCurrent(ch.url); }))) group = m; });
+    menu().forEach(function (m) { if (!group && hasCurrent(m)) group = m; });
     var crumbs = '<a href="' + esc(link('index.html')) + '">홈</a>' + (group ? ' &rsaquo; <a href="' + esc(link(group.url)) + '">' + esc(group.label) + '</a>' : '') + ' &rsaquo; <span data-current>' + esc(title) + '</span>';
     var html = '<section class="page-hero"><div class="container"><div class="crumbs">' + crumbs + '</div><h1>' + esc(title) + '</h1>' + (lead ? '<p class="page-hero__lead">' + esc(lead) + '</p>' : '') + '</div></section>';
-    if (group && group.children && group.children.length > 1 && el.getAttribute('data-subnav') !== 'off') {
-      html += '<nav class="subnav" aria-label="' + esc(group.label) + ' 하위 메뉴"><div class="container"><ul>' + group.children.map(function (ch) {
+    var tabs = group && group.children;
+    if (group) {   // 메뉴 칸에 sub 가 있으면 (예: 네팔 선교 → 네팔 선교 / 네팔 공사) 그 칸의 페이지에서는 sub 를 하위 메뉴로 보여 줍니다
+      var own = group.children.filter(function (c) { return c.sub && hasCurrent(c); })[0];
+      if (own) tabs = own.sub;
+    }
+    if (group && tabs && tabs.length > 1 && el.getAttribute('data-subnav') !== 'off') {
+      html += '<nav class="subnav" aria-label="' + esc(group.label) + ' 하위 메뉴"><div class="container"><ul>' + tabs.map(function (ch) {
         return '<li><a href="' + esc(link(ch.url)) + '"' + (isCurrent(ch.url) ? ' aria-current="page"' : '') + '>' + esc(ch.label) + '</a></li>';
       }).join('') + '</ul></div></nav>';
     }
@@ -377,19 +430,75 @@
   R['sermon-latest'] = function (el) {
     var list = visible(D.sermons).sort(byDateDesc), s = list[0];
     if (!s) { el.innerHTML = '<div class="empty">설교 영상을 준비하고 있습니다.</div>'; return; }
-    var rest = list.slice(1, 4);
+    var rest = list.slice(1, 4), yt = church().youtube;
+    var med = visible(D.meditations).slice().sort(byDateDesc).slice(0, 4);
+    var shorts = visible(D.shorts).slice().sort(byDateDesc).slice(0, 12);
+    var rails = '';
+    if (med.length) {
+      var medList = church().youtubeMeditation;   // 유튜브의 "3분 묵상" 재생목록 주소 (없으면 이 사이트의 3분 묵상 페이지로 연결)
+      rails += '<section class="rail rail--med" aria-label="3분 묵상"><header class="rail__head"><h3>3분 묵상</h3>' +
+        (medList ? '<a class="more-link" href="' + esc(medList) + '" target="_blank" rel="noopener">유튜브에서 더보기 &rarr;</a>' : '<a class="more-link" href="' + esc(link('worship/meditation.html')) + '">전체 보기 &rarr;</a>') +
+        '</header><div class="rail__list">' +
+        med.map(function (m) {
+          return '<a class="med-item" href="' + ytWatch(m.youtube) + '" target="_blank" rel="noopener"><span class="med-thumb"><img src="https://i.ytimg.com/vi/' + encodeURIComponent(m.youtube) + '/mqdefault.jpg" alt="" loading="lazy" width="320" height="180"><span class="card__play" aria-hidden="true">' + ico('play') + '</span></span><span class="med-text"><time>' + fmtDate(m.date) + '</time><strong>' + esc(m.title) + '</strong></span></a>';
+        }).join('') + '</div></section>';
+    }
+    if (shorts.length) {
+      rails += '<section class="rail rail--shorts" aria-label="쇼츠"><header class="rail__head"><h3>쇼츠</h3><div class="rail__tools">' +
+        '<div class="slider-btns"><button type="button" class="slider-btn" data-rail="-1" aria-label="이전 쇼츠"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" class="slider-btn" data-rail="1" aria-label="다음 쇼츠"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>' +
+        (yt ? '<a class="more-link" href="' + esc(yt.replace(/\/+$/, '') + '/shorts') + '" target="_blank" rel="noopener">유튜브에서 더보기 &rarr;</a>' : '') + '</div></header>' +
+        '<div class="shorts-track" tabindex="0" aria-label="쇼츠 목록">' + shorts.map(function (m) {
+          var id = encodeURIComponent(m.youtube);
+          return '<a class="short-card" href="https://www.youtube.com/shorts/' + id + '" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/' + id + '/frame0.jpg" onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg\'" alt="" loading="lazy"><span class="short-card__shade"></span><time>' + fmtDate(m.date) + '</time><span class="card__play" aria-hidden="true">' + ico('play') + '</span><span class="short-card__title">' + esc(m.title) + '</span></a>';
+        }).join('') + '</div></section>';
+    }
     el.innerHTML = '<div class="sermon-feature">' + video(s) + '<div class="sermon-info"><span class="badge badge--gold">' + esc(s.service || '주일 오전 공예배') + '</span><h3>' + esc(s.title) + '</h3>' +
       '<p class="sermon-meta">' + fmtDate(s.date) + (s.preacher ? ' · ' + esc(s.preacher) : '') + (s.scripture ? ' · ' + esc(s.scripture) : '') + '</p>' + (s.summary ? '<p>' + esc(s.summary) + '</p>' : '') +
       (rest.length ? '<div class="mini-list">' + rest.map(sermonRow).join('') + '</div>' : '') +
-      '<div class="btn-row"><a class="btn btn--primary" href="' + esc(link('worship/sermons.html')) + '">설교 더 보기</a><a class="btn btn--outline" href="' + esc(link('worship/meditation.html')) + '">3분 묵상</a></div></div></div>';
+      '<div class="btn-row"><a class="btn btn--primary" href="' + esc(link('worship/sermons.html')) + '">설교 더 보기</a>' + (yt ? '<a class="btn btn--outline" href="' + esc(yt) + '" target="_blank" rel="noopener">유튜브 채널</a>' : '') + '</div></div></div>' +
+      (rails ? '<div class="word-rails' + (med.length && shorts.length ? '' : ' word-rails--one') + '">' + rails + '</div>' : '');
+    var track = $('.shorts-track', el);
+    if (track) {
+      var arrows = $$('[data-rail]', el);
+      arrows.forEach(function (b) { b.addEventListener('click', function () { track.scrollBy({ left: (+b.getAttribute('data-rail')) * 360, behavior: 'smooth' }); }); });
+      if (track.scrollWidth <= track.clientWidth + 4) { var sb = $('.rail--shorts .slider-btns', el); if (sb) sb.classList.add('is-hidden'); }
+    }
   };
 
+  /* 영상 카드 목록: data-source(sermons · meditations · wednesday), data-tabs="year" 이면 연도 버튼이 붙습니다. */
   R['sermon-grid'] = function (el) {
-    mountList(el, visible(D.sermons).sort(byDateDesc), sermonCard, { pageSize: +el.getAttribute('data-page-size') || 9, wrapClass: 'card-grid', empty: '설교 영상을 준비하고 있습니다.' });
+    var src = el.getAttribute('data-source') || 'sermons';
+    var items = visible(getPath(src)).slice().sort(byDateDesc);
+    var opts = { pageSize: +el.getAttribute('data-page-size') || 12, wrapClass: 'card-grid', empty: el.getAttribute('data-empty') || '영상을 준비하고 있습니다.' };
+    var years = [];
+    items.forEach(function (i) { var y = String(i.date || '').slice(0, 4); if (/^\d{4}$/.test(y) && years.indexOf(y) < 0) years.push(y); });
+    if (el.getAttribute('data-tabs') === 'year' && years.length > 1) {
+      el.innerHTML = '<div class="tabs" role="group" aria-label="연도 선택"></div><div class="tab-body"></div>';
+      var tabs = $('.tabs', el), body = $('.tab-body', el);
+      tabs.innerHTML = ['전체'].concat(years).map(function (y) {
+        var n = y === '전체' ? items.length : items.filter(function (i) { return String(i.date).slice(0, 4) === y; }).length;
+        return '<button type="button" class="tab" data-year="' + y + '" aria-pressed="false">' + (y === '전체' ? '전체' : y + '년') + ' <small>' + n + '</small></button>';
+      }).join('');
+      var show = function (y) {
+        $$('.tab', tabs).forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-year') === y ? 'true' : 'false'); });
+        mountList(body, y === '전체' ? items : items.filter(function (i) { return String(i.date).slice(0, 4) === y; }), sermonCard, opts);
+      };
+      tabs.addEventListener('click', function (e) { var b = e.target.closest('.tab'); if (b) show(b.getAttribute('data-year')); });
+      show('전체'); return;
+    }
+    mountList(el, items, sermonCard, opts);
+  };
+
+  /* 유튜브 채널 바로가기 한 줄 (data/church.js 의 youtube 주소를 씁니다) */
+  R['youtube-link'] = function (el) {
+    var u = church().youtube;
+    el.innerHTML = u ? '<p class="yt-note">' + ico('play') + '<span>더 많은 영상은 <a href="' + esc(u) + '" target="_blank" rel="noopener">고신교회 유튜브 채널</a>에서 보실 수 있습니다.</span></p>' : '';
   };
 
   R['post-list'] = function (el) {
     var src = el.getAttribute('data-source'), items = decorate(src, visible(getPath(src)).slice());
+    var onlyCat = el.getAttribute('data-category');   // 예) data-category="교회행사" : 그 분류만 보여 줍니다
+    if (onlyCat) items = items.filter(function (i) { return i.category === onlyCat; });
     items.sort(function (a, b) { if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1; return byDateDesc(a, b); });
     var limit = +el.getAttribute('data-limit') || 0; if (limit) items = items.slice(0, limit);
     var pageSize = +el.getAttribute('data-page-size') || 0, empty = el.getAttribute('data-empty') || '등록된 글이 없습니다.';
@@ -414,16 +523,76 @@
     var btn = b && b.file
       ? '<a class="btn btn--light" href="' + esc(link(b.file)) + '" download>' + ico('download') + ' 주보 내려받기</a>'
       : '<span class="btn btn--light" aria-disabled="true">주보 준비 중</span>';
-    el.innerHTML = '<div class="bulletin-card"><span class="eyebrow">이번 주 주보</span><h3>' + esc(b ? b.title : '주보') + '</h3><p>' + (b ? fmtDate(b.date) : '') + '</p>' + btn +
+    var viewer = b && b.file ? '<div class="bl-viewer" hidden><div class="bl-track" tabindex="0" role="group" aria-label="주보 미리보기 (좌우로 넘겨 보세요)"></div>' +
+      '<div class="bl-ctl"><button type="button" class="bl-btn" data-bl="-1" aria-label="이전 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="bl-count" aria-live="polite"></span><button type="button" class="bl-btn" data-bl="1" aria-label="다음 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div></div>' : '';
+    el.innerHTML = '<div class="bulletin-card"><span class="eyebrow">이번 주 주보</span><h3>' + esc(b ? b.title : '주보') + '</h3><p>' + (b ? fmtDate(b.date) : '') + '</p>' + viewer + btn +
       '<p style="margin:16px 0 0"><a href="' + esc(link('news/bulletin.html')) + '" style="color:#fff;text-decoration:underline">지난 주보 보기</a></p></div>';
-  };
-  R['bulletin-list'] = function (el) {
-    var items = visible(D.bulletins).sort(byDateDesc).map(function (b) { return { title: b.title, date: b.date, link: b.file, category: b.file ? '내려받기' : '준비 중', sample: b.sample }; });
-    mountList(el, items, postRow, { tag: 'ul', wrapClass: 'post-list', pageSize: 12, empty: '주보를 준비하고 있습니다.' });
+    if (viewer) setupBulletinPreview($('.bl-viewer', el), link(b.file), b.title);
   };
 
+  /* ---- 주보 미리보기 ----
+     주보 PDF 의 각 쪽을 그림처럼 그려서 좌우로 넘겨 볼 수 있게 합니다 (PDF 만 올리면 자동으로 만들어집니다).
+     카드가 화면에 가까워졌을 때만 PDF 해독 도구(pdf.js)를 불러오고, 불러오지 못하면 미리보기 없이 "내려받기"만 보입니다. */
+  var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  function loadPdfJs(cb) {
+    if (window.pdfjsLib) return cb(window.pdfjsLib);
+    var s = document.createElement('script'); s.src = PDFJS + 'pdf.min.js'; s.async = true;
+    s.onload = function () { if (window.pdfjsLib) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; cb(window.pdfjsLib); } else cb(null); };
+    s.onerror = function () { cb(null); };
+    document.head.appendChild(s);
+  }
+  function setupBulletinPreview(box, url, title) {
+    var track = $('.bl-track', box), count = $('.bl-count', box), started = false;
+    function start() {
+      if (started) return; started = true;
+      loadPdfJs(function (lib) {
+        if (!lib) return;
+        lib.getDocument(url).promise.then(function (pdf) {
+          var n = pdf.numPages; if (!n) return;
+          box.hidden = false;
+          track.innerHTML = '';
+          var slides = [];
+          for (var i = 1; i <= n; i++) {
+            var a = document.createElement('a'); a.className = 'bl-page'; a.href = url + '#page=' + i; a.target = '_blank'; a.rel = 'noopener';
+            a.setAttribute('aria-label', title + ' ' + i + '쪽 (누르면 PDF가 열립니다)');
+            a.innerHTML = '<canvas></canvas><span class="bl-num">' + i + '</span>';
+            track.appendChild(a); slides.push(a);
+          }
+          function upd() {
+            var w = slides[0].offsetWidth + 12, idx = Math.max(0, Math.min(n - 1, Math.round(track.scrollLeft / (w || 1))));
+            count.textContent = (idx + 1) + ' / ' + n;
+          }
+          upd(); track.addEventListener('scroll', function () { window.requestAnimationFrame(upd); }, { passive: true });
+          $$('[data-bl]', box).forEach(function (btn) { btn.addEventListener('click', function () { track.scrollBy({ left: (+btn.getAttribute('data-bl')) * (slides[0].offsetWidth + 12), behavior: 'smooth' }); }); });
+          // 쪽을 하나씩 차례로 그립니다 (앞쪽부터 보이도록)
+          (function draw(k) {
+            if (k > n) return;
+            pdf.getPage(k).then(function (page) {
+              var cssW = slides[k - 1].clientWidth || 240, base = page.getViewport({ scale: 1 }), sc = (cssW * Math.min(2, window.devicePixelRatio || 1)) / base.width, vp = page.getViewport({ scale: sc });
+              var cv = $('canvas', slides[k - 1]); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+              slides[k - 1].style.aspectRatio = base.width + ' / ' + base.height;
+              return page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+            }).then(function () { draw(k + 1); }, function () { draw(k + 1); });
+          })(1);
+        }).catch(function () { /* PDF 를 열 수 없으면 미리보기를 건너뜁니다 */ });
+      });
+    }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); } }, { rootMargin: '300px' });
+      io.observe(box.parentNode);
+    } else start();
+  }
+  R['bulletin-list'] = function (el) {
+    var items = visible(D.bulletins).sort(byDateDesc).map(function (b) { return { title: b.title, date: b.date, link: b.file, category: b.file ? '내려받기' : '준비 중', sample: b.sample }; });
+    var limit = +el.getAttribute('data-limit') || 0;   // 메인에서는 최근 몇 건만 (data-limit)
+    if (limit) items = items.slice(0, limit);
+    mountList(el, items, postRow, { tag: 'ul', wrapClass: 'post-list', pageSize: limit ? 0 : 12, empty: '주보를 준비하고 있습니다.' });
+  };
+
+  /* 책 한 권마다 kind: 'pastor'(담임목사 저서, 기본) 또는 'church'(교회출판도서) */
+  function booksOf(kind) { return visible(D.books).filter(function (b) { return (b.kind || 'pastor') === kind; }).sort(byDateDesc); }
   R['book-slider'] = function (el) {
-    var list = visible(D.books).sort(byDateDesc);
+    var list = booksOf('pastor');
     if (!list.length) { var sec = el.closest('section'); if (sec) sec.classList.add('is-hidden'); return; }   // 저서가 없으면 메인의 저서 구역 전체를 숨김
     el.innerHTML = '<div class="book-track" tabindex="0" aria-label="담임목사 저서 목록">' + list.map(bookCard).join('') + '</div>';
     var track = $('.book-track', el), btns = $('.slider-btns');
@@ -433,19 +602,44 @@
     });
   };
   R['book-grid'] = function (el) {
-    mountList(el, visible(D.books).sort(byDateDesc), bookCard, { wrapClass: 'book-grid', empty: '저서 정보를 준비하고 있습니다.' });
+    var kind = el.getAttribute('data-kind') === 'church' ? 'church' : 'pastor', list = booksOf(kind);
+    if (el.getAttribute('data-layout') === 'rows' && list.length) {   // 책 표지(왼쪽) + 책 속 미리보기(오른쪽, 좌우로 넘겨 보기)
+      el.innerHTML = '<div class="book-rows">' + list.map(function (b) {
+        var pv = b.previews || [], strip = '';
+        if (pv.length) {
+          strip = '<div class="book-row__preview"><div class="rail__head"><h3>책 속으로 미리보기</h3><div class="slider-btns"><button type="button" class="slider-btn" data-strip="-1" aria-label="이전 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" class="slider-btn" data-strip="1" aria-label="다음 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div></div>' +
+            '<div class="photo-grid book-strip" tabindex="0" aria-label="책 속 미리보기 (좌우로 넘겨 보세요)">' + pv.map(function (p) {
+              var f = link(p.img);
+              return '<a href="' + esc(f) + '" data-full="' + esc(f) + '" data-caption="' + esc(b.title + (p.caption ? ' · ' + p.caption : '')) + '"><img src="' + esc(f) + '" alt="' + esc(b.title + ' ' + (p.caption || '미리보기')) + '" loading="lazy"><span>' + esc(p.caption || '') + '</span></a>';
+            }).join('') + '</div><p class="book-row__hint">사진을 누르면 크게 볼 수 있습니다.</p></div>';
+        }
+        return '<div class="book-row">' + bookCard(b) + strip + '</div>';
+      }).join('') + '</div>';
+      $$('[data-strip]', el).forEach(function (btn) {
+        btn.addEventListener('click', function () { var tr = $('.book-strip', btn.closest('.book-row__preview')); tr.scrollBy({ left: (+btn.getAttribute('data-strip')) * 480, behavior: 'smooth' }); });
+      });
+      return;
+    }
+    mountList(el, list, bookCard, { wrapClass: 'book-grid', empty: kind === 'church' ? '교회출판도서 정보를 준비하고 있습니다.' : '저서 정보를 준비하고 있습니다.' });
   };
   R['book-detail'] = function (el) {
-    var id = qs('id'), books = visible(D.books).sort(byDateDesc);
-    var b = books.filter(function (x) { return x.id === id; })[0] || (id ? null : books[0]);
-    if (!b) { notFound(el, '요청하신 도서를 찾을 수 없습니다.', 'books/index.html', '저서 목록으로'); return; }
-    document.title = b.title + ' | 담임목사 저서 | ' + church().name;
-    setHero('담임목사 저서', '');
+    var id = qs('id'), all = visible(D.books).slice().sort(byDateDesc);
+    var b = all.filter(function (x) { return x.id === id; })[0] || (id ? null : booksOf('pastor')[0]);
+    if (!b) { notFound(el, '요청하신 도서를 찾을 수 없습니다.', 'books/index.html', '책 목록으로'); return; }
+    var kind = (b.kind || 'pastor'), church_ = kind === 'church', books = booksOf(kind);
+    var sectionName = church_ ? '교회출판도서' : '담임목사 저서', listPath = church_ ? 'books/church.html' : 'books/index.html';
+    document.title = b.title + ' | ' + sectionName + ' | ' + church().name;
+    setHero(sectionName, '');
+    if (church_) {   // 교회출판도서는 하위 메뉴의 "현재 위치" 표시를 옮깁니다
+      $$('.subnav a[aria-current]').forEach(function (a) { a.removeAttribute('aria-current'); });
+      var ca = $('.subnav a[href$="books/church.html"]'); if (ca) ca.setAttribute('aria-current', 'page');
+    }
     var meta = [];
     if (b.publisher) meta.push(['출판사', b.publisher]);
     if (b.date) meta.push(['출간일', fmtDate(b.date)]);
     if (b.pages) meta.push(['분량', b.pages]);
-    meta.push(['저자', church().pastor + ' ' + church().pastorTitle]);
+    var author = b.author || (church_ ? '' : church().pastor + ' ' + church().pastorTitle);
+    if (author) meta.push(['저자', author]);
     var buy = (b.buyLinks || []).filter(function (l) { return l && l.url; }).map(function (l) { return '<a class="btn btn--primary" href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || '구매하기') + '</a>'; }).join('');
     if (!buy && showSamples()) buy = '<span class="btn btn--outline" aria-disabled="true">구매 링크 준비 중</span>';
     function block(title, html, hint) { var body = html || placeholder(hint); return body ? '<section class="detail-block"><h2>' + esc(title) + '</h2>' + body + '</section>' : ''; }
@@ -458,11 +652,15 @@
       (buy ? '<div class="btn-row">' + buy + '</div>' : '') +
       (b.inChurch ? '<p style="margin-top:18px"><strong>교회 비치 안내</strong><br>' + rich(b.inChurch) + '</p>' : '') + '</div></div>' +
       block('책 소개', b.intro ? '<div class="prose">' + rich(b.intro) + '</div>' : '', '책 소개글을 입력하세요. (data/books.js 의 intro)') +
+      ((b.previews && b.previews.length) ? '<section class="detail-block"><h2>책 속으로</h2><div class="photo-grid book-previews">' + b.previews.map(function (p) {
+        var f = link(p.img);
+        return '<a href="' + esc(f) + '" data-full="' + esc(f) + '" data-caption="' + esc(b.title + (p.caption ? ' · ' + p.caption : '')) + '"><img src="' + esc(f) + '" alt="' + esc(b.title + ' ' + (p.caption || '미리보기')) + '" loading="lazy">' + (p.caption ? '<span>' + esc(p.caption) + '</span>' : '') + '</a>';
+      }).join('') + '</div></section>' : '') +
       block('목차', (b.toc && b.toc.length) ? '<ol class="toc">' + b.toc.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>' : '', '목차를 입력하세요. (data/books.js 의 toc)') +
       block('추천사', (b.endorsements && b.endorsements.length) ? b.endorsements.map(function (e) { return '<blockquote class="quote">' + esc(e.text) + '<cite>' + esc(e.by) + '</cite></blockquote>'; }).join('') : '', '추천사를 입력하세요. (data/books.js 의 endorsements)') +
-      block('저자 소개', '<p><strong>' + esc(church().pastor) + ' ' + esc(church().pastorTitle) + '</strong> · ' + esc(church().name) + '</p>' + (pastor.bio ? '<p>' + esc(pastor.bio) + '</p>' : ''), '') +
-      (others.length ? '<section class="detail-block"><h2>다른 저서 보기</h2><div class="book-grid">' + others.map(bookCard).join('') + '</div></section>' : '') +
-      '<p style="margin-top:40px"><a class="more-link" href="' + esc(link('books/index.html')) + '">' + ico('prev') + ' 저서 목록으로</a></p>';
+      (church_ ? '' : block('저자 소개', '<p><strong>' + esc(church().pastor) + ' ' + esc(church().pastorTitle) + '</strong> · ' + esc(church().name) + '</p>' + (pastor.bio ? '<p>' + esc(pastor.bio) + '</p>' : ''), '')) +
+      (others.length ? '<section class="detail-block"><h2>' + (church_ ? '다른 교회출판도서 보기' : '다른 저서 보기') + '</h2><div class="book-grid">' + others.map(bookCard).join('') + '</div></section>' : '') +
+      '<p style="margin-top:40px"><a class="more-link" href="' + esc(link(listPath)) + '">' + ico('prev') + ' ' + (church_ ? '교회출판도서 목록으로' : '저서 목록으로') + '</a></p>';
   };
 
   R['dept-grid'] = function (el) {
@@ -500,7 +698,7 @@
       var title = latestMode && latest ? latest.title : (f.title || f.name + ' 선교');
       var meta = latestMode ? (latest ? '<time>' + fmtDate(latest.date) + '</time>' : '') : (latest ? '<time>최근 소식 · ' + fmtDate(latest.date) + '</time>' : '');
       var toReport = latestMode && latest;   // 메인: 최신 선교보고 한 건 / 선교 첫 페이지: 선교지 소개
-      var path = toReport ? reportPath(f, reportId(latest)) : 'mission/field.html?id=' + encodeURIComponent(f.id);
+      var path = toReport ? reportPath(f, reportId(latest), fieldType(latest)) : fieldPath(f, 'mission');
       var share = shareBtn({ title: title, sharePath: path, shareTitle: toReport ? f.name + ' 선교 · ' + latest.title : (f.title || f.name + ' 선교'), shareText: toReport ? f.name + ' 선교보고 · ' + fmtDate(latest.date) : (f.summary || '') }, 'row-share--card');
       return '<div class="mission-card-wrap"><a class="mission-card" href="' + esc(link(path)) + '"><span class="badge">' + esc(f.name) + '</span><h3>' + esc(title) + '</h3><p>' + esc(f.summary || '') + '</p>' + meta + '</a>' + share + '</div>';
     }).join('') + '</div>';
@@ -508,17 +706,24 @@
   R['mission-field'] = function (el) {
     var id = qs('id') || 'nepal', f = (D.missionFields || []).filter(function (x) { return x.id === id; })[0];
     if (!f) { notFound(el, '요청하신 선교지를 찾을 수 없습니다.', 'mission/index.html', '선교 첫 페이지로'); return; }
-    document.title = (f.title || f.name + ' 선교') + ' | 선교 | ' + church().name;
-    setHero(f.title || f.name + ' 선교', f.summary || '');
+    /* type=mission (○○ 선교) / type=construction (○○ 공사). 소식 한 건 한 건에 type: 'construction' 을 적으면 공사 쪽에 나옵니다. */
+    var type = qs('type') === 'construction' ? 'construction' : 'mission', build = type === 'construction';
+    var missionTitle = f.title || f.name + ' 선교', buildTitle = f.constructionTitle || f.name + ' 공사';
+    var pageTitle = build ? buildTitle : missionTitle;
+    document.title = pageTitle + ' | 선교 | ' + church().name;
+    setHero(pageTitle, (build ? f.constructionSummary : f.summary) || '');
     var other = (D.missionFields || []).filter(function (x) { return x.id !== f.id; })[0];
-    var reports = (f.reports || []).map(function (r) {
+    var reports = (f.reports || []).filter(function (r) { return fieldType(r) === type; }).map(function (r) {
       var rid = reportId(r);
-      return Object.assign({}, r, { id: rid, category: r.category || '선교보고', sharePath: reportPath(f, rid), shareTitle: f.name + ' 선교 · ' + r.title, shareText: f.name + ' 선교보고 · ' + fmtDate(r.date) });
+      return Object.assign({}, r, { id: rid, category: r.category || (build ? '공사 소식' : '선교보고'), sharePath: reportPath(f, rid, type), shareTitle: (build ? buildTitle : f.name + ' 선교') + ' · ' + r.title, shareText: (build ? buildTitle + ' 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) });
     }).sort(byDateDesc);
-    el.innerHTML = (f.intro ? '<div class="prose">' + rich(f.intro) + '</div>' : placeholder(f.name + ' 선교 소개글을 입력하세요. (data/missions.js 의 intro)')) +
-      '<h2 style="margin-top:48px">선교보고</h2><div class="reports"></div>' +
-      '<div class="btn-row" style="margin-top:32px">' + (other ? '<a class="btn btn--outline" href="' + esc(link('mission/field.html?id=' + other.id)) + '">' + esc(other.name) + ' 선교 보기</a>' : '') + '<a class="btn btn--primary" href="' + esc(link('mission/support.html')) + '">' + ico('heart') + ' 선교 후원 안내</a></div>';
-    mountList($('.reports', el), reports, postRow, { tag: 'ul', wrapClass: 'post-list', pageSize: 10, empty: '등록된 선교보고가 없습니다.' });
+    var intro = build ? f.constructionIntro : f.intro;
+    el.innerHTML = (intro ? '<div class="prose">' + rich(intro) + '</div>' : placeholder(pageTitle + ' 소개글을 입력하세요. (data/missions.js 의 ' + (build ? 'constructionIntro' : 'intro') + ')')) +
+      '<h2 style="margin-top:48px">' + (build ? '공사 소식' : '선교보고') + '</h2><div class="reports"></div>' +
+      '<div class="btn-row" style="margin-top:32px"><a class="btn btn--outline" href="' + esc(link(fieldPath(f, build ? 'mission' : 'construction'))) + '">' + esc(build ? missionTitle : buildTitle) + ' 보기</a>' +
+      (other ? '<a class="btn btn--outline" href="' + esc(link(fieldPath(other, 'mission'))) + '">' + esc(other.name) + ' 선교 보기</a>' : '') +
+      '<a class="btn btn--primary" href="' + esc(link('mission/support.html')) + '">' + ico('heart') + ' 선교 후원 안내</a></div>';
+    mountList($('.reports', el), reports, postRow, { tag: 'ul', wrapClass: 'post-list', pageSize: 10, empty: build ? '등록된 공사 소식이 없습니다.' : '등록된 선교보고가 없습니다.' });
   };
   R['mission-support'] = function (el) {
     var s = D.missionSupport || {}, c = church();
@@ -530,10 +735,20 @@
       '<p style="margin-top:12px"><strong>문의</strong><br>' + (s.contact ? esc(s.contact) + '<br>' : '') + '<a href="' + telHref(c.phone) + '">' + esc(c.phone) + '</a></p></aside></div>';
   };
 
+  /* 메인의 "행사 사진": 사진이 올라온 행사의 첫 사진을 최신순으로 보여 줍니다. 사진이 올라온 행사가 없으면 이 구역은 숨겨집니다. */
   R.gallery = function (el) {
-    var list = visible(D.gallery).sort(byDateDesc), limit = +el.getAttribute('data-limit') || 0;
+    var list = [], limit = +el.getAttribute('data-limit') || 0, cat = el.getAttribute('data-category'), emptyMsg = el.getAttribute('data-empty');
+    visible(D.events).slice().sort(byDateDesc).forEach(function (ev) {
+      var pn = photoNames(ev);
+      if (cat && ev.category !== cat) return;   // data-category="교회행사" / "선교행사" 로 나눠 보여 줍니다
+      if (pn.length && ev.id) list.push({ img: eventFile(ev, pn[0]), title: ev.title, date: ev.date, href: eventPage(ev) + '#' + ev.id });
+    });
     if (limit) list = list.slice(0, limit);
-    mountList(el, list, galleryItem, { pageSize: +el.getAttribute('data-page-size') || 0, wrapClass: 'gallery', empty: '사진을 준비하고 있습니다.' });
+    if (!list.length) {
+      if (emptyMsg) { el.innerHTML = '<div class="empty">' + esc(emptyMsg) + '</div>'; return; }   // 안내 문구가 있으면 구역은 그대로 두고 문구만 보여 줌
+      var sec = el.closest('section'); if (sec) sec.classList.add('is-hidden'); return;
+    }
+    mountList(el, list, galleryItem, { wrapClass: 'gallery' });
   };
 
   R['pastor-photo'] = function (el) {
@@ -551,9 +766,18 @@
     }).join('');
   };
   R.timeline = function (el) {
-    var list = visible(D.history);
+    /* 연혁: 연도마다 items: ['04 내용', '12 내용'] (앞의 두 자리는 월). 예전 방식 { year, text } 도 됩니다. */
+    var list = visible(D.history).slice().sort(function (a, b) { return String(a.year).localeCompare(String(b.year)); });
     if (!list.length) { el.innerHTML = '<div class="empty">연혁을 준비하고 있습니다.</div>'; return; }
-    el.innerHTML = '<ol class="timeline">' + list.map(function (h) { return '<li><b>' + esc(h.year) + sampleTag(h) + '</b>' + esc(h.text) + '</li>'; }).join('') + '</ol>';
+    function line(s) { var m = /^(\d{2})\s+(.*)$/.exec(s); return m ? '<span class="tl-m">' + (+m[1]) + '월</span><span class="tl-t">' + esc(m[2]) + '</span>' : '<span class="tl-m"></span><span class="tl-t">' + esc(s) + '</span>'; }
+    var decades = [], seen = {};
+    var rows = list.map(function (h) {
+      var dec = String(h.year).slice(0, 3) + '0', id = '';
+      if (/^\d{4}$/.test(String(h.year)) && !seen[dec]) { seen[dec] = 1; decades.push(dec); id = ' id="dec-' + dec + '"'; }
+      var body = h.items ? '<ul class="tl-lines">' + h.items.map(function (s) { return '<li>' + line(s) + '</li>'; }).join('') + '</ul>' : '<span class="tl-text">' + esc(h.text || '') + '</span>';
+      return '<li' + id + '><b>' + esc(h.year) + sampleTag(h) + '</b>' + body + '</li>';
+    }).join('');
+    el.innerHTML = (decades.length > 1 ? '<nav class="fac-nav tl-nav" aria-label="연대 바로가기">' + decades.map(function (d) { return '<a href="#dec-' + d + '">' + d + '년대</a>'; }).join('') + '</nav>' : '') + '<ol class="timeline">' + rows + '</ol>';
   };
   /* 시설안내: 층 바로가기 + 층별 사진 모음 (사진을 누르면 크게 보기) */
   R.facilities = function (el) {
@@ -698,7 +922,12 @@
     if (!id) return;
     var el = document.getElementById(id), guard = 0, more;
     while (!el && guard++ < 30 && (more = $('.load-more button'))) { more.click(); el = document.getElementById(id); }   // "더 보기" 뒤에 숨어 있으면 펼침
-    if (!el || !el.matches('.post-list > li')) return;
+    if (!el) {   // 예전 주소(news/events.html#선교행사id)로 들어왔으면 선교 행사 페이지로 보내 줍니다
+      var ev = (D.events || []).filter(function (x) { return x.id === id; })[0];
+      if (ev && /events\.html$/.test(location.pathname) && !/mission-events\.html$/.test(location.pathname) && eventPage(ev) !== 'news/events.html') { location.replace(link(eventPage(ev)) + location.hash); }
+      return;
+    }
+    if (!el.matches('.post-list > li')) return;
     el.classList.add('is-target');
     var det = $('details', el); if (det) det.open = true;
     setTimeout(function () { el.scrollIntoView({ block: 'center' }); }, 60);
@@ -773,8 +1002,8 @@
     D.missionReports = [];   // 선교지별 보고를 하나로 합친 목록 (선교 첫 페이지·검색에서 사용)
     (D.missionFields || []).forEach(function (f) {
       (f.reports || []).forEach(function (r) {
-        var rid = reportId(r), path = reportPath(f, rid);
-        D.missionReports.push(Object.assign({}, r, { id: rid, category: f.name, link: path, sharePath: path, shareTitle: f.name + ' 선교 · ' + r.title, shareText: f.name + ' 선교보고 · ' + fmtDate(r.date) }));
+        var rid = reportId(r), ty = fieldType(r), path = reportPath(f, rid, ty), build = ty === 'construction';
+        D.missionReports.push(Object.assign({}, r, { id: rid, category: f.name, link: path, sharePath: path, shareTitle: (build ? (f.constructionTitle || f.name + ' 공사') : f.name + ' 선교') + ' · ' + r.title, shareText: (build ? f.name + ' 공사 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) }));
       });
     });
     renderHeader();
@@ -788,6 +1017,7 @@
     if (!showSamples()) $$('[data-sample]').forEach(function (el) { el.classList.add('is-hidden'); });
     $$('[data-tokens]').forEach(function (el) { el.innerHTML = rich(el.innerHTML); });
     setupItemShare();
+    setupEventMore();
     setupLightbox();
     revealTarget();
     window.addEventListener('hashchange', revealTarget);
