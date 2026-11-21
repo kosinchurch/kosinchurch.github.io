@@ -4,6 +4,8 @@
    목차: 1 기본 / 2 레이아웃 / 3 버튼 / 4 헤더·메뉴 / 5 히어로 / 6 카드·목록
          7 도서 / 8 서브페이지 / 9 표·타임라인·FAQ / 10 폼 / 11 푸터·하단바 / 12 검색
    ========================================================================== */
+/* "서문 중에서" 글귀용 붓글씨 느낌 글꼴 (윈도우 '궁서'가 없는 기기를 위한 대체 글꼴) */
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap');
 
 /* ---------- 1. 기본 ---------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -193,6 +195,23 @@ a.mini-row:hover { background: var(--c-bg-soft); text-decoration: none; }
 a.event-video:hover .card__play { transform: scale(1.1); background: var(--c-primary); }
 .post-body > :first-child { margin-top: 0; }
 .photo-grid a[hidden] { display: none; }
+/* "서문 중에서" 글귀 (궁서체) */
+.excerpt { margin: 0; padding: 8px 8px 4px; border: 0; background: none; text-align: center; font-family: 'Gungsuh', '궁서', 'GungsuhChe', 'Nanum Myeongjo', 'Noto Serif KR', serif; color: #3a1a24; }
+.excerpt p { margin: 0 0 1.4em; font-size: 1.28rem; line-height: 2; font-weight: 500; }
+.excerpt p:first-child::before { content: "\201C"; display: block; font-size: 3rem; line-height: .6; color: var(--c-primary); opacity: .35; margin-bottom: 10px; }
+.excerpt p:last-child { margin-bottom: 0; font-weight: 700; color: var(--c-primary-dark); }
+.excerpt p.ex-ref { font-size: 1rem; color: var(--c-muted); text-align: right; margin-top: -.6em; }
+.excerpt p.ex-en { font-size: 1.02rem; line-height: 1.8; font-style: italic; color: #5a3a46; font-weight: 400; }
+/* 긴 서문(기도문 모음집 등): 왼쪽 정렬, 조금 작게 */
+.excerpt--compact { text-align: left; padding: 4px 4px 0; }
+.excerpt--compact p { font-size: 1.04rem; line-height: 1.95; font-weight: 400; margin-bottom: 1.1em; word-break: keep-all; }
+.excerpt--compact p:first-child { text-align: center; font-size: 1.2rem; font-weight: 700; color: var(--c-primary-dark); margin-bottom: 1.3em; }
+.excerpt--compact p:first-child::before { display: none; }
+.excerpt--compact p:last-child { text-align: right; font-weight: 700; color: var(--c-primary-dark); margin-top: 1.6em; }
+.excerpt-title { margin: 0 0 12px; font-family: 'Gungsuh', '궁서', 'GungsuhChe', 'Nanum Myeongjo', 'Noto Serif KR', serif; font-size: 1.35rem; color: var(--c-primary); text-align: center; }
+.excerpt-title::before, .excerpt-title::after { content: "—"; margin: 0 10px; opacity: .5; }
+.book-row__excerpt { background: linear-gradient(180deg, #fbf6f2, #f6efe8); border: 1px solid #ecdfd6; padding: 28px 32px 30px; }
+@media (max-width: 520px) { .excerpt p { font-size: 1.12rem; } .book-row__excerpt { padding: 22px 18px; } }
 /* 저서 목록: 왼쪽 표지, 오른쪽 책 속 미리보기(가로로 넘겨 보기) */
 .book-rows { display: grid; gap: 48px; }
 .book-row { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; align-items: start; }
