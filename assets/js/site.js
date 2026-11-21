@@ -541,20 +541,76 @@
     el.innerHTML = p.photo ? '<img src="' + esc(link(p.photo)) + '" alt="' + esc(church().pastor + ' ' + church().pastorTitle) + '">' : '<span>' + ico('users') + '사진 준비 중</span>';
   };
   R.people = function (el) {
-    var list = visible(D.people);
-    el.innerHTML = '<div class="people-grid">' + list.map(function (p) {
-      var ini = String(p.name || '').replace(/[^가-힣A-Za-z]/g, '').charAt(0) || '+';
-      return '<div class="person"><div class="person__avatar">' + (p.photo ? '<img src="' + esc(link(p.photo)) + '" alt="' + esc(p.name) + '" loading="lazy">' : esc(ini)) + '</div><h3>' + esc(p.name) + '</h3><p>' + esc(p.role) + sampleTag(p) + '</p>' + (p.bio ? '<p>' + esc(p.bio) + '</p>' : '') + '</div>';
-    }).join('') + '</div>';
+    var list = visible(D.people), groups = [], map = {};
+    list.forEach(function (p) { var g = p.group || p.role || '섬기는 분들'; if (!map[g]) { map[g] = []; groups.push(g); } map[g].push(p); });
+    el.innerHTML = groups.map(function (g) {
+      return '<section class="people-group"><h2 class="group-title">' + esc(g) + '</h2><div class="people-grid">' + map[g].map(function (p) {
+        var ini = String(p.name || '').replace(/[^가-힣A-Za-z]/g, '').charAt(0) || '+';
+        return '<figure class="person"><div class="person__photo">' + (p.photo ? '<img src="' + esc(link(p.photo)) + '" alt="' + esc(p.name + ' ' + p.role) + '" loading="lazy">' : '<span aria-hidden="true">' + esc(ini) + '</span>') + '</div><figcaption><h3>' + esc(p.name) + '</h3><p>' + esc(p.role) + sampleTag(p) + '</p>' + (p.bio ? '<p class="person__bio">' + esc(p.bio) + '</p>' : '') + '</figcaption></figure>';
+      }).join('') + '</div></section>';
+    }).join('');
   };
   R.timeline = function (el) {
     var list = visible(D.history);
     if (!list.length) { el.innerHTML = '<div class="empty">연혁을 준비하고 있습니다.</div>'; return; }
     el.innerHTML = '<ol class="timeline">' + list.map(function (h) { return '<li><b>' + esc(h.year) + sampleTag(h) + '</b>' + esc(h.text) + '</li>'; }).join('') + '</ol>';
   };
-  R.floors = function (el) {
-    el.innerHTML = '<ul class="floor-list">' + (D.facilities || []).map(function (f) { return '<li><b>' + esc(f.floor) + '</b><span>' + esc(f.name) + '</span></li>'; }).join('') + '</ul>';
+  /* 시설안내: 층 바로가기 + 층별 사진 모음 (사진을 누르면 크게 보기) */
+  R.facilities = function (el) {
+    var list = D.facilities || [], dir = D.facilitiesDir || 'assets/img/facilities/';
+    el.innerHTML = '<nav class="fac-nav" aria-label="층 바로가기">' + list.map(function (f) { return '<a href="#fac-' + esc(f.id) + '">' + esc(f.floor) + '</a>'; }).join('') + '</nav>' +
+      list.map(function (f) {
+        var ph = f.photos || [];
+        return '<section class="fac' + (ph.length === 1 ? ' fac--one' : '') + '" id="fac-' + esc(f.id) + '"><div class="fac__head"><span class="fac__floor">' + esc(f.floor) + '</span><h2>' + esc(f.title) + '</h2></div>' +
+          (f.desc ? '<p class="fac__desc">' + esc(f.desc) + '</p>' : '') +
+          (ph.length ? '<div class="photo-grid">' + ph.map(function (p) {
+            return '<a href="' + esc(link(dir + p.file)) + '" data-full="' + esc(link(dir + p.file)) + '" data-caption="' + esc(f.floor + ' ' + p.caption) + '"><img src="' + esc(link(dir + 'thumb/' + p.file)) + '" alt="' + esc(f.floor + ' ' + p.caption) + '" loading="lazy" width="640" height="480"><span>' + esc(p.caption) + '</span></a>';
+          }).join('') + '</div>' : '') + '</section>';
+      }).join('');
   };
+
+  /* 사진 크게 보기: 사진 묶음(.photo-grid) 안의 a[data-full] 을 누르면 같은 묶음을 넘겨 가며 볼 수 있습니다 (← → 키, Esc 지원) */
+  var lbEl, lbItems = [], lbIndex = 0, lbOpener = null;
+  function lbBuild() {
+    lbEl = document.createElement('div');
+    lbEl.className = 'lightbox'; lbEl.setAttribute('role', 'dialog'); lbEl.setAttribute('aria-modal', 'true'); lbEl.setAttribute('aria-label', '사진 크게 보기');
+    lbEl.innerHTML = '<button type="button" class="lb-btn lb-close" aria-label="닫기">' + ico('close') + '</button>' +
+      '<button type="button" class="lb-btn lb-prev" aria-label="이전 사진">' + ico('prev') + '</button>' +
+      '<figure><img alt=""><figcaption></figcaption></figure>' +
+      '<button type="button" class="lb-btn lb-next" aria-label="다음 사진">' + ico('next') + '</button>';
+    document.body.appendChild(lbEl);
+    lbEl.addEventListener('click', function (e) {
+      if (e.target.closest('.lb-close') || e.target === lbEl) lbClose();
+      else if (e.target.closest('.lb-prev')) lbShow(lbIndex - 1);
+      else if (e.target.closest('.lb-next')) lbShow(lbIndex + 1);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!lbEl.classList.contains('is-open')) return;
+      if (e.key === 'Escape') lbClose(); else if (e.key === 'ArrowLeft') lbShow(lbIndex - 1); else if (e.key === 'ArrowRight') lbShow(lbIndex + 1);
+    });
+  }
+  function lbShow(i) {
+    if (!lbItems.length) return;
+    lbIndex = (i + lbItems.length) % lbItems.length;
+    var a = lbItems[lbIndex];
+    $('img', lbEl).src = a.getAttribute('data-full'); $('img', lbEl).alt = a.getAttribute('data-caption') || '';
+    $('figcaption', lbEl).textContent = (a.getAttribute('data-caption') || '') + '  ·  ' + (lbIndex + 1) + ' / ' + lbItems.length;
+    var nx = new Image(); nx.src = lbItems[(lbIndex + 1) % lbItems.length].getAttribute('data-full');   // 다음 사진 미리 불러오기
+    var multi = lbItems.length > 1; $('.lb-prev', lbEl).style.display = multi ? '' : 'none'; $('.lb-next', lbEl).style.display = multi ? '' : 'none';
+  }
+  function lbOpen(items, i, opener) {
+    if (!lbEl) lbBuild();
+    lbItems = items; lbOpener = opener; lbEl.classList.add('is-open'); document.body.classList.add('menu-open'); lbShow(i); $('.lb-close', lbEl).focus();
+  }
+  function lbClose() { lbEl.classList.remove('is-open'); document.body.classList.remove('menu-open'); if (lbOpener) lbOpener.focus(); }
+  function setupLightbox() {
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('.photo-grid a[data-full]'); if (!a) return;
+      e.preventDefault();
+      var group = $$('a[data-full]', a.closest('.photo-grid'));
+      lbOpen(group, group.indexOf(a), a);
+    });
+  }
   R.faq = function (el) {
     var list = visible(D.faq);
     el.innerHTML = '<div class="faq">' + list.map(function (f) {
@@ -732,6 +788,7 @@
     if (!showSamples()) $$('[data-sample]').forEach(function (el) { el.classList.add('is-hidden'); });
     $$('[data-tokens]').forEach(function (el) { el.innerHTML = rich(el.innerHTML); });
     setupItemShare();
+    setupLightbox();
     revealTarget();
     window.addEventListener('hashchange', revealTarget);
     document.documentElement.classList.add('is-ready');
