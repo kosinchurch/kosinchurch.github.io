@@ -8,11 +8,19 @@
    ========================================================================== */
 window.KOSIN = window.KOSIN || {};
 
+/* 선교지마다 두 갈래의 페이지가 있습니다.
+   - 선교 : title · summary · intro      → 메뉴 "네팔 선교", "필리핀 선교"
+   - 공사 : constructionTitle · constructionSummary · constructionIntro → 메뉴 "네팔 공사", "필리핀 선교센터 공사"
+   - 소식 한 건 한 건은 기본이 "선교" 쪽입니다. "공사" 쪽에 나오게 하려면 type: 'construction' 을 적으세요.
+     예) { title: '...', date: '2026-11-17', type: 'construction' } */
 KOSIN.missionFields = [
   {
     id: 'nepal', name: '네팔', title: '네팔 선교',
     summary: '네팔의 교회와 학교, 우물 사역 소식을 전합니다.',
     intro: '',   // [입력 필요] 네팔 선교 소개
+    constructionTitle: '네팔 공사',
+    constructionSummary: '네팔 교회와 학교, 우물 공사 소식을 전합니다.',
+    constructionIntro: '',   // [입력 필요] 네팔 공사 소개
     reports: [
       { title: '선교보고 - 파티가운 교회', date: '2026-04-06' },
       { title: '선교보고 - 쿠르콧 교회 & 우물', date: '2026-04-06' },
@@ -22,13 +30,16 @@ KOSIN.missionFields = [
   },
   {
     id: 'philippines', name: '필리핀', title: '필리핀 선교',
-    summary: '마닐라 선교센터 건축 진행 상황과 단기선교 소식을 전합니다.',
+    summary: '필리핀 선교와 단기선교 소식을 전합니다.',
     intro: '',   // [입력 필요] 필리핀 선교 소개
+    constructionTitle: '필리핀 선교센터 공사',
+    constructionSummary: '마닐라 선교센터 공사 진행 상황을 전합니다.',
+    constructionIntro: '',   // [입력 필요] 필리핀 선교센터 공사 소개
     reports: [
-      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-11-17' },
-      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-11-04' },
-      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-10-27' },
-      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-10-24' }
+      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-11-17', type: 'construction' },
+      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-11-04', type: 'construction' },
+      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-10-27', type: 'construction' },
+      { title: '마닐라 선교센터 공사 진행 상황', date: '2026-10-24', type: 'construction' }
     ]
   }
 ];
