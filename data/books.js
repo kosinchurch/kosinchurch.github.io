@@ -25,7 +25,13 @@ KOSIN.books = [
     oneLine: '“예배의 강단에서 우리 주 예수 그리스도께서 증거되지 않으면 이단입니다.” (서문 중에서)',
     intro: '', toc: [], endorsements: [],
     cover: 'assets/img/books/seonggyeong-seolgyohara-cover.jpg',
-    previews: [{ img: 'assets/img/books/seonggyeong-seolgyohara-preface.jpg', caption: '서문' }],
+    /* excerpt : "서문 중에서" 로 보여 줄 글. 빈 줄로 문단을 나눕니다. (목록 오른쪽과 상세 페이지에 궁서체로 나옵니다) */
+    excerpt: {
+      title: '서문 중에서',
+      text: '너희는 여호와의 책에서 찾아 읽어보라\n이것들 가운데서 빠진 것이 하나도 없고\n제 짝이 없는 것이 없으리니\n이는 여호와의 입이 이를 명령하셨고\n그의 영이 이것들을 모으셨음이라\n\n사34:16' +
+        '\n\nLook in the scroll of the LORD and read: None of these will be missing, not one will lack her mate. For it is his mouth that has given the order, and his Spirit will gather them together.' +
+        '\n\n예배의 강단에서\n우리 주 예수 그리스도께서 증거되지 않으면\n이단입니다.'
+    },
     buyLinks: [], inChurch: ''
   },
   {
@@ -35,20 +41,25 @@ KOSIN.books = [
     oneLine: '여호와의 찬송을 부르게 하소서 (이사야 43:21)',
     intro: '', toc: [], endorsements: [],
     cover: 'assets/img/books/gido-cover.jpg',
-    previews: [
-      { img: 'assets/img/books/gido-p01.jpg', caption: '서문 (4쪽)' },
-      { img: 'assets/img/books/gido-p02.jpg', caption: '5쪽' },
-      { img: 'assets/img/books/gido-p03.jpg', caption: '6쪽' },
-      { img: 'assets/img/books/gido-p04.jpg', caption: '13쪽' },
-      { img: 'assets/img/books/gido-p05.jpg', caption: '14쪽' },
-      { img: 'assets/img/books/gido-p06.jpg', caption: '15쪽' },
-      { img: 'assets/img/books/gido-p07.jpg', caption: '16쪽' },
-      { img: 'assets/img/books/gido-p08.jpg', caption: '17쪽' },
-      { img: 'assets/img/books/gido-p09.jpg', caption: '18쪽' },
-      { img: 'assets/img/books/gido-p10.jpg', caption: '19쪽' },
-      { img: 'assets/img/books/gido-p11.jpg', caption: '20쪽' },
-      { img: 'assets/img/books/gido-p12.jpg', caption: '21쪽' }
-    ],
+    /* ※ 서문 사진의 가장자리가 손가락에 가려진 부분(6쪽 오른쪽 끝 등)은 문맥으로 이어 적었습니다. 원문과 한 번 대조해 주세요. */
+    excerpt: {
+      title: '서문 중에서', compact: true,
+      text: '여호와의 찬송을 부르게 하소서! (이사야 43:21)' +
+        '\n\n하나님의 은혜와 평강이 사랑하는 우리 교회 성도 여러분의 삶에 늘 가득하기를 기도합니다.' +
+        '\n\n지난 2025년 한 해 동안 우리는 ‘여호와의 찬송을 부르게 하소서’라는 표어를 가슴에 품고 달려왔습니다. 찬송은 거저 주어지는 감정의 고백이 아닙니다. 우리의 메마른 삶의 자리에 하나님의 은혜가 강물처럼 흘러넘칠 때, 비로소 터져 나오는 영혼의 노래입니다.' +
+        '\n\n그 찬송의 깊은 샘을 파는 유일한 통로가 바로 ‘기도’였습니다. 기도는 연약한 우리가 전능하신 하나님을 대면하는 가장 거룩한 시간이며, 내 뜻을 꺾고 하나님의 일하심을 구하는 전폭적인 신뢰의 고백입니다. 우리가 눈물로 뿌린 기도의 씨앗들이 있었기에, 마침내 우리는 삶의 매 순간 여호와의 신실하셨던 은혜를 기억하며 찬송을 부를 수 있었습니다.' +
+        '\n\n목회자로서 늘 가슴 깊이 간직하는 소망은, 성도 여러분이 기도의 자리를 외롭게 지키지 않는 것입니다. 어떻게 기도해야 할지 몰라 마음이 무거울 때, 삶의 풍랑 속에서 기도의 언어를 잃어버렸을 때, 이 기도문 모음집이 여러분의 손을 잡아주는 따뜻한 동반자가 되기를 바라는 마음으로 이 책을 내어놓습니다.' +
+        '\n\n여기 한 자 한 자 적힌 고백은 어떤 개인의 뛰어난 문장이 아니라, 우리 교회가 함께 울고 웃으며 쌓아 올린 영적인 자산이자 호흡입니다.' +
+        '\n\n바라기는 이 기도문 모음집이 서재의 한쪽을 차지하는 것으로 그 역할을 다하지 않고 우리의 기도에 마중물이 되는 책이 되었으면 합니다.' +
+        '\n\n매일 아침 가정을 깨우는 가정예배 속에서, 삶의 무게로 지친 일터의 책상 위에서, 그리고 소그룹과 공동체가 함께 마음을 모으는 자리에서 이 기도문이 성도들의 입술을 통해 다시 살아나기를 믿음으로 바라봅니다.' +
+        '\n\n골방에서 홀로 읊조리던 나지막한 기도가 가정을 변화시키고, 일터를 거룩하게 하며, 나아가 우리 공동체 전체가 여호와의 위대한 행하심을 소리 높여 찬양하는 거대한 찬송의 물결로 이어지는 비전을 꿈꿉니다.' +
+        '\n\n더 나아가 이 기도문 모음집이 우리 교회의 울타리를 넘어, 우리가 속한 교단과 이 땅의 모든 교회에 기도의 불씨를 당기는 아름다운 마중물이 되기를 소망합니다.' +
+        '\n\n기도의 언어가 점점 메말라가는 이 시대 속에서, 하나님의 절대 주권을 인정하고 그분의 신실하심을 신뢰하는 우리 성도들의 순전한 고백들이 교단 안에서 바른 신앙의 이정표이자 본이 되는 기도의 표준이 되기를 바랍니다.' +
+        '\n\n한 공동체가 눈물과 무릎으로 통과하며 정제해 낸 이 거룩한 영적 유산이, 기도의 갈급함을 가진 수많은 교회를 깨우고 세우는 선한 영향력으로 쓰임 받기를 기대합니다.' +
+        '\n\n상황은 여전히 변하지 않은 것 같고 사방이 막막해 보일 때에도, 우리를 위해 묵묵히 일하고 계시는 전능하신 하나님을 바라보십시오. 이 책과 함께 기도할 때마다, 낙심이 변하여 소망이 되고, 눈물이 변하여 영광스러운 찬송이 되는 기적을 맛보시기를 주님의 이름으로 축복합니다.' +
+        '\n\n신실하게 우리의 기도를 들으시고, 마침내 우리 입술에 새 노래를 채우시는 여호와 하나님을 찬양합니다.' +
+        '\n\n여러분을 위해 늘 기도하고 또 기도하는\n고신교회 김경헌 담임목사'
+    },
     buyLinks: [], inChurch: ''
   }
 ];
