@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 도메인을 연결한 뒤, 아래 https://www.kosinchurch.com 이 실제 도메인과 같은지 확인하세요. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.kosinchurch.com/</loc></url>
+  <url><loc>https://www.kosinchurch.com/about/greeting.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/about/vision.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/about/history.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/about/people.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/about/facilities.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/about/location.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/worship/guide.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/worship/sermons.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/worship/meditation.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/worship/wednesday.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/worship/choir.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/books/index.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/next-generation/index.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/mission/index.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/mission/support.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/news/index.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/news/bulletin.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/news/events.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/news/album.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/newcomer/index.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/contact/index.html</loc></url>
+  <url><loc>https://www.kosinchurch.com/privacy.html</loc></url>
+</urlset>

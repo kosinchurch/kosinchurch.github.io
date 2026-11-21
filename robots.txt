@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 도메인을 연결한 뒤 아래 주소가 실제 도메인과 같은지 확인하세요.
+Sitemap: https://www.kosinchurch.com/sitemap.xml
