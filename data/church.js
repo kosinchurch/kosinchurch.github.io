@@ -56,8 +56,8 @@ KOSIN.menu = [
   { label: '다음세대·모임', url: 'next-generation/index.html', auto: 'departments' },
   /* 선교: 메뉴에는 "네팔 선교", "필리핀 선교" 두 칸만 나옵니다.
      그 페이지에 들어가면 아래 줄(sub)에 그 나라의 "선교 / 공사" 두 갈래가 나타납니다.
-     (선교 비전·선교 후원 안내 페이지는 메뉴 맨 위 "선교"를 누르거나 각 페이지의 버튼으로 갑니다.) */
-  { label: '선교', url: 'mission/index.html', children: [
+     (선교 비전·선교 후원 안내 페이지는 메뉴 맨 위 "선교현황"을 누르거나 각 페이지의 버튼으로 갑니다.) */
+  { label: '선교현황', url: 'mission/index.html', children: [
     { label: '네팔 선교', url: 'mission/field.html?id=nepal&type=mission', sub: [
       { label: '네팔 선교', url: 'mission/field.html?id=nepal&type=mission' },
       { label: '네팔 공사', url: 'mission/field.html?id=nepal&type=construction' }
