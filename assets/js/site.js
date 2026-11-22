@@ -26,9 +26,9 @@
   function link(p) { return /^(https?:|tel:|mailto:|#)/.test(p) ? p : ROOT + p; }
   function telHref(n) { return 'tel:' + String(n || '').replace(/[^0-9+]/g, ''); }
   function qs(name) { return new URLSearchParams(location.search).get(name); }
-  function fmtDate(d) {
-    var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-    return m ? m[1] + '.' + m[2] + '.' + m[3] : (d || '');
+  function fmtDate(d) {   // 2026-11-17 → 2026.11.17 / 2026-03 → 2026.03 / 2025 → 2025 (날짜를 정확히 모를 때는 연·월만 적어도 됩니다)
+    var m = String(d || '').match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/);
+    return m ? m[1] + '.' + m[2] + (m[3] ? '.' + m[3] : '') : (d || '');
   }
   function byDateDesc(a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }
   function showSamples() { return !(D.config && D.config.showSamples === false); }
@@ -746,11 +746,51 @@
       return '<div class="mission-card-wrap"><a class="mission-card" href="' + esc(link(path)) + '"><span class="badge">' + esc(f.name) + '</span><h3>' + esc(title) + '</h3><p>' + esc(f.summary || '') + '</p>' + meta + '</a>' + share + '</div>';
     }).join('') + '</div>';
   };
+  /* 메인 "선교 소식": 선교지 안내 그림(data/missions.js 의 missionVisionImages)을 슬라이드로 넘겨 봅니다.
+     그림에 href 가 있으면 눌렀을 때 홈페이지 안의 관련 선교 글로 이동합니다. 5초마다 자동으로 넘어가고, 마우스를 올리거나 만지면 멈춥니다. */
+  R['mission-slider'] = function (el) {
+    var list = (D.missionVisionImages || []).filter(function (x) { return x && x.img; });
+    if (!list.length) { var sec = el.closest('section'); if (sec) sec.classList.add('is-hidden'); return; }
+    var arrow = function (d) { return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="' + (d < 0 ? 'm15 6-6 6 6 6' : 'm9 6 6 6-6 6') + '"/></svg>'; };
+    el.innerHTML = '<div class="msl" role="region" aria-roledescription="carousel" aria-label="선교지 소개 슬라이드">' +
+      '<div class="msl-track" tabindex="0">' + list.map(function (x, i) {
+        var cap = esc(x.caption || ''), inner = '<span class="msl-img"><img src="' + esc(link(x.img)) + '" alt="' + cap + '" loading="' + (i < 2 ? 'eager' : 'lazy') + '" width="940" height="540"></span><span class="msl-cap"><b>' + cap + '</b>' + (x.href ? '<em>관련 소식 보기 &rarr;</em>' : '') + '</span>';
+        return x.href ? '<a class="msl-slide" href="' + esc(link(x.href)) + '" aria-label="' + cap + ' 관련 소식 보기">' + inner + '</a>' : '<div class="msl-slide">' + inner + '</div>';
+      }).join('') + '</div>' +
+      '<button type="button" class="msl-btn msl-prev" aria-label="이전 슬라이드">' + arrow(-1) + '</button>' +
+      '<button type="button" class="msl-btn msl-next" aria-label="다음 슬라이드">' + arrow(1) + '</button>' +
+      '<div class="msl-dots" role="group" aria-label="슬라이드 선택">' + list.map(function (x, i) { return '<button type="button" class="msl-dot" data-i="' + i + '" aria-label="' + (i + 1) + '번째 슬라이드"></button>'; }).join('') + '</div></div>';
+    var root = $('.msl', el), track = $('.msl-track', el), slides = $$('.msl-slide', el), dots = $$('.msl-dot', el);
+    function stepW() { var a = slides[0], b = slides[1]; return b ? b.offsetLeft - a.offsetLeft : a.offsetWidth; }
+    function cur() { var w = stepW(); return w ? Math.round(track.scrollLeft / w) : 0; }
+    function paint() { var i = cur(); dots.forEach(function (d, k) { d.classList.toggle('is-on', k === i); }); }
+    function next() { if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 4) track.scrollTo({ left: 0, behavior: 'smooth' }); else track.scrollBy({ left: stepW(), behavior: 'smooth' }); }
+    function prev() { if (track.scrollLeft <= 4) track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' }); else track.scrollBy({ left: -stepW(), behavior: 'smooth' }); }
+    $('.msl-next', el).addEventListener('click', next);
+    $('.msl-prev', el).addEventListener('click', prev);
+    dots.forEach(function (d) { d.addEventListener('click', function () { track.scrollTo({ left: (+d.getAttribute('data-i')) * stepW(), behavior: 'smooth' }); }); });
+    track.addEventListener('scroll', function () { window.requestAnimationFrame(paint); }, { passive: true });
+    track.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { e.preventDefault(); next(); } else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); } });
+    window.addEventListener('resize', paint);
+    paint();
+    var paused = false, reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce && slides.length > 1) {
+      setInterval(function () {
+        if (paused || document.hidden) return;
+        var r = root.getBoundingClientRect(); if (r.bottom < 0 || r.top > window.innerHeight) return;   // 화면에 보일 때만 자동으로 넘깁니다
+        next();
+      }, 5000);
+      ['mouseenter', 'focusin', 'touchstart'].forEach(function (ev) { root.addEventListener(ev, function () { paused = true; }, { passive: true }); });
+      ['mouseleave', 'focusout'].forEach(function (ev) { root.addEventListener(ev, function () { paused = false; }); });
+      root.addEventListener('touchend', function () { setTimeout(function () { paused = false; }, 6000); }, { passive: true });
+    }
+  };
   R['mission-field'] = function (el) {
     var id = qs('id') || 'nepal', f = (D.missionFields || []).filter(function (x) { return x.id === id; })[0];
     if (!f) { notFound(el, '요청하신 선교지를 찾을 수 없습니다.', 'mission/index.html', '선교 첫 페이지로'); return; }
     /* type=mission (○○ 선교) / type=construction (○○ 공사). 소식 한 건 한 건에 type: 'construction' 을 적으면 공사 쪽에 나옵니다. */
-    var type = qs('type') === 'construction' ? 'construction' : 'mission', build = type === 'construction';
+    var hasBuild = !!f.constructionTitle;   // 공사 갈래가 있는 선교지만 (예: 필리핀 선교센터 공사). 네팔·감비아는 선교 갈래만 있습니다.
+    var type = qs('type') === 'construction' && hasBuild ? 'construction' : 'mission', build = type === 'construction';
     var missionTitle = f.title || f.name + ' 선교', buildTitle = f.constructionTitle || f.name + ' 공사';
     var pageTitle = build ? buildTitle : missionTitle;
     document.title = pageTitle + ' | 선교현황 | ' + church().name;
@@ -763,7 +803,7 @@
     var intro = build ? f.constructionIntro : f.intro;
     el.innerHTML = (intro ? '<div class="prose">' + rich(intro) + '</div>' : placeholder(pageTitle + ' 소개글을 입력하세요. (data/missions.js 의 ' + (build ? 'constructionIntro' : 'intro') + ')')) +
       '<h2 style="margin-top:48px">' + (build ? '공사 소식' : '선교보고') + '</h2><div class="reports"></div>' +
-      '<div class="btn-row" style="margin-top:32px"><a class="btn btn--outline" href="' + esc(link(fieldPath(f, build ? 'mission' : 'construction'))) + '">' + esc(build ? missionTitle : buildTitle) + ' 보기</a>' +
+      '<div class="btn-row" style="margin-top:32px">' + (hasBuild ? '<a class="btn btn--outline" href="' + esc(link(fieldPath(f, build ? 'mission' : 'construction'))) + '">' + esc(build ? missionTitle : buildTitle) + ' 보기</a>' : '') +
       (other ? '<a class="btn btn--outline" href="' + esc(link(fieldPath(other, 'mission'))) + '">' + esc(other.name) + ' 선교 보기</a>' : '') +
       '<a class="btn btn--primary" href="' + esc(link('mission/support.html')) + '">' + ico('heart') + ' 선교 후원 안내</a></div>';
     mountList($('.reports', el), reports, postRow, { tag: 'ul', wrapClass: 'post-list', pageSize: 10, empty: build ? '등록된 공사 소식이 없습니다.' : '등록된 선교보고가 없습니다.' });
@@ -870,6 +910,46 @@
     lbItems = items; lbOpener = opener; lbEl.classList.add('is-open'); document.body.classList.add('menu-open'); lbShow(i); $('.lb-close', lbEl).focus();
   }
   function lbClose() { lbEl.classList.remove('is-open'); document.body.classList.remove('menu-open'); if (lbOpener) lbOpener.focus(); }
+  /* ---- 영상 재생창 ----
+     설교·3분 묵상·쇼츠·행사 영상처럼 유튜브 주소(watch?v=… / shorts/…)로 걸린 링크를 누르면, 유튜브로 넘어가지 않고
+     이 페이지 위에서 바로 재생합니다. 재생창 안의 "유튜브에서 보기" 버튼으로 유튜브에서 열 수 있습니다.
+     (Ctrl·⌘·Shift 를 누른 채 클릭하거나 가운데 버튼으로 누르면 평소처럼 새 탭에서 유튜브가 열립니다.) */
+  function setupVideoModal() {
+    var box = document.createElement('div');
+    box.className = 'vm'; box.hidden = true; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', '영상 재생');
+    box.innerHTML = '<div class="vm__panel"><button type="button" class="vm__close" aria-label="닫기">' + ico('close') + '</button>' +
+      '<div class="vm__frame"></div><div class="vm__bar"><span class="vm__title"></span><a class="btn btn--light btn--sm vm__yt" target="_blank" rel="noopener">유튜브에서 보기</a></div></div>';
+    document.body.appendChild(box);
+    var frame = $('.vm__frame', box), titleEl = $('.vm__title', box), ytBtn = $('.vm__yt', box), opener = null;
+    function open(id, title, isShort, trigger) {
+      opener = trigger || null;
+      document.dispatchEvent(new CustomEvent('kosin:video-open'));   // 찬양 플레이어가 켜져 있으면 소리가 겹치지 않게 끕니다
+      box.classList.toggle('is-short', !!isShort);
+      frame.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&playsinline=1" title="' + esc(title || '영상') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+      titleEl.textContent = title || '';
+      ytBtn.href = (isShort ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(id);
+      box.hidden = false; document.documentElement.classList.add('vm-open');
+      $('.vm__close', box).focus();
+    }
+    function close() {
+      if (box.hidden) return;
+      box.hidden = true; frame.innerHTML = ''; document.documentElement.classList.remove('vm-open');
+      if (opener && opener.focus) { try { opener.focus(); } catch (e) {} }
+    }
+    box.addEventListener('click', function (e) { if (e.target === box || e.target.closest('.vm__close')) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a || a.closest('.vm')) return;
+      var m = (a.getAttribute('href') || '').match(/^https?:\/\/(?:www\.)?youtube\.com\/(watch\?v=|shorts\/)([A-Za-z0-9_-]{11})/);
+      if (!m) return;
+      e.preventDefault();
+      var t = a.querySelector('h3, strong, .short-card__title, .post-title') || a.querySelector('span');
+      var title = t ? t.textContent.trim() : (a.getAttribute('aria-label') || '').replace(/\s*(영상 보기|·).*$/, '');
+      open(m[2], title, m[1] === 'shorts/', a);
+    });
+  }
   function setupLightbox() {
     document.addEventListener('click', function (e) {
       var a = e.target.closest('.photo-grid a[data-full]'); if (!a) return;
@@ -1081,6 +1161,7 @@
     tg.addEventListener('click', function () { setMore(more.hidden); });
     btns.forEach(function (b) { b.addEventListener('click', function () { cur = +b.getAttribute('data-i'); load(); setMore(false); }); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) setOpen(false); });
+    document.addEventListener('kosin:video-open', function () { if (isOpen) setOpen(false); });   // 설교 등 영상을 재생하면 찬양은 꺼서 소리가 겹치지 않게 합니다
     /* 홈에 들어오면 팝업처럼 자동으로 한 번 띄웁니다 (같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않음) */
     var skipToday = false, seen = false;
     try { skipToday = localStorage.getItem('kosin-music-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-music-seen') === '1'; } catch (e) {}
@@ -1099,7 +1180,7 @@
     (D.missionFields || []).forEach(function (f) {
       (f.reports || []).forEach(function (r) {
         var rid = reportId(r), ty = fieldType(r), path = reportPath(f, rid, ty), build = ty === 'construction';
-        D.missionReports.push(Object.assign({}, r, { id: rid, category: f.name, link: path, sharePath: path, shareTitle: (build ? (f.constructionTitle || f.name + ' 공사') : f.name + ' 선교') + ' · ' + r.title, shareText: (build ? f.name + ' 공사 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) }));
+        D.missionReports.push(Object.assign({}, r, { id: rid, category: build ? f.name + ' 공사' : f.name, link: path, sharePath: path, shareTitle: (build ? (f.constructionTitle || f.name + ' 공사') : f.name + ' 선교') + ' · ' + r.title, shareText: (build ? f.name + ' 공사 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) }));
       });
     });
     renderHeader();
@@ -1115,6 +1196,7 @@
     setupItemShare();
     setupEventMore();
     setupLightbox();
+    setupVideoModal();
     revealTarget();
     window.addEventListener('hashchange', revealTarget);
     document.documentElement.classList.add('is-ready');
