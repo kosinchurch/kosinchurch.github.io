@@ -37,7 +37,7 @@ KOSIN.church = {
   heroLead: '사랑하는 당신의 방문을 환영합니다. 기쁨과 기도, 감사로 함께 예배하는 고신교회입니다.'
 };
 
-/* 상단 메뉴 (대분류 8개). '다음세대·모임' 아래 메뉴는 departments.js 에서 자동으로 만들어집니다. */
+/* 상단 메뉴 (대분류 8개). '교회학교' 아래 메뉴는 departments.js 에서 자동으로 만들어집니다. */
 KOSIN.menu = [
   { label: '교회소개', url: 'about/greeting.html', children: [
     { label: '인사말', url: 'about/greeting.html' },
@@ -53,7 +53,7 @@ KOSIN.menu = [
     { label: '3분 묵상', url: 'worship/meditation.html' },
     { label: '수요성경공부', url: 'worship/wednesday.html' }
   ] },
-  { label: '다음세대·모임', url: 'next-generation/index.html', auto: 'departments' },
+  { label: '교회학교', url: 'next-generation/index.html', auto: 'departments' },
   /* 선교: 메뉴에는 "네팔 선교", "필리핀 선교" 두 칸만 나옵니다.
      그 페이지에 들어가면 아래 줄(sub)에 그 나라의 "선교 / 공사" 두 갈래가 나타납니다.
      (선교 비전·선교 후원 안내 페이지는 메뉴 맨 위 "선교현황"을 누르거나 각 페이지의 버튼으로 갑니다.) */
