@@ -62,20 +62,41 @@
     </div>
   </section>
 
-  <!-- 5) 담임목사 저서 -->
-  <section class="section section--beige" id="books">
+  <!-- 5) BOOKS: 왼쪽 담임목사 저서, 오른쪽 교회출판도서 (책은 data/books.js 에서 추가) -->
+  <section class="section section--beige books-section" id="books">
     <div class="container">
-      <div class="section-head">
-        <div><span class="eyebrow">BOOKS</span><h2>김경헌 담임목사 저서</h2></div>
-        <div style="display:flex;align-items:center;gap:16px">
-          <div class="slider-btns">
-            <button type="button" class="slider-btn" data-slide="-1" aria-label="이전 책"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
-            <button type="button" class="slider-btn" data-slide="1" aria-label="다음 책"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+      <header class="books-head">
+        <h2>Books</h2>
+        <p>김경헌 담임목사의 저서와 고신교회가 펴낸 책을 소개합니다.</p>
+      </header>
+      <div class="shelf-split">
+        <article class="shelf-panel">
+          <div class="shelf-head">
+            <div><span class="shelf-kicker">PASTOR&rsquo;S BOOKS</span><h3>담임목사 저서</h3></div>
+            <div class="shelf-tools">
+              <div class="slider-btns">
+                <button type="button" class="slider-btn" data-slide="-1" aria-label="이전 책"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+                <button type="button" class="slider-btn" data-slide="1" aria-label="다음 책"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+              </div>
+              <a class="more-link" href="books/index.html">전체보기 &rarr;</a>
+            </div>
           </div>
-          <a class="more-link" href="books/index.html">저서 전체보기 &rarr;</a>
-        </div>
+          <div class="shelf-slider" data-render="book-slider" data-kind="pastor"></div>
+        </article>
+        <article class="shelf-panel">
+          <div class="shelf-head">
+            <div><span class="shelf-kicker">CHURCH PUBLICATIONS</span><h3>교회출판도서</h3></div>
+            <div class="shelf-tools">
+              <div class="slider-btns">
+                <button type="button" class="slider-btn" data-slide="-1" aria-label="이전 책"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+                <button type="button" class="slider-btn" data-slide="1" aria-label="다음 책"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+              </div>
+              <a class="more-link" href="books/church.html">전체보기 &rarr;</a>
+            </div>
+          </div>
+          <div class="shelf-slider" data-render="book-slider" data-kind="church"></div>
+        </article>
       </div>
-      <div class="book-slider" data-render="book-slider"></div>
     </div>
   </section>
 
