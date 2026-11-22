@@ -123,11 +123,7 @@ KOSIN.events = [
   { id: 'e-2024-summer-youth', title: '중고등부 화명&고신 여름수련회', date: '2024', category: '교회행사', videos: ['ZMIverK4nYY'] },
   { id: 'e-2024-summer-bible-school', title: '유초등부 여름성경학교', date: '2024', category: '교회행사', videos: ['VqYH9mOJkN8'] },
   { id: 'e-2024-02-18', title: '중고등부/대학청년부 제주도 수련회', date: '2024-02-18', category: '교회행사', videos: ['po0azV6DPRs'] },
-  { id: 'e-2023-02-16', title: '중고대청 연합수련회', date: '2023-02-16', category: '교회행사', videos: ['vMAn6cN_eKA'] },
-  /* ---- 선교행사: 글 한 건 한 건은 "선교현황 > 네팔 선교 / 필리핀 선교" 에 있고, 이 목록에서 누르면 그 글로 이동합니다 ---- */
-  { id: 'e-2026-09-07', title: '2026 KPC 신학세미나 및 반석교회 교육관 헌당식', date: '2026-09-07', category: '선교행사', link: 'mission/field.html?id=philippines&type=mission#pm-174027591' },
-  { id: 'e-2026-08-22', title: '네팔 3차 교회 헌당식 및 우물기증식 (부산서부노회 남부시찰 동행)', date: '2026-08-22', category: '선교행사', link: 'mission/field.html?id=nepal&type=mission#nv-173322154' },
-  { id: 'e-2026-08-02', title: '필리핀 단기선교 (8월 2~8일, 늘푸른교회와 함께)', date: '2026-08-02', category: '선교행사', link: 'mission/field.html?id=philippines&type=mission#pm-173125561' },
-  { id: 'e-2026-07-19', title: '필리핀 민다나오 선교 (7월 19~24일)', date: '2026-07-19', category: '선교행사', link: 'mission/field.html?id=philippines&type=mission#pm-172747061' }
+  { id: 'e-2023-02-16', title: '중고대청 연합수련회', date: '2023-02-16', category: '교회행사', videos: ['vMAn6cN_eKA'] }
+  /* 선교 사진·영상(네팔·필리핀)은 이 목록이 아니라 data/missions.js 의 선교지별 reports 에 올립니다. */
 ];
 

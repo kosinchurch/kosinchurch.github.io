@@ -61,8 +61,7 @@ KOSIN.menu = [
     { label: '선교 게시판', url: 'mission/board.html' },
     { label: '네팔 선교', url: 'mission/field.html?id=nepal&type=mission' },
     { label: '필리핀 선교', url: 'mission/field.html?id=philippines&type=mission' },
-    { label: '필리핀 선교센터 공사', url: 'mission/field.html?id=philippines&type=construction' },
-    { label: '선교 행사', url: 'mission/events.html' }
+    { label: '필리핀 선교센터 공사', url: 'mission/field.html?id=philippines&type=construction' }
   ] },
   { label: '책 소개', url: 'books/index.html', children: [
     { label: '담임목사 저서', url: 'books/index.html' },
@@ -73,7 +72,7 @@ KOSIN.menu = [
     { label: '주보', url: 'news/bulletin.html' }
   ] },
   /* 교회 앨범: 교회 행사 글에 사진·영상을 올립니다 (data/news.js 의 events, category '교회행사').
-     선교 행사(category '선교행사')는 "선교현황 > 선교 행사"(mission/events.html)에 올라갑니다. */
+     선교 사진·영상은 "선교현황 > 네팔 선교 / 필리핀 선교"(data/missions.js)에 올립니다. */
   { label: '교회 앨범', url: 'news/events.html' },
   { label: '새가족 안내', url: 'newcomer/index.html', children: [
     { label: '처음 오셨나요', url: 'newcomer/index.html' },
