@@ -534,8 +534,14 @@
       : '<span class="btn btn--light" aria-disabled="true">주보 준비 중</span>';
     var viewer = b && b.file ? '<div class="bl-viewer" hidden><div class="bl-track" tabindex="0" role="group" aria-label="주보 미리보기 (좌우로 넘겨 보세요)"></div>' +
       '<div class="bl-ctl"><button type="button" class="bl-btn" data-bl="-1" aria-label="이전 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="bl-count" aria-live="polite"></span><button type="button" class="bl-btn" data-bl="1" aria-label="다음 쪽"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div></div>' : '';
-    el.innerHTML = '<div class="bulletin-card"><span class="eyebrow">이번 주 주보</span><h3>' + esc(b ? b.title : '주보') + '</h3><p>' + (b ? fmtDate(b.date) : '') + '</p>' + viewer + btn +
-      '<p style="margin:16px 0 0"><a href="' + esc(link('news/bulletin.html')) + '" style="color:#fff;text-decoration:underline">지난 주보 보기</a></p></div>';
+    if (el.getAttribute('data-variant') === 'wide') {   // 메인: 이번 주 주보만 넓게 (지난 주보는 "주보 더보기"에서)
+      el.innerHTML = '<div class="bulletin-card bulletin-card--wide"><div class="bc-info"><span class="eyebrow">이번 주 주보</span><h3>' + esc(b ? b.title : '주보') + '</h3><p>' + (b ? fmtDate(b.date) : '') + '</p>' +
+        '<div class="bc-actions">' + btn + '<a class="btn btn--ghost-light" href="' + esc(link('news/bulletin.html')) + '">지난 주보 더보기 &rarr;</a></div></div>' +
+        (viewer ? '<div class="bc-view">' + viewer + '</div>' : '') + '</div>';
+    } else {
+      el.innerHTML = '<div class="bulletin-card"><span class="eyebrow">이번 주 주보</span><h3>' + esc(b ? b.title : '주보') + '</h3><p>' + (b ? fmtDate(b.date) : '') + '</p>' + viewer + btn +
+        '<p style="margin:16px 0 0"><a href="' + esc(link('news/bulletin.html')) + '" style="color:#fff;text-decoration:underline">지난 주보 보기</a></p></div>';
+    }
     if (viewer) setupBulletinPreview($('.bl-viewer', el), link(b.file), b.title);
   };
 
