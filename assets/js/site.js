@@ -289,7 +289,7 @@
   function fieldType(r) { return r && r.type === 'construction' ? 'construction' : 'mission'; }
   function fieldPath(f, type) { return 'mission/field.html?id=' + encodeURIComponent(f.id) + '&type=' + (type === 'construction' ? 'construction' : 'mission'); }
   function reportPath(f, id, type) { return fieldPath(f, type) + '#' + id; }
-  function eventPage(x) { return x && x.category === '선교행사' ? 'news/mission-events.html' : 'news/events.html'; }
+  function eventPage(x) { return x && x.category === '선교행사' ? 'mission/events.html' : 'news/events.html'; }
   function shareBtn(x, extraClass) {
     if (!x.sharePath) return '';
     return '<button type="button" class="row-share' + (extraClass ? ' ' + extraClass : '') + '" data-share-item data-title="' + esc(x.shareTitle || x.title) + '" data-text="' + esc(x.shareText || '') + '" data-path="' + esc(x.sharePath) + '" aria-label="' + esc(x.title) + ' 카카오톡으로 공유">' + ico('chat') + '<span>카카오톡 공유</span></button>';
@@ -298,7 +298,7 @@
     if (src !== 'events') return items;
     return items.map(function (x) {
       if (x.category !== '선교행사' || !x.id) return x;
-      return Object.assign({}, x, { sharePath: 'news/mission-events.html#' + x.id, shareTitle: x.title, shareText: '선교행사 · ' + fmtDate(x.date) });
+      return Object.assign({}, x, { sharePath: 'mission/events.html#' + x.id, shareTitle: x.title, shareText: '선교행사 · ' + fmtDate(x.date) });
     });
   }
   /* ---- 행사 글의 사진·영상 ----
@@ -967,7 +967,7 @@
     while (!el && guard++ < 30 && (more = $('.load-more button'))) { more.click(); el = document.getElementById(id); }   // "더 보기" 뒤에 숨어 있으면 펼침
     if (!el) {   // 예전 주소(news/events.html#선교행사id)로 들어왔으면 선교 행사 페이지로 보내 줍니다
       var ev = (D.events || []).filter(function (x) { return x.id === id; })[0];
-      if (ev && /events\.html$/.test(location.pathname) && !/mission-events\.html$/.test(location.pathname) && eventPage(ev) !== 'news/events.html') { location.replace(link(eventPage(ev)) + location.hash); }
+      if (ev && /news\/events\.html$/.test(location.pathname) && eventPage(ev) !== 'news/events.html') { location.replace(link(eventPage(ev)) + location.hash); }
       return;
     }
     if (!el.matches('.post-list > li')) return;
