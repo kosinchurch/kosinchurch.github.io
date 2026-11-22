@@ -62,7 +62,36 @@
     </div>
   </section>
 
-  <!-- 5) BOOKS: 왼쪽 담임목사 저서, 오른쪽 교회출판도서 (책은 data/books.js 에서 추가) -->
+  <!-- 5) 교회 소식 + 주보 -->
+  <section class="section section--soft" id="news">
+    <div class="container">
+      <div class="section-head">
+        <div><span class="eyebrow">NEWS</span><h2>교회 소식</h2></div>
+        <a class="more-link" href="news/bulletin.html">주보 더보기 &rarr;</a>
+      </div>
+      <div class="news-wrap">
+        <!-- 왼쪽: 최근 주보 목록 (PDF), 오른쪽: 이번 주 주보 미리보기 -->
+        <div data-render="bulletin-list" data-limit="5"></div>
+        <div data-render="bulletin-card"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6) 선교 소식 -->
+  <section class="section" id="mission">
+    <div class="container">
+      <div class="section-head">
+        <div><span class="eyebrow">MISSION</span><h2>선교 소식</h2></div>
+        <a class="more-link" href="mission/index.html">선교 전체보기 &rarr;</a>
+      </div>
+      <div data-render="mission-cards" data-variant="latest"></div>
+      <div class="btn-row" style="margin-top:28px">
+        <a class="btn btn--primary" href="mission/support.html">선교 후원 안내</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7) BOOKS: 왼쪽 담임목사 저서, 오른쪽 교회출판도서 (책은 data/books.js 에서 추가) -->
   <section class="section section--beige books-section" id="books">
     <div class="container">
       <header class="books-head">
@@ -100,43 +129,14 @@
     </div>
   </section>
 
-  <!-- 6) 교회 소식 + 주보 -->
-  <section class="section section--soft" id="news">
-    <div class="container">
-      <div class="section-head">
-        <div><span class="eyebrow">NEWS</span><h2>교회 소식</h2></div>
-        <a class="more-link" href="news/bulletin.html">주보 더보기 &rarr;</a>
-      </div>
-      <div class="news-wrap">
-        <!-- 왼쪽: 최근 주보 목록 (PDF), 오른쪽: 이번 주 주보 미리보기 -->
-        <div data-render="bulletin-list" data-limit="5"></div>
-        <div data-render="bulletin-card"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 7) 다음세대와 모임 -->
-  <section class="section" id="next">
+  <!-- 8) 다음세대와 모임 -->
+  <section class="section section--soft" id="next">
     <div class="container">
       <div class="section-head">
         <div><span class="eyebrow">NEXT GENERATION</span><h2>다음세대와 모임</h2></div>
         <a class="more-link" href="next-generation/index.html">전체 보기 &rarr;</a>
       </div>
       <div data-render="dept-grid"></div>
-    </div>
-  </section>
-
-  <!-- 8) 선교 -->
-  <section class="section section--soft" id="mission">
-    <div class="container">
-      <div class="section-head">
-        <div><span class="eyebrow">MISSION</span><h2>선교 소식</h2></div>
-        <a class="more-link" href="mission/index.html">선교 전체보기 &rarr;</a>
-      </div>
-      <div data-render="mission-cards" data-variant="latest"></div>
-      <div class="btn-row" style="margin-top:28px">
-        <a class="btn btn--primary" href="mission/support.html">선교 후원 안내</a>
-      </div>
     </div>
   </section>
 
