@@ -204,6 +204,33 @@ a.mini-row:hover { background: var(--c-bg-soft); text-decoration: none; }
 .album-col .gallery { grid-template-columns: repeat(2, 1fr); }
 .album-col .empty { min-height: 180px; display: grid; place-items: center; }
 @media (max-width: 900px) { .album-split { grid-template-columns: minmax(0, 1fr); gap: 36px; } }
+/* 메인 선교 소식 슬라이드 (선교지 안내 그림 8장, 그림을 누르면 관련 글로 이동) */
+.msl { position: relative; }
+.msl-track { position: relative; display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 4px 2px 12px; }
+.msl-track::-webkit-scrollbar { display: none; }
+.msl-track:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+.msl-slide { flex: 0 0 calc((100% - 20px) / 2); scroll-snap-align: start; display: block; text-decoration: none !important; color: inherit; border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid #eadde2; box-shadow: 0 6px 20px rgba(60, 10, 30, .08); transition: transform .25s, box-shadow .25s; }
+a.msl-slide:hover, a.msl-slide:focus-visible { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(60, 10, 30, .16); }
+.msl-img { display: block; aspect-ratio: 940 / 540; background: #f4eef0; }
+.msl-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.msl-cap { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px 14px; border-top: 1px solid #f0e6ea; }
+.msl-cap b { font-weight: 700; }
+.msl-cap em { font-style: normal; font-weight: 700; color: var(--c-primary); font-size: .92rem; white-space: nowrap; }
+.msl-btn { position: absolute; top: calc(50% - 44px); width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--c-gold); background: rgba(255, 255, 255, .96); color: var(--c-primary); display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); cursor: pointer; z-index: 2; }
+.msl-btn:hover { background: var(--c-primary); color: #fff; }
+.msl-btn .ico { width: 20px; height: 20px; }
+.msl-prev { left: -14px; } .msl-next { right: -14px; }
+.msl-dots { display: flex; justify-content: center; gap: 8px; margin-top: 4px; }
+.msl-dot { width: 9px; height: 9px; border-radius: 6px; border: 0; background: #d9c9cf; padding: 0; cursor: pointer; transition: width .2s, background .2s; }
+.msl-dot.is-on { width: 24px; background: var(--c-primary); }
+.mission-more { margin-top: 22px; text-align: center; }
+@media (max-width: 768px) {
+  .msl-slide { flex-basis: 100%; }
+  .msl-btn { width: 40px; height: 40px; top: calc(50% - 40px); }
+  .msl-prev { left: 6px; } .msl-next { right: 6px; }
+  .msl-cap { flex-wrap: wrap; gap: 4px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .msl-track { scroll-behavior: auto; } .msl-slide { transition: none; } }
 .gallery__item { text-decoration: none !important; }
 .gallery__item img { transition: transform .35s; }
 .gallery__item:hover img, .gallery__item:focus-visible img { transform: scale(1.05); }
@@ -617,6 +644,22 @@ summary.post-row::-webkit-details-marker { display: none; }
 .photo-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
 .photo-grid a:hover img, .photo-grid a:focus-visible img { transform: scale(1.05); }
 .photo-grid a span { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 14px 10px; color: #fff; font-size: .95rem; font-weight: 500; background: linear-gradient(180deg, rgba(42,8,20,0), rgba(42,8,20,.78)); }
+/* 영상 재생창: 설교·묵상·쇼츠·행사 영상을 유튜브로 넘어가지 않고 이 페이지에서 바로 재생 */
+.vm { position: fixed; inset: 0; z-index: 500; display: flex; align-items: center; justify-content: center; padding: 56px 16px 16px; background: rgba(20, 4, 10, .9); }
+.vm[hidden] { display: none; }
+.vm__panel { position: relative; width: min(960px, 100%); display: grid; gap: 12px; }
+.vm__frame { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.vm__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vm.is-short .vm__panel { width: min(400px, 100%, calc((100vh - 170px) * 9 / 16)); }
+.vm.is-short .vm__frame { aspect-ratio: 9 / 16; }
+.vm__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #fff; }
+.vm__title { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vm__yt { flex: none; }
+.vm__close { position: absolute; top: -48px; right: 0; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .18); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.vm__close:hover, .vm__close:focus-visible { background: rgba(255, 255, 255, .34); }
+.vm__close .ico { width: 22px; height: 22px; }
+html.vm-open { overflow: hidden; }
+@media (max-width: 768px) { .vm { padding: 52px 10px 12px; } .vm__bar { flex-wrap: wrap; } .vm__title { white-space: normal; } }
 .lightbox { position: fixed; inset: 0; z-index: 400; background: rgba(20,4,10,.95); display: none; align-items: center; justify-content: center; padding: 64px 70px 24px; }
 .lightbox.is-open { display: flex; }
 .lightbox figure { margin: 0; max-width: 1200px; max-height: 100%; display: grid; gap: 12px; justify-items: center; }
