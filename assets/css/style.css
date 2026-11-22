@@ -203,6 +203,11 @@ a.mini-row:hover { background: var(--c-bg-soft); text-decoration: none; }
 a.event-video:hover .card__play { transform: scale(1.1); background: var(--c-primary); }
 .post-body > :first-child { margin-top: 0; }
 .photo-grid a[hidden] { display: none; }
+/* 세로 보고서 그림(선교보고서 등): 잘라내지 않고 한 장씩 크게 */
+.photo-grid.doc-photos { grid-template-columns: repeat(auto-fill, minmax(260px, 520px)); gap: 16px; }
+.photo-grid.doc-photos a { aspect-ratio: auto; background: #fff; border: 1px solid var(--c-line); border-radius: 6px; }
+.photo-grid.doc-photos img { height: auto; object-fit: contain; display: block; }
+@media (max-width: 640px) { .photo-grid.doc-photos { grid-template-columns: minmax(0, 1fr); } }
 /* 선교 비전: 선교지 안내 그림 (2열, 모바일 1열) */
 .photo-grid.vision-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .photo-grid.vision-grid a { aspect-ratio: 940 / 540; border-radius: 6px; background: #eaf5fb; border: 1px solid var(--c-line); box-shadow: 0 6px 18px rgba(61, 13, 31, .08); }
