@@ -54,18 +54,14 @@ KOSIN.menu = [
     { label: '수요성경공부', url: 'worship/wednesday.html' }
   ] },
   { label: '교회학교', url: 'next-generation/index.html', auto: 'departments' },
-  /* 선교: 메뉴에는 "네팔 선교", "필리핀 선교" 두 칸만 나옵니다.
-     그 페이지에 들어가면 아래 줄(sub)에 그 나라의 "선교 / 공사" 두 갈래가 나타납니다.
-     (선교 비전·선교 후원 안내 페이지는 메뉴 맨 위 "선교현황"을 누르거나 각 페이지의 버튼으로 갑니다.) */
+  /* 선교현황: 어느 선교 페이지에 들어가도 아래 줄(하위 메뉴)에 같은 칸이 같은 순서로 보입니다.
+     "선교 게시판"(전체 글 모아보기)이 맨 왼쪽이고, 네팔은 공사 메뉴가 없습니다.
+     (선교현황 첫 페이지·선교 후원 안내 페이지는 메뉴 맨 위 "선교현황"을 누르거나 각 페이지의 버튼으로 갑니다.) */
   { label: '선교현황', url: 'mission/index.html', children: [
-    { label: '네팔 선교', url: 'mission/field.html?id=nepal&type=mission', sub: [
-      { label: '네팔 선교', url: 'mission/field.html?id=nepal&type=mission' },
-      { label: '네팔 공사', url: 'mission/field.html?id=nepal&type=construction' }
-    ] },
-    { label: '필리핀 선교', url: 'mission/field.html?id=philippines&type=mission', sub: [
-      { label: '필리핀 선교', url: 'mission/field.html?id=philippines&type=mission' },
-      { label: '필리핀 선교센터 공사', url: 'mission/field.html?id=philippines&type=construction' }
-    ] },
+    { label: '선교 게시판', url: 'mission/board.html' },
+    { label: '네팔 선교', url: 'mission/field.html?id=nepal&type=mission' },
+    { label: '필리핀 선교', url: 'mission/field.html?id=philippines&type=mission' },
+    { label: '필리핀 선교센터 공사', url: 'mission/field.html?id=philippines&type=construction' },
     { label: '선교 행사', url: 'mission/events.html' }
   ] },
   { label: '책 소개', url: 'books/index.html', children: [

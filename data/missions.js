@@ -18,12 +18,23 @@ KOSIN.missionFields = [
     id: 'nepal', name: '네팔', title: '네팔 선교',
     summary: '네팔의 교회와 학교, 우물 사역 소식을 전합니다.',
     intro: '',   // [입력 필요] 네팔 선교 소개
-    constructionTitle: '네팔 공사',
-    constructionSummary: '네팔 교회와 학교, 우물 공사 소식을 전합니다.',
-    constructionIntro: '',   // [입력 필요] 네팔 공사 소개
+    /* 네팔에는 "공사" 갈래가 없습니다 (메뉴에서 삭제함). 다시 만들려면 constructionTitle 을 적으세요. */
     /* 네팔 선교보고 (옛 홈페이지 게시판 11건, 2026-11-22 옮김). 날짜는 글 제목의 "(26.04.06 보고)" 기준입니다.
        layout: 'doc' = 세로 보고서 그림을 잘라내지 않고 그대로 보여 줍니다. photos 는 보고서 그림 파일입니다. */
     reports: [
+      /* ---- 옛 홈페이지 "선교" 사진·영상 게시판에서 2026-11 옮김 ----
+         사진 글은 layout: 'doc' (그림을 잘라내지 않고 그대로), 영상 글은 videos 에 유튜브 영상 ID 를 적습니다. */
+      { id: 'np-174027512', title: '2026 네팔 3차 선교 - 가댜울리교회, 툴로베시교회, 툴로베시교회 우물', date: '2026-09-12', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 3 },
+      { id: 'nv-173322154', title: '네팔 3차 교회 헌당식 및 우물기증식 (부산서부노회 남부시찰 동행)', date: '2026-08-22', videos: ['qBNap3KpyrQ'] },
+      { id: 'np-172652288', title: '2026 네팔 2차 탐방 - 우물 (멀시하우스, 비르콧, 챠인푸르, 쿠르콧)', date: '2026-07-25', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 1 },
+      { id: 'np-172652263', title: '2026 네팔 2차 탐방 - 쿠르콧교회', date: '2026-07-25', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 1 },
+      { id: 'np-172652256', title: '2026 네팔 2차 탐방 - 챠인푸르교회', date: '2026-07-25', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 1 },
+      { id: 'nv-172467629', title: '네팔 선교지 탐방 2차 (7월 7~12일)', date: '2026-07-07', videos: ['wxH0kFPNNzQ'] },
+      { id: 'np-172051589', title: '룸비니 나브지반학교', date: '2026-06-18', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 1 },
+      { id: 'np-172051596', title: '파티가운 교회', date: '2026-06-17', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 1 },
+      { id: 'nv-171918461', title: '네팔 선교지 탐방 1차 (6월 14~21일)', date: '2026-06-14', videos: ['q0L4Fl_LJ2g'] },
+      { id: 'np-170676108', title: '네팔 코이노니아', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/nepal', photos: 3 },
+      /* ---- 아래는 앞서 옮긴 "선교보고" 11건 ---- */
       { id: 'nepal-170732023', title: '선교보고 - 파티가운 교회', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170732023.jpg'] },
       { id: 'nepal-170732004', title: '선교보고 - 쿠르콧 교회 & 우물', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170732004.jpg'] },
       { id: 'nepal-170731973', title: '선교보고 - 룸비니학교', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170731973.jpg'] },
@@ -47,6 +58,26 @@ KOSIN.missionFields = [
     /* 필리핀 선교센터 공사 소식 (옛 홈페이지 게시판 34건, 2026-11-22 옮김). 날짜는 글 제목 앞 8자리(예: 20261117) 기준입니다.
        dir : 사진 폴더, photos : 사진 장수 → 폴더 안의 ph-날짜_001.jpg, _002.jpg … 를 보여 줍니다. */
     reports: [
+      /* ---- 선교 소식: 옛 홈페이지 "선교" 사진·영상 게시판에서 2026-11 옮김 (type 을 적지 않으면 "선교" 쪽) ---- */
+      { id: 'pm-174027591', title: '2026 KPC 신학세미나 및 반석교회 교육관 헌당식', date: '2026-09-07', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 2, videos: ['paS5iwVkzY8'] },
+      { id: 'pm-173125561', title: '필리핀 단기선교 (8월 2~8일, 늘푸른교회와 함께)', date: '2026-08-02', dir: 'assets/img/mission/philippines', photos: 8 },
+      { id: 'pm-172685570', title: '2026 필리핀 민다나오 VCUFC교회 헌당식 및 우물 봉헌식', date: '2026-07-27', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 2 },
+      { id: 'pm-172747061', title: '필리핀 민다나오 선교 (7월 19~24일)', date: '2026-07-19', videos: ['YzZKID_-z_8'] },
+      { id: 'pm-170798638', title: '샬롬교회 세례식 (2026년 2월 8일)', date: '2026-02-08', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 2 },
+      { id: 'pm-170690545', title: '샬롬교회 세례식 (2025년 12월 7~13일)', date: '2025-12-07', dir: 'assets/img/events',   // "교회 앨범 > 교회 행사"의 같은 사진을 그대로 씁니다
+        photos: Array.from({ length: 48 }, function (_, i) { return 'e-2025-12-07_' + ('00' + (i + 1)).slice(-3) + '.jpg'; }) },
+      { id: 'pm-170709461', title: '필리핀 신학세미나', date: '2025', videos: ['5Be0YF_-2Cw'] },
+      { id: 'pm-170708956', title: '필리핀 선교신학교 (2023년 10월 22일)', date: '2023-10-22', videos: ['BlMgmMdhnhQ'] },
+      { id: 'pm-170708990', title: '산마틴명희장로교회 헌당식 및 일로일로 연합예배', date: '2023-06-27', videos: ['6hL7I9SQYlQ'] },
+      { id: 'pm-170709016', title: '필리핀 연합예배 (2023년)', date: '2023', videos: ['KiGXB8xCwl4'] },
+      { id: 'pm-170708878', title: '필리핀 선교신학교 (2023년)', date: '2023', videos: ['ZAXdbCHKl7g'] },
+      { id: 'pm-170708908', title: '필리핀 선교신학교 및 헌당식', date: '2022-10-30', videos: ['FXTpAqh-A7c'] },
+      { id: 'gm-170676112', title: '감비아 이기준 선교사 선교 편지 (GPS-37호, 2026년 3월)', date: '2026-03', layout: 'doc', dir: 'assets/img/mission/gambia', photos: 3 },   // 감비아 소식은 "필리핀 선교"에 함께 둡니다
+      { id: 'pm-170676100', title: '필리핀 임마누엘미션 (민다나오)', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 12 },
+      { id: 'pm-170676097', title: '필리핀 임마누엘미션 (루존)', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 8 },
+      { id: 'pm-170676092', title: '필리핀 GMI 미션 (일로일로)', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 2 },
+      { id: 'pm-170676081', title: '필리핀 KPC 미션 (마닐라, 잠발레스)', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 13 },
+      /* ---- 선교센터 공사 소식 ---- */
       { id: 'ph-20261117', title: '마닐라 선교센터 공사 진행 상황', date: '2026-11-17', type: 'construction', dir: 'assets/img/mission/philippines', photos: 14,
         body: '<p>입구 마당쪽 작업이 깨내는 작업이 시간이 많이걸려서 오늘에야 한스판 바닥미장 마감했습니다.<br>펌프 배관공사가 생각보다 시간이 많이 걸리네요.<br>네스토목사님은 4층 천정 크랙가고 코너 처진곳 보강작업합니다.<br>전기는 메랄코에서 오면 연결할수있도록 준비는 다 해놨습니다.</p>' },
       { id: 'ph-20261104', title: '마닐라 선교센터 공사 진행 상황', date: '2026-11-04', type: 'construction', dir: 'assets/img/mission/philippines', photos: 17,
@@ -122,17 +153,20 @@ KOSIN.missionFields = [
 /* 선교 비전 소개글 (선교 첫 페이지에 표시) */
 KOSIN.missionVision = '';   // [입력 필요] 소개글을 쓰면 아래 선교지 안내 그림 위에 나옵니다
 
-/* 선교 비전 화면에 순서대로 보이는 선교지 안내 그림 (누르면 크게 보고 좌우로 넘길 수 있습니다)
+/* 선교지 안내 그림 8장.
+   - 선교 비전 화면(선교현황 첫 페이지)에 순서대로 보이고, 누르면 크게 보고 좌우로 넘길 수 있습니다.
+   - 메인 "선교 소식"에는 슬라이드로 나오며, href 가 있으면 그림을 눌렀을 때 그 주소(홈페이지 안의 관련 글)로 이동합니다.
+     (글 주소는 "mission/field.html?id=선교지&type=mission#글id" 형태이고, 글id 는 data/missions.js 의 각 보고 id 입니다.)
    그림을 바꾸려면 assets/img/mission/ 의 파일을 같은 이름으로 바꾸거나, 한 덩어리를 추가·삭제하세요. */
 KOSIN.missionVisionImages = [
-  { img: 'assets/img/mission/vision-1.png', caption: '선교지 · 필리핀 KPC센터' },
-  { img: 'assets/img/mission/vision-2.png', caption: '선교지 · 필리핀 GMI(일로일로)' },
-  { img: 'assets/img/mission/vision-3.png', caption: '임마누엘미션 · 필리핀 루존지역 (1)' },
-  { img: 'assets/img/mission/vision-4.png', caption: '임마누엘미션 · 필리핀 루존지역 (2)' },
-  { img: 'assets/img/mission/vision-5.png', caption: '선교지 · 네팔(코이노니아)' },
-  { img: 'assets/img/mission/vision-6.png', caption: '선교지 · 네팔' },
-  { img: 'assets/img/mission/vision-7.png', caption: '선교지 · 감비아' },
-  { img: 'assets/img/mission/vision-8.png', caption: '선교지 · 국내' }
+  { img: 'assets/img/mission/vision-1.png', caption: '선교지 · 필리핀 KPC센터', href: 'mission/field.html?id=philippines&type=mission#pm-170676081' },
+  { img: 'assets/img/mission/vision-2.png', caption: '선교지 · 필리핀 GMI(일로일로)', href: 'mission/field.html?id=philippines&type=mission#pm-170676092' },
+  { img: 'assets/img/mission/vision-3.png', caption: '임마누엘미션 · 필리핀 루존지역 (1)', href: 'mission/field.html?id=philippines&type=mission#pm-170676097' },
+  { img: 'assets/img/mission/vision-4.png', caption: '임마누엘미션 · 필리핀 루존지역 (2)', href: 'mission/field.html?id=philippines&type=mission#pm-170676097' },
+  { img: 'assets/img/mission/vision-5.png', caption: '선교지 · 네팔(코이노니아)', href: 'mission/field.html?id=nepal&type=mission#np-170676108' },
+  { img: 'assets/img/mission/vision-6.png', caption: '선교지 · 네팔', href: 'mission/field.html?id=nepal&type=mission' },
+  { img: 'assets/img/mission/vision-7.png', caption: '선교지 · 감비아', href: 'mission/field.html?id=philippines&type=mission#gm-170676112' },
+  { img: 'assets/img/mission/vision-8.png', caption: '선교지 · 국내', href: 'mission/board.html' }
 ];
 
 /* 선교 후원 안내 — 계좌 등은 교회 승인 후에만 입력하세요 (이 파일은 공개됩니다) */

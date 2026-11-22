@@ -73,7 +73,7 @@ KOSIN.bulletins = [
 /* ---------- 행사 (교회행사 + 선교행사)  category 는 '교회행사' 또는 '선교행사' ----------
    ※ 날짜는 기존 홈페이지에 표시된 행사일 또는 게시일입니다. 실제 날짜로 고쳐 주세요. */
 KOSIN.events = [
-  { id: 'e-2025-12-24', title: '성탄절 이웃나눔 및 전야제 행사', date: '2025-12-24', category: '교회행사', photos: 10 },
+  { id: 'e-2025-12-24', title: '성탄절 이웃나눔 및 전야제 행사', date: '2025-12-24', category: '교회행사', photos: 10, videos: ['4VMkltBq96w'] },
   { id: 'e-2025-12-07', title: '샬롬교회 세례식 (12월 7~13일)', date: '2025-12-07', category: '교회행사', photos: 48 },
   { id: 'e-2025-12-04', title: '어르신들 식사 (아임타이)', date: '2025-12-04', category: '교회행사', photos: 11 },
   { id: 'e-2025-12-03', title: '성탄 점등식 (복지재단)', date: '2025-12-03', category: '교회행사', photos: 4 },
@@ -83,8 +83,8 @@ KOSIN.events = [
   { id: 'e-2025-10-03', title: '선교바자회 (10월 3~4일)', date: '2025-10-03', category: '교회행사', photos: 55 },
   { id: 'e-2025-09-07', title: '목사님 생신', date: '2025-09-07', category: '교회행사', photos: 12 },
   { id: 'e-2025-08-23', title: '유초등 나들이', date: '2025-08-23', category: '교회행사', photos: 21 },
-  { id: 'e-2025-07-27', title: '중고등대 선교훈련 (7월 27일~8월 1일)', date: '2025-07-27', category: '교회행사', photos: 19 },
-  { id: 'e-2025-07-26', title: '유초등 여름성경학교', date: '2025-07-26', category: '교회행사', photos: 12 },
+  { id: 'e-2025-07-27', title: '중고등대 선교훈련 (7월 27일~8월 1일)', date: '2025-07-27', category: '교회행사', photos: 19, videos: ['-lgZfm1v7IM'] },
+  { id: 'e-2025-07-26', title: '유초등 여름성경학교', date: '2025-07-26', category: '교회행사', photos: 12, videos: ['TiuCYxBNteM'] },
   { id: 'e-2025-07-19', title: '복날 어버이 식사', date: '2025-07-19', category: '교회행사', photos: 4 },
   { id: 'e-2025-07-18', title: '대청 MT', date: '2025-07-18', category: '교회행사', photos: 22 },
   { id: 'e-2025-07-13', title: '김선례 집사 팔순 잔치', date: '2025-07-13', category: '교회행사', photos: 7 },
@@ -100,12 +100,35 @@ KOSIN.events = [
   { id: 'e-2025-04-20-2', title: '부활절 찬양대', date: '2025-04-20', category: '교회행사', photos: 2 },
   { id: 'e-2025-04-14', title: '고난주간 및 이웃나눔', date: '2025-04-14', category: '교회행사', photos: 9 },
   { id: 'e-2025-04-05', title: '식목일', date: '2025-04-05', category: '교회행사', photos: 9 },
-  { id: 'e-2026-10-04', title: '전교인 가을소풍', date: '2026-10-04', category: '교회행사' },
-  { id: 'e-2026-10-09', title: '네팔 구호를 위한 선교바자회 (10월 9~10일)', date: '2026-10-09', category: '교회행사' },
-  { id: 'e-2026-09-07', title: '2026 KPC 신학세미나 및 반석교회 교육관 헌당식', date: '2026-09-07', category: '선교행사' },
-  { id: 'e-2026-08-22', title: '네팔 3차 교회 헌당식 및 우물기증식 (부산서부노회 남부시찰 동행)', date: '2026-08-22', category: '선교행사' },
-  { id: 'e-2026-08-02', title: '필리핀 단기선교 (8월 2~8일, 늘푸른교회와 함께)', date: '2026-08-02', category: '선교행사' },
-  { id: 'e-2026-07-19', title: '필리핀 민다나오 선교 (7월 19~24일)', date: '2026-07-19', category: '선교행사' },
-  { id: 'e-2026-06-28', title: '강송자, 윤상홍 선교관 개관식', date: '2026-06-28', category: '교회행사' }
+  /* ---- 2026년 (옛 홈페이지 "교회행사" 게시판에서 2026-11 옮김) ----
+     videos : 유튜브 영상 ID (영상 썸네일을 누르면 유튜브에서 열림) / photos : 사진 장수 (assets/img/events/<id>_001.jpg …) */
+  { id: 'e-2026-10-09', title: '네팔 구호를 위한 선교바자회 (10월 9~10일)', date: '2026-10-09', category: '교회행사', videos: ['RjU42R8dIz4', 'hqn7XmvCG-k'] },
+  { id: 'e-2026-10-04', title: '전교인 가을소풍 (구덕꽃마을 공원)', date: '2026-10-04', category: '교회행사', videos: ['ccVevJk-yB8'] },
+  { id: 'e-2026-06-28', title: '강송자, 윤상홍 선교관 개관식', date: '2026-06-28', category: '교회행사', videos: ['ShcjJwNkLm4'] },
+  { id: 'e-2026-05-10', title: '어버이 은혜 감사', date: '2026-05-10', category: '교회행사', photos: 11,
+    body: '<p>하나님께서 주신 부모님의 은혜에 감사하며, 주일학교 어린이들의 찬양과 율동, 그리고 중고등부와 대학청년부의 정성 어린 편지와 선물로 온 교회가 따뜻한 섬김의 시간을 가졌습니다.<br>또한 어버이 은혜에 감사하여 담임목사님께 중고등부와 대학청년부에서 감사의 마음을 전하였으며, 오후에는 교사 및 중고등부, 대학청년부 전체가 함께 식탁의 교제를 나누며 풍성한 은혜를 누렸습니다.</p>' },
+  { id: 'e-2026-04-25', title: '제35회 부산서부노회 봄 어린이대회', date: '2026-04-25', category: '교회행사', photos: 15,
+    body: '<p>일시 : 2026년 4월 25일(토) 오전 9시, 동서대학교</p><p><b>그리기</b><br>우수상 - 조예림, 강예린, 김이레<br>우량상 - 김서겸<br>장려상 - 오아름, 김이서, 오바름</p><p><b>성경 암송</b><br>우량상 - 조예지, 김예준<br>장려상 - 다니엘</p>' },
+  { id: 'e-2026-04-05', title: '부활기념주일 및 지역 계란 나눔', date: '2026-04-05', category: '교회행사', photos: 10 },
+  { id: 'e-2026-03-02', title: '유럽 종교개혁 탐방 (3월 2~13일)', date: '2026-03-02', category: '교회행사', photos: 2, layout: 'doc',
+    body: '<p>프라하, 비엔나, 드레스덴, 베를린, 카를로비바리, 체스키크롬로프, 브루노</p>' },
+  { id: 'e-2026-kinder-winter-camp', title: '유치부 겨울캠프', date: '2026', category: '교회행사', videos: ['USOZyq9bT9E'] },
+  /* ---- 2025년 이전 영상 (같은 행사의 사진 글은 위에 이미 있어서, 영상만 해당 행사에 붙였습니다) ---- */
+  { id: 'e-2025-trip-elders', title: '당회원 필리핀 선교지 방문', date: '2025', category: '교회행사', videos: ['kfEG5-mvXnA'] },
+  { id: 'e-2025-winter-univ-mt', title: '대학청년부 겨울 MT', date: '2025', category: '교회행사', videos: ['IYSp8vLvsdo'] },
+  { id: 'e-2025-winter-camp', title: '주일학교 겨울캠프', date: '2025', category: '교회행사', videos: ['EnLGg2HaRko'] },
+  { id: 'e-2025-02-14', title: '권사수양회', date: '2025-02-14', category: '교회행사', videos: ['aF18j-PKAhM'] },
+  { id: 'e-2025-02-04', title: '고신교회/화명중앙교회 연합교역자수련회 및 우물기증식', date: '2025-02-04', category: '교회행사', videos: ['0OsI-Lh-krg'] },
+  { id: 'e-2024-10-28', title: '유초등부 수련회', date: '2024-10-28', category: '교회행사', videos: ['9OlwRqWr6zk'] },
+  { id: 'e-2024-08-14', title: '전교인 수련회', date: '2024-08-14', category: '교회행사', videos: ['R70ajRfDc9w'] },
+  { id: 'e-2024-summer-youth', title: '중고등부 화명&고신 여름수련회', date: '2024', category: '교회행사', videos: ['ZMIverK4nYY'] },
+  { id: 'e-2024-summer-bible-school', title: '유초등부 여름성경학교', date: '2024', category: '교회행사', videos: ['VqYH9mOJkN8'] },
+  { id: 'e-2024-02-18', title: '중고등부/대학청년부 제주도 수련회', date: '2024-02-18', category: '교회행사', videos: ['po0azV6DPRs'] },
+  { id: 'e-2023-02-16', title: '중고대청 연합수련회', date: '2023-02-16', category: '교회행사', videos: ['vMAn6cN_eKA'] },
+  /* ---- 선교행사: 글 한 건 한 건은 "선교현황 > 네팔 선교 / 필리핀 선교" 에 있고, 이 목록에서 누르면 그 글로 이동합니다 ---- */
+  { id: 'e-2026-09-07', title: '2026 KPC 신학세미나 및 반석교회 교육관 헌당식', date: '2026-09-07', category: '선교행사', link: 'mission/field.html?id=philippines&type=mission#pm-174027591' },
+  { id: 'e-2026-08-22', title: '네팔 3차 교회 헌당식 및 우물기증식 (부산서부노회 남부시찰 동행)', date: '2026-08-22', category: '선교행사', link: 'mission/field.html?id=nepal&type=mission#nv-173322154' },
+  { id: 'e-2026-08-02', title: '필리핀 단기선교 (8월 2~8일, 늘푸른교회와 함께)', date: '2026-08-02', category: '선교행사', link: 'mission/field.html?id=philippines&type=mission#pm-173125561' },
+  { id: 'e-2026-07-19', title: '필리핀 민다나오 선교 (7월 19~24일)', date: '2026-07-19', category: '선교행사', link: 'mission/field.html?id=philippines&type=mission#pm-172747061' }
 ];
 
