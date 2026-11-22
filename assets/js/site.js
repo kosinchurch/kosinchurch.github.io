@@ -408,6 +408,15 @@
     el.innerHTML = '<div class="slogan-big"><span class="eyebrow">' + esc(s.year || '') + ' 교회 표어</span><p>' + (s.lines || []).map(esc).join('<br>') + '</p></div>';
   };
   R['mission-vision'] = function (el) {
+    var imgs = (D.missionVisionImages || []).filter(function (x) { return x && x.img; });
+    if (imgs.length) {   // 선교지 안내 그림을 번호 순서대로 (소개글이 있으면 그 위에 글)
+      el.innerHTML = (D.missionVision ? '<div class="prose">' + rich(D.missionVision) + '</div>' : '') +
+        '<div class="photo-grid vision-grid">' + imgs.map(function (x, i) {
+          var src = esc(link(x.img)), cap = esc(x.caption || ('선교지 안내 ' + (i + 1)));
+          return '<a href="' + src + '" data-full="' + src + '" data-caption="' + cap + '" aria-label="' + cap + ' 크게 보기"><img src="' + src + '" alt="' + cap + '"' + (i > 1 ? ' loading="lazy"' : '') + '></a>';
+        }).join('') + '</div>';
+      return;
+    }
     el.innerHTML = D.missionVision ? '<div class="prose">' + rich(D.missionVision) + '</div>' : (placeholder('선교 비전 소개글을 입력하세요. (data/missions.js 의 missionVision)') || '<p class="lead">네팔과 필리핀에서 복음을 전하고 교회와 학교, 우물을 세우는 선교 사역을 함께합니다.</p>');
   };
 
@@ -1040,6 +1049,7 @@
           return '<li><button type="button" data-i="' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '><span class="mp-t">' + esc(t.title || '') + '</span><small>' + esc([t.channel, t.note].filter(Boolean).join(' · ')) + '</small></button></li>';
         }).join('') + '</ul>' +
         '<p class="mp-note">유튜브 영상으로 재생됩니다. 영상 주인이 광고를 켜 둔 곡은 처음에 광고가 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p>' +
+        '<button type="button" class="mp-skip">오늘 하루 자동으로 열지 않기</button>' +
       '</section></div>';
     var fab = $('.mp-fab', el), panel = $('.mp-panel', el), box = $('.mp-video', el), btns = $$('.mp-tracks button', el);
     function load() {   // 버튼을 누른 직후에만 불러오므로 소리 자동재생 제한에 걸리지 않습니다
@@ -1047,14 +1057,31 @@
       box.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + t.id + '?autoplay=1&rel=0&playsinline=1" title="' + esc(t.title || '찬양') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
       btns.forEach(function (b, i) { if (i === cur) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
     }
-    function setOpen(v) {
-      isOpen = v; panel.hidden = !v; fab.setAttribute('aria-expanded', v ? 'true' : 'false'); fab.classList.toggle('is-on', v);
-      if (v) load(); else box.innerHTML = '';
+    function poster() {   // 자동으로 뜰 때는 소리를 내지 않고 재생 버튼만 보여 줍니다 (브라우저가 자동 소리 재생을 막기 때문)
+      var t = tracks[cur];
+      box.innerHTML = '<button type="button" class="mp-poster" aria-label="' + esc((t.title || '찬양') + ' 재생') + '"><img src="https://i.ytimg.com/vi/' + t.id + '/hqdefault.jpg" alt="">' +
+        '<span class="mp-play"><i>' + ico('play') + '</i><b>찬양 들으며 시작하기</b></span></button>';
     }
+    function setOpen(v, popup) {
+      isOpen = v; panel.hidden = !v; fab.setAttribute('aria-expanded', v ? 'true' : 'false'); fab.classList.toggle('is-on', v); panel.classList.toggle('is-popup', !!(v && popup));
+      if (!v) box.innerHTML = ''; else if (popup) poster(); else load();
+    }
+    box.addEventListener('click', function (e) { if (e.target.closest('.mp-poster')) load(); });
     fab.addEventListener('click', function () { setOpen(!isOpen); });
     $('.mp-close', el).addEventListener('click', function () { setOpen(false); fab.focus(); });
+    $('.mp-skip', el).addEventListener('click', function () { try { localStorage.setItem('kosin-music-skip', new Date().toDateString()); } catch (e) {} setOpen(false); });
     btns.forEach(function (b) { b.addEventListener('click', function () { cur = +b.getAttribute('data-i'); load(); }); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) setOpen(false); });
+    /* 홈에 들어오면 팝업처럼 자동으로 한 번 띄웁니다 (같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않음) */
+    var skipToday = false, seen = false;
+    try { skipToday = localStorage.getItem('kosin-music-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-music-seen') === '1'; } catch (e) {}
+    if (m.autoOpen !== false && !skipToday && !seen) {
+      setTimeout(function () {
+        if (isOpen) return;
+        setOpen(true, true);
+        try { sessionStorage.setItem('kosin-music-seen', '1'); } catch (e) {}
+      }, 900);
+    }
   };
 
   /* ---------------------------------------------------------------- 시작 */
