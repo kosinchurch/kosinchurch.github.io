@@ -1045,11 +1045,11 @@
       '<section class="mp-panel" id="mp-panel" hidden aria-label="' + esc(m.label || '찬양 듣기') + '">' +
         '<header class="mp-head"><strong>' + esc(m.label || '찬양 듣기') + '</strong><button type="button" class="mp-close" aria-label="닫기 (음악이 꺼집니다)">&times;</button></header>' +
         '<div class="mp-video"></div>' +
-        '<ul class="mp-tracks">' + tracks.map(function (t, i) {
+        '<div class="mp-more" hidden><ul class="mp-tracks">' + tracks.map(function (t, i) {
           return '<li><button type="button" data-i="' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '><span class="mp-t">' + esc(t.title || '') + '</span><small>' + esc([t.channel, t.note].filter(Boolean).join(' · ')) + '</small></button></li>';
         }).join('') + '</ul>' +
-        '<p class="mp-note">유튜브 영상으로 재생됩니다. 영상 주인이 광고를 켜 둔 곡은 처음에 광고가 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p>' +
-        '<button type="button" class="mp-skip">오늘 하루 자동으로 열지 않기</button>' +
+        '<p class="mp-note">유튜브 영상으로 재생됩니다. 광고를 켜 둔 곡은 처음에 광고가 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p></div>' +
+        '<div class="mp-foot"><button type="button" class="mp-toggle" aria-expanded="false">곡 목록 &#9662;</button><button type="button" class="mp-skip">오늘 하루 열지 않기</button></div>' +
       '</section></div>';
     var fab = $('.mp-fab', el), panel = $('.mp-panel', el), box = $('.mp-video', el), btns = $$('.mp-tracks button', el);
     function load() {   // 버튼을 누른 직후에만 불러오므로 소리 자동재생 제한에 걸리지 않습니다
@@ -1070,7 +1070,10 @@
     fab.addEventListener('click', function () { setOpen(!isOpen); });
     $('.mp-close', el).addEventListener('click', function () { setOpen(false); fab.focus(); });
     $('.mp-skip', el).addEventListener('click', function () { try { localStorage.setItem('kosin-music-skip', new Date().toDateString()); } catch (e) {} setOpen(false); });
-    btns.forEach(function (b) { b.addEventListener('click', function () { cur = +b.getAttribute('data-i'); load(); }); });
+    var more = $('.mp-more', el), tg = $('.mp-toggle', el);   // 곡 목록·안내는 평소에 접어 두어 화면을 덜 가립니다
+    function setMore(v) { more.hidden = !v; tg.setAttribute('aria-expanded', v ? 'true' : 'false'); tg.innerHTML = v ? '곡 목록 &#9652;' : '곡 목록 &#9662;'; }
+    tg.addEventListener('click', function () { setMore(more.hidden); });
+    btns.forEach(function (b) { b.addEventListener('click', function () { cur = +b.getAttribute('data-i'); load(); setMore(false); }); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) setOpen(false); });
     /* 홈에 들어오면 팝업처럼 자동으로 한 번 띄웁니다 (같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않음) */
     var skipToday = false, seen = false;
