@@ -216,7 +216,7 @@
     add(D.events, '행사', function (x) { return eventPage(x) + (x.id ? '#' + x.id : ''); });
     add(D.books, '책 소개', function (b) { return 'books/detail.html?id=' + encodeURIComponent(b.id); });
     (D.missionFields || []).forEach(function (f) { (f.reports || []).forEach(function (r) { idx.push({ t: r.title + ' (' + f.name + ')', s: '선교보고 · ' + fmtDate(r.date), u: reportPath(f, reportId(r)) }); }); });
-    visible(D.departments).forEach(function (d) { idx.push({ t: d.name, s: '다음세대·모임', u: deptUrl(d) }); });
+    visible(D.departments).forEach(function (d) { idx.push({ t: d.name, s: '교회학교', u: deptUrl(d) }); });
     return idx;
   }
   function setupSearch() {
@@ -704,8 +704,8 @@
   R['dept-detail'] = function (el) {
     var id = qs('id'), list = visible(D.departments);
     var d = list.filter(function (x) { return x.id === id; })[0] || (id ? null : list[0]);
-    if (!d) { notFound(el, '요청하신 모임을 찾을 수 없습니다.', 'next-generation/index.html', '다음세대·모임 목록으로'); return; }
-    document.title = d.name + ' | 다음세대·모임 | ' + church().name;
+    if (!d) { notFound(el, '요청하신 모임을 찾을 수 없습니다.', 'next-generation/index.html', '교회학교 목록으로'); return; }
+    document.title = d.name + ' | 교회학교 | ' + church().name;
     setHero(d.name, '');
     var t = deptTimeObj(d), rows = [];
     if (deptTime(d)) rows.push(['모임 시간', deptTime(d)]);
@@ -1039,7 +1039,7 @@
         '<ul class="mp-tracks">' + tracks.map(function (t, i) {
           return '<li><button type="button" data-i="' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '><span class="mp-t">' + esc(t.title || '') + '</span><small>' + esc([t.channel, t.note].filter(Boolean).join(' · ')) + '</small></button></li>';
         }).join('') + '</ul>' +
-        '<p class="mp-note">유튜브 영상으로 재생됩니다. 영상 처음에 광고가 한 번 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p>' +
+        '<p class="mp-note">유튜브 영상으로 재생됩니다. 영상 주인이 광고를 켜 둔 곡은 처음에 광고가 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p>' +
       '</section></div>';
     var fab = $('.mp-fab', el), panel = $('.mp-panel', el), box = $('.mp-video', el), btns = $$('.mp-tracks button', el);
     function load() {   // 버튼을 누른 직후에만 불러오므로 소리 자동재생 제한에 걸리지 않습니다
