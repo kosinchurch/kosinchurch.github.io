@@ -10,7 +10,7 @@
 
   var ROOT = document.body.getAttribute('data-root') || './';
   var NAVREF = document.body.getAttribute('data-nav-url');   // 상세 페이지에서 "현재 메뉴"를 지정할 때 사용
-  var DATA_FILES = ['church', 'worship', 'sermons', 'news', 'missions', 'books', 'departments', 'about'];
+  var DATA_FILES = ['church', 'worship', 'sermons', 'news', 'missions', 'books', 'departments', 'about', 'music'];
   window.KOSIN = window.KOSIN || {};
   var D = window.KOSIN;
   var R = {};   // 화면을 그리는 함수 모음
@@ -1023,6 +1023,38 @@
         .catch(function () { say('전송에 실패했습니다. 잠시 후 다시 시도하시거나 전화(' + c.phone + ')로 문의해 주세요.', false); })
         .then(function () { btn.disabled = false; });
     });
+  };
+
+  /* 찬양 듣기: 왼쪽 아래 버튼을 눌러야 유튜브 영상이 재생됩니다 (data/music.js). 닫으면 음악도 꺼집니다. */
+  R['music-player'] = function (el) {
+    var m = D.music || {}, tracks = (m.tracks || []).filter(function (t) { return t && /^[\w-]{11}$/.test(t.id || ''); });
+    if (m.enabled === false || !tracks.length) { el.classList.add('is-hidden'); return; }
+    var cur = 0, isOpen = false;
+    var NOTE = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>';
+    el.innerHTML = '<div class="mp">' +
+      '<button type="button" class="mp-fab" aria-expanded="false" aria-controls="mp-panel">' + NOTE + '<span>찬양 듣기</span></button>' +
+      '<section class="mp-panel" id="mp-panel" hidden aria-label="' + esc(m.label || '찬양 듣기') + '">' +
+        '<header class="mp-head"><strong>' + esc(m.label || '찬양 듣기') + '</strong><button type="button" class="mp-close" aria-label="닫기 (음악이 꺼집니다)">&times;</button></header>' +
+        '<div class="mp-video"></div>' +
+        '<ul class="mp-tracks">' + tracks.map(function (t, i) {
+          return '<li><button type="button" data-i="' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '><span class="mp-t">' + esc(t.title || '') + '</span><small>' + esc([t.channel, t.note].filter(Boolean).join(' · ')) + '</small></button></li>';
+        }).join('') + '</ul>' +
+        '<p class="mp-note">유튜브 영상으로 재생됩니다. 영상 처음에 광고가 한 번 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p>' +
+      '</section></div>';
+    var fab = $('.mp-fab', el), panel = $('.mp-panel', el), box = $('.mp-video', el), btns = $$('.mp-tracks button', el);
+    function load() {   // 버튼을 누른 직후에만 불러오므로 소리 자동재생 제한에 걸리지 않습니다
+      var t = tracks[cur];
+      box.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + t.id + '?autoplay=1&rel=0&playsinline=1" title="' + esc(t.title || '찬양') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+      btns.forEach(function (b, i) { if (i === cur) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    }
+    function setOpen(v) {
+      isOpen = v; panel.hidden = !v; fab.setAttribute('aria-expanded', v ? 'true' : 'false'); fab.classList.toggle('is-on', v);
+      if (v) load(); else box.innerHTML = '';
+    }
+    fab.addEventListener('click', function () { setOpen(!isOpen); });
+    $('.mp-close', el).addEventListener('click', function () { setOpen(false); fab.focus(); });
+    btns.forEach(function (b) { b.addEventListener('click', function () { cur = +b.getAttribute('data-i'); load(); }); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) setOpen(false); });
   };
 
   /* ---------------------------------------------------------------- 시작 */
