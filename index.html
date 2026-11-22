@@ -69,11 +69,8 @@
         <div><span class="eyebrow">NEWS</span><h2>교회 소식</h2></div>
         <a class="more-link" href="news/bulletin.html">주보 더보기 &rarr;</a>
       </div>
-      <div class="news-wrap">
-        <!-- 왼쪽: 최근 주보 목록 (PDF), 오른쪽: 이번 주 주보 미리보기 -->
-        <div data-render="bulletin-list" data-limit="5"></div>
-        <div data-render="bulletin-card"></div>
-      </div>
+      <!-- 이번 주 주보만 보여 줍니다. 지난 주보는 "주보 더보기"(news/bulletin.html)에서 봅니다. -->
+      <div data-render="bulletin-card" data-variant="wide"></div>
     </div>
   </section>
 
