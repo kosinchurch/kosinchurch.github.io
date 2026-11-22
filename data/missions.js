@@ -45,7 +45,20 @@ KOSIN.missionFields = [
 ];
 
 /* 선교 비전 소개글 (선교 첫 페이지에 표시) */
-KOSIN.missionVision = '';   // [입력 필요]
+KOSIN.missionVision = '';   // [입력 필요] 소개글을 쓰면 아래 선교지 안내 그림 위에 나옵니다
+
+/* 선교 비전 화면에 순서대로 보이는 선교지 안내 그림 (누르면 크게 보고 좌우로 넘길 수 있습니다)
+   그림을 바꾸려면 assets/img/mission/ 의 파일을 같은 이름으로 바꾸거나, 한 덩어리를 추가·삭제하세요. */
+KOSIN.missionVisionImages = [
+  { img: 'assets/img/mission/vision-1.png', caption: '선교지 · 필리핀 KPC센터' },
+  { img: 'assets/img/mission/vision-2.png', caption: '선교지 · 필리핀 GMI(일로일로)' },
+  { img: 'assets/img/mission/vision-3.png', caption: '임마누엘미션 · 필리핀 루존지역 (1)' },
+  { img: 'assets/img/mission/vision-4.png', caption: '임마누엘미션 · 필리핀 루존지역 (2)' },
+  { img: 'assets/img/mission/vision-5.png', caption: '선교지 · 네팔(코이노니아)' },
+  { img: 'assets/img/mission/vision-6.png', caption: '선교지 · 네팔' },
+  { img: 'assets/img/mission/vision-7.png', caption: '선교지 · 감비아' },
+  { img: 'assets/img/mission/vision-8.png', caption: '선교지 · 국내' }
+];
 
 /* 선교 후원 안내 — 계좌 등은 교회 승인 후에만 입력하세요 (이 파일은 공개됩니다) */
 KOSIN.missionSupport = {
