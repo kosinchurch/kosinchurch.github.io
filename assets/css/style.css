@@ -110,8 +110,16 @@ body.menu-open { overflow: hidden; }
     linear-gradient(160deg, #6a0f2e, #3d0d1f);
   min-height: clamp(480px, 78vh, 700px); display: flex; align-items: center; padding: 72px 0 130px;
 }
-.hero::after { display: none; content: ""; position: absolute; right: 7%; top: 46%; width: min(34vw, 400px); aspect-ratio: 1; transform: translateY(-50%); opacity: .09; pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 6v88M22 34h56' stroke='white' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center / contain no-repeat; }
+/* 오른쪽의 희미한 그라데이션 십자가 (::after = 십자가, ::before = 은은한 빛 번짐) */
+.hero::before { content: ""; position: absolute; right: calc(9% - 120px); top: 44%; width: min(46vw, 640px); aspect-ratio: 1; transform: translateY(-50%); pointer-events: none;
+  background: radial-gradient(closest-side, rgba(243, 220, 171, .20), rgba(243, 220, 171, .07) 55%, rgba(243, 220, 171, 0) 100%); }
+.hero::after { content: ""; position: absolute; right: 9%; top: 44%; height: min(70%, 500px); aspect-ratio: 3 / 5; transform: translateY(-50%); pointer-events: none;
+  /* 가로 막대 + 세로 막대(위에서 아래로 옅어지는 그라데이션)를 겹친 뒤 흐리게 처리해서, 가장자리가 진하지 않고 번지듯 보이게 합니다 */
+  background:
+    linear-gradient(rgba(255, 255, 255, .34), rgba(255, 255, 255, .34)) 50% 29.5% / 87% 12% no-repeat,
+    linear-gradient(180deg, rgba(255, 255, 255, .46) 0%, rgba(243, 220, 171, .26) 55%, rgba(243, 220, 171, .04) 100%) 50% 50% / 20% 96% no-repeat;
+  filter: blur(3px); opacity: .6; }
+@media (max-width: 768px) { .hero::after { height: 260px; right: -14px; opacity: .32; } .hero::before { right: -150px; width: 420px; } }
 .hero .container { position: relative; z-index: 1; }
 .hero__label { display: inline-block; padding: 6px 16px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px; font-size: .95rem; margin-bottom: 20px; color: var(--c-gold-light); }
 .hero h1 { font-family: var(--f-serif); color: #fff; font-size: clamp(1.6rem, 5.6vw, 3.6rem); line-height: 1.3; margin-bottom: 20px; text-shadow: 0 2px 20px rgba(0,0,0,.25); }
