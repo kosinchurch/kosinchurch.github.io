@@ -21,11 +21,20 @@ KOSIN.missionFields = [
     constructionTitle: '네팔 공사',
     constructionSummary: '네팔 교회와 학교, 우물 공사 소식을 전합니다.',
     constructionIntro: '',   // [입력 필요] 네팔 공사 소개
+    /* 네팔 선교보고 (옛 홈페이지 게시판 11건, 2026-11-22 옮김). 날짜는 글 제목의 "(26.04.06 보고)" 기준입니다.
+       layout: 'doc' = 세로 보고서 그림을 잘라내지 않고 그대로 보여 줍니다. photos 는 보고서 그림 파일입니다. */
     reports: [
-      { title: '선교보고 - 파티가운 교회', date: '2026-04-06' },
-      { title: '선교보고 - 쿠르콧 교회 & 우물', date: '2026-04-06' },
-      { title: '선교보고 - 룸비니학교', date: '2026-04-06' },
-      { title: '선교보고 - 가댜울리 교회', date: '2026-04-06' }
+      { id: 'nepal-170732023', title: '선교보고 - 파티가운 교회', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170732023.jpg'] },
+      { id: 'nepal-170732004', title: '선교보고 - 쿠르콧 교회 & 우물', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170732004.jpg'] },
+      { id: 'nepal-170731973', title: '선교보고 - 룸비니학교', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170731973.jpg'] },
+      { id: 'nepal-170731947', title: '선교보고 - 가댜울리 교회', date: '2026-04-06', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170731947.jpg'] },
+      { id: 'nepal-170649556', title: '선교보고 - 비르콧 교회(우물)', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649556.jpg'] },
+      { id: 'nepal-170649551', title: '선교보고 - 바네파 교회(우물)', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649551.jpg'] },
+      { id: 'nepal-170649503', title: '선교보고 - 파티가운 교회', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649503.jpg'] },
+      { id: 'nepal-170649496', title: '선교보고 - 쿠르콧 교회', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649496.jpg'] },
+      { id: 'nepal-170649485', title: '선교보고 - 심파니 교회', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649485.jpg'] },
+      { id: 'nepal-170649465', title: '선교보고 - 비르타모드 교회', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649465.jpg'] },
+      { id: 'nepal-170649435', title: '선교보고 - 가댜울리 교회', date: '2026-04-01', layout: 'doc', photos: ['assets/img/mission/nepal/nepal-170649435.jpg'] }
     ]
   },
   {
