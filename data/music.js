@@ -11,9 +11,11 @@ window.KOSIN = window.KOSIN || {};
 KOSIN.music = {
   enabled: true,
   label: '잔잔한 CCM 찬양',
+  /* 위 두 곡은 확인한 시점(2026.11)에 광고가 붙어 있지 않은 영상이고, 세 번째 곡은 최신 CCM 연주지만 처음에 광고가 나올 수 있습니다.
+     영상 주인이 나중에 광고를 켜면 바뀔 수 있습니다. 순서를 바꾸고 싶으면 한 덩어리를 통째로 위·아래로 옮기세요. */
   tracks: [
-    { id: 'vZKtQp3EltM', title: '편안하게 듣기 좋은 잔잔한 찬양 피아노 연주곡 50곡', channel: '인지저스 InJesus', note: '2026.11 · 10시간 · 중간광고 없음' },
-    { id: 'a_qp_HOMpXU', title: '삶의 힘이 되는 잔잔한 찬양 피아노 연주 모음', channel: '인지저스 InJesus', note: '2026.10 · 10시간 · 중간광고 없음' },
-    { id: 'xYUJ0LjRpm0', title: '피아노로 듣는 찬송가', channel: '로엘뮤직 Roel Music', note: '2시간 44분 · 광고 없음' }
+    { id: 'xYUJ0LjRpm0', title: '피아노로 듣는 찬송가', channel: '로엘뮤직 Roel Music', note: '2시간 44분 · 광고 없음' },
+    { id: 'a62Qm-X-zs4', title: '기도가 잘 되는 새벽기도 음악 (어쿠스틱 기타 찬송가)', channel: '히솝워십 Hyssop Worship', note: '3시간 · 광고 없음' },
+    { id: 'vZKtQp3EltM', title: '편안하게 듣기 좋은 잔잔한 찬양 피아노 연주곡 50곡', channel: '인지저스 InJesus', note: '2026.11 최신 CCM · 처음에 광고가 나올 수 있음' }
   ]
 };
