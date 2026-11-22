@@ -81,10 +81,9 @@
         <div><span class="eyebrow">MISSION</span><h2>선교 소식</h2></div>
         <a class="more-link" href="mission/index.html">선교 전체보기 &rarr;</a>
       </div>
-      <div data-render="mission-cards" data-variant="latest"></div>
-      <div class="btn-row" style="margin-top:28px">
-        <a class="btn btn--primary" href="mission/support.html">선교 후원 안내</a>
-      </div>
+      <!-- 선교지 안내 그림 슬라이드 (그림·연결할 글은 data/missions.js 의 missionVisionImages 에서 바꿉니다) -->
+      <div data-render="mission-slider"></div>
+      <p class="mission-more"><a class="btn btn--primary" href="mission/board.html">더 많은 선교소식 &rarr;</a></p>
     </div>
   </section>
 
@@ -137,25 +136,14 @@
     </div>
   </section>
 
-  <!-- 9) 앨범: 왼쪽 교회 앨범(교회 행사 사진), 오른쪽 선교 앨범(선교 행사 사진). 사진은 data/news.js 의 events 에서 가져옵니다. -->
+  <!-- 9) 교회 앨범 (교회 행사 사진). 사진은 data/news.js 의 events(category '교회행사')에서 가져옵니다. 선교 행사 사진은 "선교현황 > 선교 행사"에 있습니다. -->
   <section class="section" id="album">
     <div class="container">
-      <div class="album-split">
-        <div class="album-col">
-          <div class="section-head">
-            <div><span class="eyebrow">ALBUM</span><h2>교회 앨범</h2></div>
-            <a class="more-link" href="news/events.html">더보기 &rarr;</a>
-          </div>
-          <div data-render="gallery" data-category="교회행사" data-limit="4" data-empty="교회 앨범 사진을 준비하고 있습니다."></div>
-        </div>
-        <div class="album-col">
-          <div class="section-head">
-            <div><span class="eyebrow">MISSION ALBUM</span><h2>선교 앨범</h2></div>
-            <a class="more-link" href="news/mission-events.html">더보기 &rarr;</a>
-          </div>
-          <div data-render="gallery" data-category="선교행사" data-limit="4" data-empty="선교 앨범 사진을 준비하고 있습니다."></div>
-        </div>
+      <div class="section-head">
+        <div><span class="eyebrow">ALBUM</span><h2>교회 앨범</h2></div>
+        <a class="more-link" href="news/events.html">더보기 &rarr;</a>
       </div>
+      <div data-render="gallery" data-category="교회행사" data-limit="6" data-empty="교회 앨범 사진을 준비하고 있습니다."></div>
     </div>
   </section>
 
