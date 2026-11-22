@@ -305,7 +305,7 @@
      photos : 12   → assets/img/events/ 폴더의 <행사id>_001.jpg ~ <행사id>_012.jpg 12장 (사진 수만 적으면 됩니다)
               또는 ['a.jpg', 'b.jpg'] 처럼 파일 이름을 직접 적어도 됩니다 (같은 폴더, 전체 경로도 가능)
      videos : ['유튜브영상ID', 'clip.mp4']  → 유튜브는 영상 ID, 짧은 mp4 파일은 같은 폴더에 올리고 파일 이름을 적습니다 */
-  function eventFile(x, f) { return /^(https?:|assets\/)/.test(f) ? f : 'assets/img/events/' + f; }
+  function eventFile(x, f) { return /^(https?:|assets\/)/.test(f) ? f : (x.dir || 'assets/img/events') + '/' + f; }   // dir: 사진 폴더를 따로 지정 (선교보고 등)
   function photoNames(x) {
     var p = x.photos;
     if (typeof p === 'number') { var a = []; for (var i = 1; i <= p; i++) a.push(x.id + '_' + ('00' + i).slice(-3) + '.jpg'); return a; }
@@ -321,7 +321,7 @@
     var ph = photoNames(x), vd = x.videos || [], html = '';
     if (vd.length) html += '<div class="event-videos">' + vd.map(function (v) { return videoItem(x, v); }).join('') + '</div>';
     if (ph.length) {
-      html += '<div class="photo-grid event-photos">' + ph.map(function (p, i) {
+      html += '<div class="photo-grid event-photos' + (x.layout === 'doc' ? ' doc-photos' : '') + '">' + ph.map(function (p, i) {   // layout: 'doc' = 세로 문서(보고서) 그림, 잘라내지 않고 그대로
         var f = link(eventFile(x, p));
         return '<a' + (i >= EV_FIRST ? ' hidden' : '') + ' href="' + esc(f) + '" data-full="' + esc(f) + '" data-caption="' + esc(x.title + ' (' + (i + 1) + '/' + ph.length + ')') + '"><img src="' + esc(f) + '" alt="' + esc(x.title + ' 사진 ' + (i + 1)) + '" loading="lazy"></a>';
       }).join('') + '</div>';
@@ -458,7 +458,7 @@
         (yt ? '<a class="more-link" href="' + esc(yt.replace(/\/+$/, '') + '/shorts') + '" target="_blank" rel="noopener">유튜브에서 더보기 &rarr;</a>' : '') + '</div></header>' +
         '<div class="shorts-track" tabindex="0" aria-label="쇼츠 목록">' + shorts.map(function (m) {
           var id = encodeURIComponent(m.youtube);
-          return '<a class="short-card" href="https://www.youtube.com/shorts/' + id + '" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/' + id + '/frame0.jpg" onerror="this.onerror=null;this.src=\'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg\'" alt="" loading="lazy"><span class="short-card__shade"></span><time>' + fmtDate(m.date) + '</time><span class="card__play" aria-hidden="true">' + ico('play') + '</span><span class="short-card__title">' + esc(m.title) + '</span></a>';
+          return '<a class="short-card" href="https://www.youtube.com/shorts/' + id + '" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/' + id + '/oardefault.jpg" onerror="this.onerror=function(){this.onerror=null;this.src=\'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg\'};this.src=\'https://i.ytimg.com/vi/' + id + '/frame0.jpg\'" alt="" loading="lazy"><span class="short-card__shade"></span><time>' + fmtDate(m.date) + '</time><span class="card__play" aria-hidden="true">' + ico('play') + '</span><span class="short-card__title">' + esc(m.title) + '</span></a>';
         }).join('') + '</div></section>';
     }
     el.innerHTML = '<div class="sermon-feature">' + video(s) + '<div class="sermon-info"><span class="badge badge--gold">' + esc(s.service || '주일 오전 공예배') + '</span><h3>' + esc(s.title) + '</h3>' +
