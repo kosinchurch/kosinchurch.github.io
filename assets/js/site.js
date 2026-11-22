@@ -591,14 +591,31 @@
 
   /* 책 한 권마다 kind: 'pastor'(담임목사 저서, 기본) 또는 'church'(교회출판도서) */
   function booksOf(kind) { return visible(D.books).filter(function (b) { return (b.kind || 'pastor') === kind; }).sort(byDateDesc); }
+  /* 메인 BOOKS 칸 한 권: 왼쪽 표지, 오른쪽 제목·글귀 */
+  function shelfItem(b) {
+    var meta = [b.publisher, b.date ? fmtDate(b.date) : ''].filter(Boolean).join(' · ');
+    return '<a class="shelf-item" href="' + esc(link('books/detail.html?id=' + encodeURIComponent(b.id))) + '">' + bookCover(b) +
+      '<div class="shelf-item__body">' + (meta ? '<p class="shelf-item__meta">' + esc(meta) + '</p>' : '') +
+      '<h4>' + esc(b.title) + '</h4>' + (b.subtitle ? '<p class="shelf-item__sub">' + esc(b.subtitle) + '</p>' : '') +
+      (b.oneLine ? '<p class="shelf-item__quote">' + esc(b.oneLine) + '</p>' : '') +
+      '<span class="more">자세히 보기 ' + ico('arrow') + '</span></div></a>';
+  }
+  /* data-kind="pastor" (담임목사 저서) / "church" (교회출판도서). 두 칸 모두 비어 있으면 BOOKS 구역 전체를 숨깁니다. */
   R['book-slider'] = function (el) {
-    var list = booksOf('pastor');
-    if (!list.length) { var sec = el.closest('section'); if (sec) sec.classList.add('is-hidden'); return; }   // 저서가 없으면 메인의 저서 구역 전체를 숨김
-    el.innerHTML = '<div class="book-track" tabindex="0" aria-label="담임목사 저서 목록">' + list.map(bookCard).join('') + '</div>';
-    var track = $('.book-track', el), btns = $('.slider-btns');
-    if (btns && track.scrollWidth <= track.clientWidth + 4) btns.classList.add('is-hidden');
-    $$('[data-slide]').forEach(function (b) {
-      b.addEventListener('click', function () { track.scrollBy({ left: (+b.getAttribute('data-slide')) * 264, behavior: 'smooth' }); });
+    var kind = el.getAttribute('data-kind') === 'church' ? 'church' : 'pastor', list = booksOf(kind);
+    var panel = el.closest('.shelf-panel') || el.parentNode, sec = el.closest('section');
+    var btns = $('.slider-btns', panel);
+    if (sec && !booksOf('pastor').length && !booksOf('church').length) { sec.classList.add('is-hidden'); return; }
+    if (!list.length) {
+      el.innerHTML = '<p class="empty shelf-empty">' + (kind === 'church' ? '교회출판도서를 준비하고 있습니다.' : '저서 정보를 준비하고 있습니다.') + '</p>';
+      if (btns) btns.classList.add('is-hidden');
+      return;
+    }
+    el.innerHTML = '<div class="shelf-track" tabindex="0" aria-label="' + (kind === 'church' ? '교회출판도서' : '담임목사 저서') + ' 목록">' + list.map(shelfItem).join('') + '</div>';
+    var track = $('.shelf-track', el);
+    if (btns && list.length < 2) btns.classList.add('is-hidden');
+    $$('[data-slide]', panel).forEach(function (b) {
+      b.addEventListener('click', function () { track.scrollBy({ left: (+b.getAttribute('data-slide')) * track.clientWidth, behavior: 'smooth' }); });
     });
   };
   /* "서문 중에서" 같은 글귀: 빈 줄 = 문단, 줄바꿈 = 그대로. (영문은 따로 작게, 사34:16 처럼 짧은 출처는 오른쪽으로) */
@@ -721,7 +738,7 @@
     var type = qs('type') === 'construction' ? 'construction' : 'mission', build = type === 'construction';
     var missionTitle = f.title || f.name + ' 선교', buildTitle = f.constructionTitle || f.name + ' 공사';
     var pageTitle = build ? buildTitle : missionTitle;
-    document.title = pageTitle + ' | 선교 | ' + church().name;
+    document.title = pageTitle + ' | 선교현황 | ' + church().name;
     setHero(pageTitle, (build ? f.constructionSummary : f.summary) || '');
     var other = (D.missionFields || []).filter(function (x) { return x.id !== f.id; })[0];
     var reports = (f.reports || []).filter(function (r) { return fieldType(r) === type; }).map(function (r) {
