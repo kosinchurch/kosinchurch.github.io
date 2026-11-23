@@ -1258,10 +1258,13 @@
     document.documentElement.classList.add('is-ready');
   }
 
+  /* 이 페이지가 site.js 를 "?v=버전" 으로 불러왔다면, 자료 파일(data/*.js)도 같은 버전으로 불러옵니다
+     (폰이 예전 자료 파일을 붙들고 있어도 HTML·CSS·JS 와 짝이 맞게 새로 받습니다) */
+  var VER = (/[?&]v=([\w.-]+)/.exec((document.currentScript && document.currentScript.src) || '') || [])[1] || '';
   var pending = DATA_FILES.length;
   DATA_FILES.forEach(function (f) {
     var s = document.createElement('script');
-    s.src = ROOT + 'data/' + f + '.js';
+    s.src = ROOT + 'data/' + f + '.js' + (VER ? '?v=' + VER : '');
     s.onload = s.onerror = function () { if (--pending === 0) init(); };
     document.head.appendChild(s);
   });
