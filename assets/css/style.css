@@ -102,15 +102,32 @@ body.menu-open { overflow: hidden; }
 /* ---------- 5. 히어로 · 메인 ---------- */
 .hero {
   position: relative; color: #fff; overflow: hidden;
+  /* 배경은 영상(.hero__media)이 채웁니다. 아래는 영상이 뜨기 전·재생이 막힌 기기에서 보이는 바탕색입니다 */
   background:
-    linear-gradient(90deg, rgba(42,8,20,.66) 0%, rgba(42,8,20,.32) 55%, rgba(42,8,20,.06) 100%),
-    linear-gradient(180deg, rgba(42,8,20,.10) 0%, rgba(42,8,20,.34) 100%),
-    url('../img/hero.jpg') center top / cover no-repeat,
     radial-gradient(900px 480px at 75% 10%, #b03a62 0%, rgba(176,58,98,0) 65%),
     linear-gradient(160deg, #6a0f2e, #3d0d1f);
   min-height: clamp(480px, 78vh, 700px); display: flex; align-items: center; padding: 72px 0 130px;
 }
-/* 오른쪽의 희미한 그라데이션 십자가 (::after = 십자가, ::before = 은은한 빛 번짐) */
+/* 대문 배경 영상: 맨 아래에 정지 화면(첫 장면)을 깔고, 영상이 재생되기 시작하면 부드럽게 겹쳐 보입니다 */
+.hero__media { position: absolute; inset: 0; z-index: 0; overflow: hidden;
+  background: #3d0d1f url('../img/hero-video-poster.jpg') center 42% / cover no-repeat; }
+.hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 42%; opacity: 0; transition: opacity .9s ease; }
+.hero__video.is-on { opacity: 1; }
+/* 영상 재생/일시정지 버튼 (움직임 줄이기 설정을 켠 분은 이 버튼으로 직접 재생합니다) */
+.hero__toggle { position: absolute; z-index: 3; right: 22px; bottom: 100px; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  color: #fff; background: rgba(42, 8, 20, .38); border: 1px solid rgba(255, 255, 255, .6); border-radius: 50%; cursor: pointer;
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); transition: background .2s, transform .2s; }
+.hero__toggle[hidden] { display: none; }
+.hero__toggle:hover { background: rgba(42, 8, 20, .62); transform: scale(1.06); }
+.hero__toggle:focus-visible { outline: 3px solid var(--c-gold-light); outline-offset: 2px; }
+.hero__toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+/* 글자가 잘 읽히도록 왼쪽·아래쪽을 버건디로 덮는 막 (영상 위, 글자 아래) */
+.hero__shade { position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(42,8,20,.80) 0%, rgba(42,8,20,.52) 48%, rgba(42,8,20,.14) 100%),
+    linear-gradient(180deg, rgba(42,8,20,.10) 0%, rgba(42,8,20,.42) 100%); }
+/* (예전 사진 위의 희미한 십자가 장식은 영상에서는 쓰지 않습니다. 되살리려면 아래 한 줄을 지우세요) */
+.hero::before, .hero::after { display: none; }
 .hero::before { content: ""; position: absolute; right: calc(9% - 120px); top: 44%; width: min(46vw, 640px); aspect-ratio: 1; transform: translateY(-50%); pointer-events: none;
   background: radial-gradient(closest-side, rgba(243, 220, 171, .20), rgba(243, 220, 171, .07) 55%, rgba(243, 220, 171, 0) 100%); }
 .hero::after { content: ""; position: absolute; right: 9%; top: 44%; height: min(70%, 500px); aspect-ratio: 3 / 5; transform: translateY(-50%); pointer-events: none;
@@ -121,10 +138,13 @@ body.menu-open { overflow: hidden; }
   filter: blur(3px); opacity: .6; }
 /* 모바일: 대문사진이 세로 화면에서 양옆이 잘리지 않도록 사진 전체를 맨 위에 보여 주고, 문구는 그 아래 버건디 바탕에 놓습니다.
    hero-m.jpg 는 원본 단체사진의 선명한 윗부분(1280x408)만 잘라 만든 것이라 아랫부분이 흐려지지 않고 경계가 또렷합니다. */
+/* 모바일: 영상(16:9) 전체를 맨 위에 꽉 차게 보여 주고, 문구와 버튼은 그 아래 버건디 바탕에 놓습니다 (영상의 양옆이 잘리지 않게) */
 @media (max-width: 768px) {
-  .hero { --hp: calc(100vw * 408 / 1280); min-height: 0; align-items: flex-start; padding-top: calc(var(--hp) + 28px);
-    background: url('../img/hero-m.jpg') center top / 100% auto no-repeat, #4a0f26; }
-  .hero::before, .hero::after { display: none; }
+  .hero { --hp: calc(100vw * 9 / 16); min-height: 0; align-items: flex-start; padding-top: calc(var(--hp) + 28px); background: #4a0f26; }
+  .hero__media { inset: 0 0 auto 0; height: var(--hp); }
+  .hero__video, .hero__media { object-position: center; background-position: center; }
+  .hero__shade { display: none; }
+  .hero__toggle { top: calc(var(--hp) - 52px); bottom: auto; right: 10px; width: 40px; height: 40px; }
 }
 .hero .container { position: relative; z-index: 1; }
 .hero__label { display: inline-block; padding: 6px 16px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px; font-size: .95rem; margin-bottom: 20px; color: var(--c-gold-light); }
