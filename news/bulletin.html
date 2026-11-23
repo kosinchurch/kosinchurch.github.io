@@ -15,15 +15,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/tokens.css?v=20261123b">
 <link rel="stylesheet" href="../assets/css/style.css?v=20261123b">
+<link rel="stylesheet" href="../assets/css/bulletin-search.css?v=20261123b">
 <script src="../assets/js/site.js?v=20261123b" defer></script>
+<script src="../assets/js/bulletin-search.js?v=20261123b" defer></script>
 </head>
 <body data-root="../">
 <div id="site-header"></div>
 <main id="main">
-  <div data-render="page-hero" data-title="주보" data-lead="이번 주 주보와 지난 주보를 내려받을 수 있습니다."></div>
+  <div data-render="page-hero" data-title="주보" data-lead="이번 주 주보와 지난 주보를 내려받고, 지난 사역과 일정을 검색할 수 있습니다."></div>
   <section class="section">
     <div class="container stack">
       <div style="max-width:520px" data-render="bulletin-card"></div>
+      <!-- 주보 검색: assets/js/bulletin-search.js 가 그립니다. 글자 색인은 assets/bulletins/index.json (새 주보를 올리면 다시 만듭니다) -->
+      <h2 style="margin-top:40px">주보 검색</h2>
+      <div id="bulletin-search" class="bs"></div>
       <h2 style="margin-top:40px">지난 주보</h2>
       <!-- 주보 PDF는 assets/bulletins 폴더에 올리고 data/news.js 에 한 줄 추가합니다 -->
       <div data-render="bulletin-list"></div>
