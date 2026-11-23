@@ -188,6 +188,7 @@
           '<p style="margin-top:12px"><a href="' + m.kakao + '" target="_blank" rel="noopener">카카오맵</a> · <a href="' + m.naver + '" target="_blank" rel="noopener">네이버지도</a> · <a href="' + m.google + '" target="_blank" rel="noopener">구글지도</a>' + (m.roadview ? ' · <a href="' + esc(m.roadview) + '" target="_blank" rel="noopener">로드뷰</a>' : '') + '</p></div>' +
         '<div><h3>바로가기</h3><ul class="footer-links">' + items.map(function (it) { return '<li><a href="' + esc(link(it.url)) + '">' + esc(it.label) + '</a></li>'; }).join('') + '</ul></div>' +
         '<div><h3>안내</h3><ul class="footer-links"><li><a href="' + esc(link('worship/guide.html')) + '">예배안내</a></li><li><a href="' + esc(link('about/location.html')) + '">오시는 길</a></li><li><a href="' + esc(link('contact/index.html')) + '">문의하기</a></li><li><a href="' + esc(link('privacy.html')) + '">개인정보처리방침</a></li>' +
+          (c.interpreter && c.interpreter.enabled !== false && /^https:\/\//.test(c.interpreter.url || '') ? '<li><a href="' + esc(c.interpreter.url) + '" target="_blank" rel="noopener">실시간 통역(라이브)</a></li>' : '') +
           (c.youtube ? '<li><a href="' + esc(c.youtube) + '" target="_blank" rel="noopener">유튜브 채널</a></li>' : '') + '</ul></div>' +
       '</div><div class="footer-bottom"><span>&copy; ' + new Date().getFullYear() + ' ' + esc(c.name) + '. All rights reserved.</span><span>' + esc(c.denomination || '') + ' ' + esc(c.name) + '</span></div></div></footer>' +
       '<nav class="bottom-bar" aria-label="빠른 메뉴"><a href="' + telHref(c.phone) + '">' + ico('phone') + '전화하기</a><a href="' + m.kakao + '" target="_blank" rel="noopener">' + ico('pin') + '길찾기</a><a href="' + esc(link('worship/guide.html')) + '">' + ico('clock') + '예배시간</a></nav>');
@@ -1223,10 +1224,67 @@
     if (m.autoOpen !== false && !skipToday && !seen) {
       setTimeout(function () {
         if (isOpen) return;
-        setOpen(true, true);
-        try { sessionStorage.setItem('kosin-music-seen', '1'); } catch (e) {}
+        function openIt() { if (isOpen) return; setOpen(true, true); try { sessionStorage.setItem('kosin-music-seen', '1'); } catch (e) {} }
+        // 실시간 통역 안내 팝업이 떠 있으면 두 팝업이 겹치지 않게, 그 팝업을 닫은 뒤에 찬양 팝업을 띄웁니다
+        if (D._noticeOpen) { document.addEventListener('kosin:notice-closed', function () { setTimeout(openIt, 350); }, { once: true }); return; }
+        openIt();
       }, 900);
     }
+  };
+
+  /* 실시간 통역 안내 팝업 (홈): 라이브 방송을 볼 때 AI 실시간 통역(Anna Live)을 쓰도록 안내합니다. (설정: data/church.js 의 interpreter)
+     같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않습니다. 팝업을 닫으면 찬양 듣기 팝업이 이어서 뜹니다. */
+  R['live-notice'] = function (el) {
+    var cfg = church().interpreter || {};
+    if (cfg.enabled === false || !/^https:\/\//.test(cfg.url || '')) return;
+    var ch = cfg.channel || '', skip = false, seen = false, prev = null;
+    try { skip = localStorage.getItem('kosin-live-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-live-seen') === '1'; } catch (e) {}
+    el.innerHTML = '<div class="ln" hidden role="dialog" aria-modal="true" aria-labelledby="ln-title"><div class="ln__panel">' +
+      '<button type="button" class="ln__x" aria-label="닫기">&times;</button>' +
+      '<div class="ln__top"><span class="ln__live"><i></i>LIVE</span><h2 id="ln-title">실시간 통역 안내</h2>' +
+        '<p>라이브 방송(예배 실황)을 보실 때, AI 실시간 통역으로 <strong>내 언어로 들으실 수</strong> 있습니다.</p></div>' +
+      '<ul class="ln__langs" aria-label="제공 언어"><li lang="en">English</li><li lang="ru">Русский</li><li lang="ja">日本語</li><li lang="zh">中文</li><li class="is-more">그 밖의 여러 언어</li></ul>' +
+      '<ol class="ln__steps">' +
+        '<li>휴대폰의 <b>무음(진동) 스위치를 꺼</b> 주세요. 무음이면 소리가 나오지 않습니다.</li>' +
+        '<li>잘 들리도록 <b>이어폰</b>을 사용해 주세요.</li>' +
+        '<li>아래 <b>‘통역 듣기’</b>를 눌러 이동한 뒤 <b>채널 ID</b>를 넣고 <b>‘Join as Listener’</b>를 누르세요. 다음 화면에서 <b>‘Enable Audio’</b> 버튼을 눌러야 소리가 나옵니다.</li>' +
+      '</ol>' +
+      (ch ? '<div class="ln__channel"><span>채널 ID</span><b>' + esc(ch) + '</b><button type="button" class="ln__copy" aria-label="채널 ID 복사">복사</button></div>' : '') +
+      '<a class="btn btn--primary ln__go" href="' + esc(cfg.url) + '" target="_blank" rel="noopener">' + ico('play') + ' 통역 듣기</a>' +
+      '<div class="ln__foot"><button type="button" class="ln__skip">오늘 하루 열지 않기</button><button type="button" class="ln__close">닫기</button></div>' +
+      '<p class="ln__tag" lang="en">Live interpretation &middot; <span lang="ru">Живой перевод</span> &middot; <span lang="ja">同時通訳</span> &middot; <span lang="zh">实时翻译</span></p>' +
+    '</div></div>';
+    var box = $('.ln', el), panel = $('.ln__panel', el);
+    function focusables() { return $$('button, a[href]', panel).filter(function (x) { return !x.disabled && x.offsetParent !== null; }); }
+    function open() {
+      if (!box.hidden) return;
+      prev = document.activeElement; box.hidden = false; document.documentElement.classList.add('ln-open');
+      try { sessionStorage.setItem('kosin-live-seen', '1'); } catch (e) {}
+      var go = $('.ln__go', el); if (go) go.focus({ preventScroll: true });
+    }
+    function close() {
+      if (box.hidden) return;
+      box.hidden = true; document.documentElement.classList.remove('ln-open'); D._noticeOpen = false;
+      if (prev && prev.focus) { try { prev.focus({ preventScroll: true }); } catch (e) {} }
+      document.dispatchEvent(new CustomEvent('kosin:notice-closed'));
+    }
+    box.addEventListener('click', function (e) { if (e.target === box) close(); });
+    $('.ln__x', el).addEventListener('click', close); $('.ln__close', el).addEventListener('click', close);
+    $('.ln__skip', el).addEventListener('click', function () { try { localStorage.setItem('kosin-live-skip', new Date().toDateString()); } catch (e) {} close(); });
+    $('.ln__go', el).addEventListener('click', function () { setTimeout(close, 150); });
+    var cp = $('.ln__copy', el);
+    if (cp) cp.addEventListener('click', function () {
+      function done(ok) { cp.textContent = ok ? '복사됨 ✓' : '직접 입력'; setTimeout(function () { cp.textContent = '복사'; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ch).then(function () { done(true); }, function () { done(false); });
+      else { var t = document.createElement('textarea'); t.value = ch; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} document.body.removeChild(t); done(ok); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (box.hidden) return;
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'Tab') { var f = focusables(); if (!f.length) return; var first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } }
+    });
+    document.addEventListener('kosin:video-open', close);   // 영상을 틀면 안내 팝업은 닫습니다
+    if (cfg.autoOpen !== false && !skip && !seen) { D._noticeOpen = true; setTimeout(open, 450); }
   };
 
   /* ---------------------------------------------------------------- 시작 */
