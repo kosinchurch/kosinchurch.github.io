@@ -704,13 +704,16 @@ html.vm-open { overflow: hidden; }
   .slider-btns { display: none; }
 }
 @media (max-width: 760px) {
-  .time-grid { grid-template-columns: 1fr; gap: 12px; }
-  .time-card { padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: center; }
-  .time-card__day { grid-column: 1; }
-  .time-card h3 { grid-column: 1; margin: 0; }
-  .time-card__time { grid-column: 2; grid-row: 1 / span 2; font-size: 1.5rem; text-align: right; }
-  .time-card__place { grid-column: 1 / -1; margin-top: 4px; }
-  .quick { margin-top: -56px; }
+  /* 예배시간 카드: 모바일에서는 작고 간단하게 (이름 + 장소 / 시간) */
+  .time-grid { grid-template-columns: 1fr; gap: 8px; }
+  .time-card { padding: 11px 16px; border-top-width: 3px; display: grid; grid-template-columns: 1fr auto; column-gap: 10px; align-items: center; }
+  .time-card__day { display: none; }
+  .time-card h3 { grid-column: 1; margin: 0; font-size: .98rem; line-height: 1.35; }
+  .time-card__time { grid-column: 2; grid-row: 1 / span 2; font-size: 1.2rem; text-align: right; white-space: nowrap; }
+  .time-card__place { grid-column: 1; margin-top: 1px; font-size: .85rem; gap: 4px; }
+  .time-card__place svg { width: 14px; height: 14px; }
+  .quick { margin-top: -40px; }
+  .quick-more { margin-top: 10px; }
   .hero { padding-bottom: 100px; }
   .mission-grid { grid-template-columns: 1fr; }
   .gallery { grid-template-columns: repeat(2, 1fr); }
