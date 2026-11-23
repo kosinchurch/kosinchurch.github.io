@@ -77,6 +77,7 @@
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     play: '<path d="M8 5v14l11-7z"/>',
+    pause: '<path d="M8 5v14M16 5v14"/>',
     book: '<path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h12"/>',
     cross: '<path d="M12 3v18M6 9h12"/>',
     calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
@@ -399,11 +400,49 @@
 
   R.hero = function (el) {
     var c = church(), s = c.slogan || { lines: [] };
-    el.innerHTML = '<section class="hero"><div class="container"><span class="hero__label">' + esc(s.year || '') + ' 교회 표어</span>' +
+    el.innerHTML = '<section class="hero"><div class="hero__media" aria-hidden="true"><video class="hero__video" muted loop playsinline preload="auto" tabindex="-1" disablepictureinpicture></video><div class="hero__shade"></div></div><button type="button" class="hero__toggle" aria-label="배경 영상 일시정지" hidden></button><div class="container"><span class="hero__label">' + esc(s.year || '') + ' 교회 표어</span>' +
       '<h1><span class="sr-only">' + esc(c.name) + ' </span>' + (s.lines || []).map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('') + '</h1>' +
       '<p class="hero__lead">' + esc(c.heroLead || '') + '</p>' +
       '<div class="hero__actions"><a class="btn btn--light" href="' + esc(link('worship/guide.html')) + '">' + ico('clock') + ' 예배 시간 보기</a><a class="btn btn--ghost-light" href="' + esc(link('about/location.html')) + '">' + ico('pin') + ' 오시는 길</a></div></div></section>';
+    setupHeroVideo(el);
   };
+
+  /* 대문 배경 영상 (assets/video/hero.mp4): 소리 없이 반복 재생.
+     - 영상이 재생되기 시작하면 부드럽게 나타나고, 그 전에는 첫 장면 사진이 보입니다.
+     - 움직임 줄이기 설정·데이터 절약 모드에서는 재생하지 않고 사진만 보여 줍니다.
+     - 화면 밖으로 스크롤되면 멈춰서 배터리와 데이터를 아낍니다. */
+  function setupHeroVideo(root) {
+    var v = root.querySelector('.hero__video'), hero = root.querySelector('.hero'), btn = root.querySelector('.hero__toggle');
+    if (!v || !hero) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var saver = navigator.connection && navigator.connection.saveData;
+    var userPaused = !!(reduce || saver);          // 이 경우는 자동 재생하지 않고, 버튼을 눌렀을 때만 재생합니다
+    v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+    v.addEventListener('playing', function () { v.classList.add('is-on'); });
+    function load() { if (!v.getAttribute('src')) v.src = link('assets/video/hero.mp4'); }
+    function play() { load(); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    function sync() {
+      if (!btn) return;
+      var playing = !v.paused && !v.ended;
+      btn.innerHTML = ico(playing ? 'pause' : 'play');
+      btn.setAttribute('aria-label', playing ? '배경 영상 일시정지' : '배경 영상 재생');
+      btn.title = playing ? '영상 일시정지' : '영상 재생';
+    }
+    v.addEventListener('play', sync); v.addEventListener('pause', sync);
+    if (btn) {
+      btn.hidden = false; sync();
+      btn.addEventListener('click', function () {
+        if (v.paused) { userPaused = false; play(); } else { userPaused = true; v.pause(); }
+      });
+    }
+    if (!userPaused) play();
+    if ('IntersectionObserver' in window) {   // 화면 밖에서는 멈춰서 배터리와 데이터를 아낍니다
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { if (!userPaused) play(); } else if (!v.paused) v.pause(); });
+      }, { threshold: 0.05 }).observe(hero);
+    }
+  }
 
   R['slogan-big'] = function (el) {
     var s = church().slogan || { lines: [] };
