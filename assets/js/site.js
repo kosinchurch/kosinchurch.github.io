@@ -58,7 +58,8 @@
       kakao: 'https://map.kakao.com/link/search/' + q,
       naver: 'https://map.naver.com/p/search/' + q,
       google: 'https://www.google.com/maps/search/?api=1&query=' + q,
-      embed: 'https://maps.google.com/maps?q=' + q + '&z=17&output=embed'
+      embed: 'https://maps.google.com/maps?q=' + q + '&z=17&output=embed',
+      roadview: church().roadviewUrl || ''   // 네이버 로드뷰 (data/church.js)
     };
   }
 
@@ -74,6 +75,7 @@
     phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
     pin: '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     play: '<path d="M8 5v14l11-7z"/>',
     book: '<path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h12"/>',
     cross: '<path d="M12 3v18M6 9h12"/>',
@@ -182,7 +184,7 @@
         '<div><div class="footer-brand"><img src="' + esc(link(c.logo || 'assets/img/logo.png')) + '" alt="' + esc((c.denomination ? c.denomination + ' ' : '') + c.name) + '"></div>' +
           '<address><p>(' + esc(c.zip) + ') ' + esc(c.address) + '</p><p>전화 <a href="' + telHref(c.phone) + '">' + esc(c.phone) + '</a> · 팩스 ' + esc(c.fax) + '</p>' +
           (c.email ? '<p>이메일 <a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></p>' : '') + '</address>' +
-          '<p style="margin-top:12px"><a href="' + m.kakao + '" target="_blank" rel="noopener">카카오맵</a> · <a href="' + m.naver + '" target="_blank" rel="noopener">네이버지도</a> · <a href="' + m.google + '" target="_blank" rel="noopener">구글지도</a></p></div>' +
+          '<p style="margin-top:12px"><a href="' + m.kakao + '" target="_blank" rel="noopener">카카오맵</a> · <a href="' + m.naver + '" target="_blank" rel="noopener">네이버지도</a> · <a href="' + m.google + '" target="_blank" rel="noopener">구글지도</a>' + (m.roadview ? ' · <a href="' + esc(m.roadview) + '" target="_blank" rel="noopener">로드뷰</a>' : '') + '</p></div>' +
         '<div><h3>바로가기</h3><ul class="footer-links">' + items.map(function (it) { return '<li><a href="' + esc(link(it.url)) + '">' + esc(it.label) + '</a></li>'; }).join('') + '</ul></div>' +
         '<div><h3>안내</h3><ul class="footer-links"><li><a href="' + esc(link('worship/guide.html')) + '">예배안내</a></li><li><a href="' + esc(link('about/location.html')) + '">오시는 길</a></li><li><a href="' + esc(link('contact/index.html')) + '">문의하기</a></li><li><a href="' + esc(link('privacy.html')) + '">개인정보처리방침</a></li>' +
           (c.youtube ? '<li><a href="' + esc(c.youtube) + '" target="_blank" rel="noopener">유튜브 채널</a></li>' : '') + '</ul></div>' +
@@ -1087,7 +1089,9 @@
   };
   R['map-links'] = function (el) {
     var m = mapLinks();
-    el.innerHTML = '<div class="btn-row"><a class="btn btn--primary" href="' + m.kakao + '" target="_blank" rel="noopener">' + ico('pin') + ' 카카오맵 길찾기</a><a class="btn btn--outline" href="' + m.naver + '" target="_blank" rel="noopener">네이버지도</a><a class="btn btn--outline" href="' + m.google + '" target="_blank" rel="noopener">구글지도</a><a class="btn btn--outline" href="' + telHref(church().phone) + '">' + ico('phone') + ' 전화하기</a></div>';
+    el.innerHTML = '<div class="btn-row"><a class="btn btn--primary" href="' + m.kakao + '" target="_blank" rel="noopener">' + ico('pin') + ' 카카오맵 길찾기</a><a class="btn btn--outline" href="' + m.naver + '" target="_blank" rel="noopener">네이버지도</a><a class="btn btn--outline" href="' + m.google + '" target="_blank" rel="noopener">구글지도</a>' +
+      (m.roadview ? '<a class="btn btn--outline" href="' + esc(m.roadview) + '" target="_blank" rel="noopener">' + ico('eye') + ' 로드뷰로 보기</a>' : '') +
+      '<a class="btn btn--outline" href="' + telHref(church().phone) + '">' + ico('phone') + ' 전화하기</a></div>';
   };
   R['map-embed'] = function (el) {
     el.innerHTML = '<iframe class="map-embed" title="' + esc(church().name) + ' 위치 지도" src="' + mapLinks().embed + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
