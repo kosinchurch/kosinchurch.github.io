@@ -160,25 +160,14 @@ body.menu-open { overflow: hidden; }
 .time-card__time { font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 700; color: var(--c-primary); margin: 0; line-height: 1.3; }
 .time-card__place { display: flex; align-items: center; gap: 6px; color: var(--c-ink-soft); margin: 6px 0 0; }
 .quick-more { text-align: center; margin-top: 16px; }
-/* 홈 "이번 주 말씀" 아래 성경 통독 바로가기 배너 */
-.bible-cta { display: flex; align-items: center; gap: 20px; margin-top: 28px; padding: 22px 28px; border-radius: var(--radius); color: #fff; text-decoration: none !important;
-  background: radial-gradient(520px 220px at 92% 0%, rgba(243, 220, 171, .24), rgba(243, 220, 171, 0) 70%), linear-gradient(135deg, #3d0d1f, #801237);
-  box-shadow: var(--shadow-1); transition: transform .2s, box-shadow .2s; }
-.bible-cta:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); text-decoration: none; }
-.bible-cta:focus-visible { outline: 3px solid var(--c-gold-light); outline-offset: 3px; }
-.bible-cta__icon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .3); }
-.bible-cta__icon svg { width: 28px; height: 28px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.bible-cta__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.bible-cta__eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .14em; color: var(--c-gold-light); }
-.bible-cta strong { font-family: var(--f-serif); font-size: clamp(1.3rem, 2.6vw, 1.6rem); line-height: 1.3; color: #fff; }
-.bible-cta__desc { font-size: .98rem; opacity: .92; }
-.bible-cta__go { flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border-radius: 999px; background: #fff; color: var(--c-primary-deep); font-weight: 700; }
-@media (max-width: 640px) {
-  .bible-cta { flex-wrap: wrap; gap: 14px 16px; padding: 20px 18px; margin-top: 22px; }
-  .bible-cta__icon { width: 48px; height: 48px; }
-  .bible-cta__icon svg { width: 24px; height: 24px; }
-  .bible-cta__text { flex: 1 1 calc(100% - 66px); }
-  .bible-cta__go { width: 100%; }
+/* 홈 "이번 주 말씀" 아래 성경 통독 바로가기 버튼 */
+.home-bible { margin: 28px 0 0; text-align: center; }
+@media (max-width: 768px) {
+  /* 모바일: 이 부분의 위아래 간격을 줄이고, 버튼은 화면 너비로 */
+  #sermon { padding-bottom: 28px; }
+  #sermon + .section { padding-top: 40px; }
+  .home-bible { margin-top: 18px; }
+  .home-bible .btn { width: 100%; }
 }
 .sermon-feature { display: grid; grid-template-columns: 1.35fr 1fr; gap: 36px; align-items: start; }
 .video { position: relative; aspect-ratio: 16 / 9; background: #2a0a16; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-2); }
