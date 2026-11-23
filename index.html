@@ -18,8 +18,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <!-- 주소 끝의 ?v=… 는 "버전 표시"입니다. CSS·JS 를 고친 뒤 이 값(이 줄과 아래 site.js 줄)을 새 값으로 바꿔 올리면, 휴대폰이 예전 CSS·JS 를 붙들고 있어도 새 것을 받아 옵니다. -->
-<link rel="stylesheet" href="assets/css/tokens.css?v=20261123b">
-<link rel="stylesheet" href="assets/css/style.css?v=20261123b">
+<link rel="stylesheet" href="assets/css/tokens.css?v=20261124a">
+<link rel="stylesheet" href="assets/css/style.css?v=20261124a">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -37,10 +37,12 @@
   "faxNumber": "+82-51-895-2257"
 }
 </script>
-<script src="assets/js/site.js?v=20261123b" defer></script>
+<script src="assets/js/site.js?v=20261124a" defer></script>
 </head>
 <body data-root="./">
 <div id="site-header"></div>
+<!-- 실시간 통역 안내 팝업: 홈에 들어오면 뜹니다 (설정 data/church.js 의 interpreter) -->
+<div data-render="live-notice"></div>
 
 <main id="main">
   <!-- 2) 히어로: 표어와 버튼 (표어 문구는 data/church.js 에서 수정) -->
