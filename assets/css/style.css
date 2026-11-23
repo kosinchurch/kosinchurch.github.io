@@ -765,3 +765,47 @@ html.vm-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; animation: none !important; }
 }
+
+/* ---------- 실시간 통역 안내 팝업 (홈) ---------- */
+html.ln-open { overflow: hidden; }
+.ln { position: fixed; inset: 0; z-index: 600; display: grid; place-items: center; padding: 16px; background: rgba(42, 8, 20, .58); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: ln-fade .25s ease both; }
+.ln[hidden] { display: none; }
+.ln__panel { position: relative; width: min(460px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; background: #fff; border-radius: 22px; box-shadow: 0 30px 80px rgba(20, 3, 10, .5); padding-bottom: 18px; animation: ln-pop .35s cubic-bezier(.2, .8, .2, 1) both; }
+.ln__x { position: absolute; top: 12px; right: 12px; z-index: 1; width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .18); color: #fff; font-size: 1.5rem; line-height: 1; }
+.ln__x:hover { background: rgba(255, 255, 255, .32); }
+.ln__top { padding: 28px 28px 22px; color: #fff; border-radius: 22px 22px 0 0;
+  background: radial-gradient(420px 200px at 100% 0%, rgba(243, 220, 171, .28), rgba(243, 220, 171, 0) 70%), linear-gradient(135deg, #3d0d1f, #801237); }
+.ln__live { display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .35); font-size: .78rem; font-weight: 700; letter-spacing: .14em; }
+.ln__live i { width: 8px; height: 8px; border-radius: 50%; background: #ff5a6e; animation: ln-pulse 1.6s infinite; }
+.ln__top h2 { margin: 12px 0 8px; font-family: var(--f-serif); font-size: 1.6rem; color: #fff; }
+.ln__top p { margin: 0; font-size: 1rem; line-height: 1.65; opacity: .96; }
+.ln__top strong { color: var(--c-gold-light); }
+.ln__langs { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 18px 24px 4px; }
+.ln__langs li { padding: 6px 14px; border-radius: 999px; background: var(--c-primary-soft); color: var(--c-primary-dark); font-weight: 700; font-size: .95rem; }
+.ln__langs .is-more { background: var(--c-bg-soft); color: var(--c-ink-soft); }
+.ln__steps { margin: 14px 0 0; padding: 0 26px 0 48px; display: grid; gap: 10px; color: var(--c-ink); font-size: .98rem; line-height: 1.65; }
+.ln__steps li::marker { color: var(--c-primary); font-weight: 700; }
+.ln__steps b { color: var(--c-primary-deep); }
+.ln__channel { display: flex; align-items: center; gap: 10px; margin: 16px 24px 0; padding: 10px 12px 10px 16px; border-radius: 14px; background: var(--c-beige); }
+.ln__channel span { font-size: .82rem; font-weight: 700; color: var(--c-gold-text); }
+.ln__channel b { flex: 1; min-width: 0; font-size: 1.15rem; letter-spacing: .04em; color: var(--c-primary-deep); overflow-wrap: anywhere; }
+.ln__copy { min-height: 36px; padding: 0 16px; border: 1.5px solid var(--c-primary); border-radius: 999px; background: #fff; color: var(--c-primary); font-weight: 700; font-size: .9rem; }
+.ln__copy:hover { background: var(--c-primary-soft); }
+.ln__go { display: flex; margin: 18px 24px 0; }
+.ln__go .ico { fill: currentColor; stroke: none; width: 1.05em; height: 1.05em; }
+.ln__foot { display: flex; justify-content: space-between; gap: 12px; margin: 10px 24px 0; }
+.ln__skip, .ln__close { padding: 8px 4px; border: 0; background: none; color: var(--c-muted); font-size: .88rem; text-decoration: underline; text-underline-offset: 3px; }
+.ln__skip:hover, .ln__close:hover { color: var(--c-primary); }
+.ln__tag { margin: 12px 24px 0; font-size: .78rem; text-align: center; color: var(--c-gold-text); }
+@keyframes ln-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ln-pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes ln-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 90, 110, .7); } 70% { box-shadow: 0 0 0 9px rgba(255, 90, 110, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 90, 110, 0); } }
+@media (prefers-reduced-motion: reduce) { .ln, .ln__panel, .ln__live i { animation: none; } }
+@media (max-width: 480px) {
+  .ln { padding: 12px; }
+  .ln__top { padding: 24px 22px 18px; }
+  .ln__top h2 { font-size: 1.4rem; }
+  .ln__langs { padding: 16px 18px 2px; }
+  .ln__steps { padding: 0 20px 0 42px; font-size: .94rem; }
+  .ln__channel, .ln__go, .ln__foot, .ln__tag { margin-left: 18px; margin-right: 18px; }
+}

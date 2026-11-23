@@ -1,0 +1,42 @@
+@charset "UTF-8";
+/* ==========================================================================
+   주보 검색 (news/bulletin.html 에서만 불러옵니다) — 색·글꼴은 tokens.css 의 값을 씁니다
+   ========================================================================== */
+.bs { max-width: 860px; }
+.bs-form { display: flex; gap: 10px; align-items: stretch; }
+.bs-field { position: relative; flex: 1; min-width: 0; display: block; }
+.bs-ico { position: absolute; left: 16px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%); fill: none; stroke: var(--c-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.bs-field input { width: 100%; min-height: var(--tap); padding: 0 18px 0 46px; border: 1.5px solid var(--c-line); border-radius: 999px; background: #fff; color: var(--c-ink); font: inherit; font-size: 1rem; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none; appearance: none; }
+.bs-field input::placeholder { color: var(--c-muted); }
+.bs-field input:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 4px var(--c-primary-soft); }
+.bs-field input::-webkit-search-cancel-button { cursor: pointer; }
+.bs-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.bs-tags[hidden] { display: none; }
+.bs-tags__label { margin-right: 4px; font-size: .88rem; font-weight: 700; color: var(--c-gold-text); }
+.bs-tag { min-height: 36px; padding: 0 14px; border: 1px solid var(--c-line); border-radius: 999px; background: var(--c-bg-soft); color: var(--c-ink-soft); font-size: .92rem; font-weight: 600; transition: background .2s, border-color .2s, color .2s; }
+.bs-tag:hover { background: var(--c-primary-soft); border-color: var(--c-primary); color: var(--c-primary); }
+.bs-status { margin: 16px 0 0; font-size: .95rem; color: var(--c-ink-soft); min-height: 1.6em; }
+.bs-results { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 12px; }
+.bs-item { padding: 16px 18px 12px; border: 1px solid var(--c-line); border-radius: var(--radius); background: #fff; box-shadow: 0 1px 0 rgba(61, 13, 31, .03); }
+.bs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.bs-head strong { font-family: var(--f-serif); font-size: 1.08rem; color: var(--c-primary-deep); }
+.bs-pdf { font-size: .88rem; font-weight: 700; white-space: nowrap; }
+.bs-hits { list-style: none; margin: 0; padding: 0; }
+.bs-hits > li { border-top: 1px solid var(--c-line); }
+.bs-hits > li:first-child { border-top: 0; }
+.bs-hits a { display: flex; gap: 12px; align-items: baseline; padding: 9px 4px; color: var(--c-ink); text-decoration: none; border-radius: 8px; }
+.bs-hits a:hover { background: var(--c-bg-soft); }
+.bs-pg { flex: none; min-width: 2.6em; padding: 1px 8px; border-radius: 999px; background: var(--c-primary-soft); color: var(--c-primary-dark); font-size: .78rem; font-weight: 700; text-align: center; }
+.bs-sn { font-size: .96rem; line-height: 1.6; color: var(--c-ink-soft); word-break: keep-all; overflow-wrap: anywhere; }
+.bs-mark { padding: 0 2px; border-radius: 3px; background: var(--c-gold-light); color: var(--c-primary-deep); font-weight: 700; }
+.bs-hits > .bs-rest { padding: 8px 4px 4px; font-size: .86rem; color: var(--c-muted); }
+.bs-rest a { display: inline; padding: 0; color: var(--c-primary); font-weight: 700; }
+.bs-rest a:hover { background: none; text-decoration: underline; }
+.bs-more { margin-top: 16px; text-align: center; }
+.bs-more[hidden] { display: none; }
+@media (max-width: 640px) {
+  .bs-form { gap: 8px; }
+  .bs-form .btn { padding: 0 18px; }
+  .bs-item { padding: 14px 14px 8px; }
+  .bs-hits a { gap: 10px; }
+}
