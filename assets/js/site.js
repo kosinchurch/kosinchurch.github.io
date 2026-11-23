@@ -962,13 +962,13 @@
       '<div class="vm__frame"></div><div class="vm__bar"><span class="vm__title"></span><a class="btn btn--light btn--sm vm__yt" target="_blank" rel="noopener">유튜브에서 보기</a></div></div>';
     document.body.appendChild(box);
     var frame = $('.vm__frame', box), titleEl = $('.vm__title', box), ytBtn = $('.vm__yt', box), opener = null;
-    function open(id, title, isShort, trigger) {
+    function open(src, ytUrl, title, isShort, trigger) {
       opener = trigger || null;
       document.dispatchEvent(new CustomEvent('kosin:video-open'));   // 찬양 플레이어가 켜져 있으면 소리가 겹치지 않게 끕니다
       box.classList.toggle('is-short', !!isShort);
-      frame.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&playsinline=1" title="' + esc(title || '영상') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+      frame.innerHTML = '<iframe src="' + src + '" title="' + esc(title || '영상') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
       titleEl.textContent = title || '';
-      ytBtn.href = (isShort ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(id);
+      ytBtn.href = ytUrl;
       box.hidden = false; document.documentElement.classList.add('vm-open');
       $('.vm__close', box).focus();
     }
@@ -983,12 +983,25 @@
       if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       var a = e.target.closest && e.target.closest('a[href]');
       if (!a || a.closest('.vm')) return;
-      var m = (a.getAttribute('href') || '').match(/^https?:\/\/(?:www\.)?youtube\.com\/(watch\?v=|shorts\/)([A-Za-z0-9_-]{11})/);
-      if (!m) return;
+      var href = a.getAttribute('href') || '', YT = '^https?:\\/\\/(?:www\\.)?youtube\\.com\\/';
+      var m = href.match(new RegExp(YT + '(watch\\?v=|shorts\\/)([A-Za-z0-9_-]{11})'));                       // 영상 1개
+      var pl = !m && href.match(new RegExp(YT + 'playlist\\?list=([A-Za-z0-9_-]+)'));                       // 재생목록 전체
+      var many = !m && !pl && href.match(new RegExp(YT + 'watch_videos\\?video_ids=([A-Za-z0-9_,-]+)'));   // 여러 영상을 이어서 재생 (성경 통독)
+      if (!m && !pl && !many) return;
       e.preventDefault();
       var t = a.querySelector('h3, strong, .short-card__title, .post-title') || a.querySelector('span');
-      var title = t ? t.textContent.trim() : (a.getAttribute('aria-label') || '').replace(/\s*(영상 보기|·).*$/, '');
-      open(m[2], title, m[1] === 'shorts/', a);
+      var title = a.getAttribute('data-vt') || (t ? t.textContent.trim() : (a.getAttribute('aria-label') || '').replace(/\s*(영상 보기|·).*$/, ''));
+      var tail = '?autoplay=1&rel=0&playsinline=1', base = 'https://www.youtube-nocookie.com/embed/';
+      if (m) {
+        open(base + encodeURIComponent(m[2]) + tail, (m[1] === 'shorts/' ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(m[2]), title, m[1] === 'shorts/', a);
+      } else if (pl) {
+        open(base + 'videoseries?list=' + encodeURIComponent(pl[1]) + '&autoplay=1&rel=0&playsinline=1', 'https://www.youtube.com/playlist?list=' + encodeURIComponent(pl[1]), title, false, a);
+      } else {
+        var ids = many[1].split(',').filter(function (x) { return /^[A-Za-z0-9_-]{11}$/.test(x); });
+        if (!ids.length) return;
+        // 유튜브는 playlist 값을 "전체 목록"으로 취급하므로 첫 영상도 함께 넣어야 순서대로 재생됩니다
+        open(base + ids[0] + tail + (ids.length > 1 ? '&playlist=' + ids.join(',') : ''), 'https://www.youtube.com/watch_videos?video_ids=' + ids.join(','), title, false, a);
+      }
     });
   }
   function setupLightbox() {
