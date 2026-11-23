@@ -1185,13 +1185,12 @@
     el.innerHTML = '<div class="mp">' +
       '<button type="button" class="mp-fab" aria-expanded="false" aria-controls="mp-panel">' + NOTE + '<span>찬양 듣기</span></button>' +
       '<section class="mp-panel" id="mp-panel" hidden aria-label="' + esc(m.label || '찬양 듣기') + '">' +
-        '<header class="mp-head"><strong>' + esc(m.label || '찬양 듣기') + '</strong><button type="button" class="mp-close" aria-label="닫기 (음악이 꺼집니다)">&times;</button></header>' +
         '<div class="mp-video"></div>' +
         '<div class="mp-more" hidden><ul class="mp-tracks">' + tracks.map(function (t, i) {
           return '<li><button type="button" data-i="' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '><span class="mp-t">' + esc(t.title || '') + '</span><small>' + esc([t.channel, t.note].filter(Boolean).join(' · ')) + '</small></button></li>';
         }).join('') + '</ul>' +
         '<p class="mp-note">유튜브 영상으로 재생됩니다. 광고를 켜 둔 곡은 처음에 광고가 나올 수 있습니다. 닫으면 음악이 꺼집니다.</p></div>' +
-        '<div class="mp-foot"><button type="button" class="mp-toggle" aria-expanded="false">곡 목록 &#9662;</button><button type="button" class="mp-skip">오늘 하루 열지 않기</button></div>' +
+        '<div class="mp-foot"><button type="button" class="mp-toggle" aria-expanded="false">곡 목록 &#9662;</button><button type="button" class="mp-skip">오늘 하루 열지 않기</button><button type="button" class="mp-close" aria-label="닫기 (음악이 꺼집니다)" title="닫기 (음악이 꺼집니다)">&times;</button></div>' +
       '</section></div>';
     var fab = $('.mp-fab', el), panel = $('.mp-panel', el), box = $('.mp-video', el), btns = $$('.mp-tracks button', el);
     function load() {   // 버튼을 누른 직후에만 불러오므로 소리 자동재생 제한에 걸리지 않습니다
