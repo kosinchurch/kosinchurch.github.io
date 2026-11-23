@@ -28,6 +28,8 @@ KOSIN.church = {
 
   logo: 'assets/img/logo.png',   // 가로형 로고(투명 배경 PNG). 교체: 같은 이름의 파일로 덮어쓰거나 이 경로를 바꾸세요
   mapQuery: '고신교회 부산 사상구 가야대로213번길 12-19',
+  // 네이버지도 로드뷰 링크 (오시는 길 · 하단 안내에 "로드뷰" 버튼으로 표시됩니다. 비우면 버튼이 사라집니다)
+  roadviewUrl: 'https://map.naver.com/p/entry/place/1146617290?p=wXZzJoCyViKZ2cBusuFAQw,-74.63,2.9,80,Float&placePath=%2Fhome%3Ffrom%3Dmap%26fromPanelNum%3D1%26additionalHeight%3D76%26timestamp%3D202611231449%26locale%3Dko%26svcName%3Dmap_pcv5&c=15.00,0,0,0,adh',
 
   // 공유하기(카카오톡) 설정 — 선택 사항. README 5-2 참고
   kakaoJsKey: '',     // 카카오 디벨로퍼스의 'JavaScript 키'. 비워 두면 휴대폰 공유 창(카카오톡 선택) 또는 링크 복사로 동작합니다
