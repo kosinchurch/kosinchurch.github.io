@@ -72,6 +72,8 @@ KOSIN.missionFields = [
       { id: 'pm-170709016', title: '필리핀 연합예배 (2023년)', date: '2023', videos: ['KiGXB8xCwl4'] },
       { id: 'pm-170708878', title: '필리핀 선교신학교 (2023년)', date: '2023', videos: ['ZAXdbCHKl7g'] },
       { id: 'pm-170708908', title: '필리핀 선교신학교 및 헌당식', date: '2022-10-30', videos: ['FXTpAqh-A7c'] },
+      { id: 'pm-170690508', title: '필리핀 우물지원사업 (교회 우물 봉헌)', date: '2026-04-04', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 19,   // 필리핀 교회 중심, 네팔 코이노니아 교회 우물도 섞여 있어 "필리핀 선교"에 함께 둡니다
+        body: '<p>교회와 성도님들이 후원해 주신 우물을 각 교회에 봉헌한 기록입니다. 필리핀 교회들을 중심으로, 네팔 코이노니아 교회의 우물도 함께 담았습니다.</p>' },
       { id: 'gm-170676112', title: '감비아 이기준 선교사 선교 편지 (GPS-37호, 2026년 3월)', date: '2026-03', layout: 'doc', dir: 'assets/img/mission/gambia', photos: 3 },   // 감비아 소식은 "필리핀 선교"에 함께 둡니다
       { id: 'pm-170676100', title: '필리핀 임마누엘미션 (민다나오)', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 12 },
       { id: 'pm-170676097', title: '필리핀 임마누엘미션 (루존)', date: '2026-04-03', layout: 'doc', dir: 'assets/img/mission/philippines', photos: 8 },
