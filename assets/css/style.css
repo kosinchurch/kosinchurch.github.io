@@ -574,15 +574,14 @@ summary.post-row::-webkit-details-marker { display: none; }
 .mp-fab:hover { background: var(--c-primary-dark); transform: translateY(-2px); }
 .mp-fab .ico { width: 22px; height: 22px; stroke: #fff; }
 .mp-fab.is-on { background: var(--c-primary-deep); }
-.mp-panel { position: fixed; left: 24px; bottom: 84px; z-index: 95; width: min(272px, calc(100vw - 24px)); background: #fff; border: 1px solid rgba(184, 137, 59, .45); border-radius: 14px; padding: 8px 8px 6px; box-shadow: 0 18px 44px rgba(42, 8, 20, .32); }
+.mp-panel { position: fixed; left: 24px; bottom: 84px; z-index: 95; width: min(216px, calc(100vw - 24px)); background: #fff; border: 1px solid rgba(184, 137, 59, .45); border-radius: 12px; padding: 4px; box-shadow: 0 14px 34px rgba(42, 8, 20, .30); }   /* 영상 창 최소 규격(200px)에 맞춘 작은 크기 */
 .mp-panel[hidden] { display: none; }
-.mp-head { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 6px; color: var(--c-primary-deep); font-family: var(--f-serif); font-size: .92rem; }
-.mp-close { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--c-bg-soft); color: var(--c-ink-soft); font-size: 1.2rem; line-height: 1; }
+.mp-close { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: var(--c-bg-soft); color: var(--c-ink-soft); font-size: 1.1rem; line-height: 1; }
 .mp-close:hover { background: var(--c-primary-soft); color: var(--c-primary); }
 .mp-video { height: 200px; border-radius: 10px; overflow: hidden; background: #000; }   /* 유튜브 규정상 영상 창은 200px 아래로 줄이지 않습니다 */
 .mp-more[hidden] { display: none; }
-.mp-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
-.mp-toggle { padding: 4px 6px; border: 0; background: none; color: var(--c-primary); font-weight: 700; font-size: .8rem; }
+.mp-foot { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 3px; }
+.mp-toggle { padding: 4px 4px; border: 0; background: none; color: var(--c-primary); font-weight: 700; font-size: .78rem; white-space: nowrap; }
 .mp-toggle:hover { text-decoration: underline; }
 .mp-video iframe { display: block; width: 100%; height: 100%; border: 0; }
 .mp-tracks { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
@@ -592,7 +591,7 @@ summary.post-row::-webkit-details-marker { display: none; }
 .mp-t { display: block; font-weight: 700; font-size: .92rem; line-height: 1.35; }
 .mp-tracks small { display: block; color: var(--c-muted); font-size: .8rem; margin-top: 1px; }
 .mp-note { margin: 8px 4px 0; font-size: .78rem; color: var(--c-muted); }
-.mp-skip { display: block; margin: 0; padding: 4px 2px; border: 0; background: none; color: var(--c-muted); font-size: .78rem; text-decoration: underline; text-underline-offset: 2px; }
+.mp-skip { display: block; margin: 0 0 0 auto; padding: 4px 2px; border: 0; background: none; color: var(--c-muted); font-size: .72rem; white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; }
 .mp-skip:hover { color: var(--c-primary); }
 /* 자동으로 뜨는 팝업 모양: 재생 버튼이 있는 큰 그림 */
 .mp-panel.is-popup { animation: mp-pop .45s cubic-bezier(.2, .8, .2, 1) both; box-shadow: 0 22px 54px rgba(42, 8, 20, .42); }
