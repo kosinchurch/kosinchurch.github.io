@@ -1064,7 +1064,7 @@
       try {
         window.Kakao.Share.sendDefault({
           objectType: 'feed',
-          content: { title: d.title, description: d.text, imageUrl: c.shareImage || new URL(ROOT + 'assets/img/og-image.png', location.href).href, link: { mobileWebUrl: d.url, webUrl: d.url } },
+          content: { title: d.title, description: d.text, imageUrl: c.shareImage || new URL(ROOT + 'assets/img/og-share.jpg', location.href).href, link: { mobileWebUrl: d.url, webUrl: d.url } },
           buttons: [{ title: '자세히 보기', link: { mobileWebUrl: d.url, webUrl: d.url } }]
         });
       } catch (err) { fallback(); }
