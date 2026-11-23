@@ -15,8 +15,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/tokens.css">
-<link rel="stylesheet" href="assets/css/style.css">
+<!-- 주소 끝의 ?v=… 는 "버전 표시"입니다. CSS·JS 를 고친 뒤 이 값(이 줄과 아래 site.js 줄)을 새 값으로 바꿔 올리면, 휴대폰이 예전 CSS·JS 를 붙들고 있어도 새 것을 받아 옵니다. -->
+<link rel="stylesheet" href="assets/css/tokens.css?v=20261123b">
+<link rel="stylesheet" href="assets/css/style.css?v=20261123b">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -34,7 +35,7 @@
   "faxNumber": "+82-51-895-2257"
 }
 </script>
-<script src="assets/js/site.js" defer></script>
+<script src="assets/js/site.js?v=20261123b" defer></script>
 </head>
 <body data-root="./">
 <div id="site-header"></div>
@@ -59,12 +60,8 @@
         <a class="more-link" href="worship/sermons.html">설교 전체보기 &rarr;</a>
       </div>
       <div data-render="sermon-latest"></div>
-      <!-- 성경 통독 바로가기 (예배·말씀 > 성경 통독 : worship/bible.html) -->
-      <a class="bible-cta" href="worship/bible.html">
-        <span class="bible-cta__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/></svg></span>
-        <span class="bible-cta__text"><span class="bible-cta__eyebrow">BIBLE READING</span><strong>성경 통독</strong><span class="bible-cta__desc">오늘 읽을 말씀을 영상으로 듣고, 읽은 날을 달력에 표시해 보세요.</span></span>
-        <span class="bible-cta__go">바로가기 &rarr;</span>
-      </a>
+      <!-- 성경 통독 바로가기 버튼 (예배·말씀 > 성경 통독 : worship/bible.html) -->
+      <p class="home-bible"><a class="btn btn--primary" href="worship/bible.html"><svg class="ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/></svg> 성경 통독 바로가기 &rarr;</a></p>
     </div>
   </section>
 
