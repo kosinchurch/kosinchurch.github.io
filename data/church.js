@@ -28,6 +28,9 @@ KOSIN.church = {
 
   logo: 'assets/img/logo.png',   // 가로형 로고(투명 배경 PNG). 교체: 같은 이름의 파일로 덮어쓰거나 이 경로를 바꾸세요
   mapQuery: '고신교회 부산 사상구 가야대로213번길 12-19',
+  // 실시간 통역(Anna Live): 홈에 들어오면 뜨는 안내 팝업과 하단 "실시간 통역(라이브)" 링크에 쓰입니다. enabled:false 로 바꾸면 모두 사라집니다.
+  // ※ url 은 참석자(청중)용 공개 주소입니다. 관리자(/admin/) 주소와 token 은 이 파일이 공개되므로 절대 넣지 마세요.
+  interpreter: { enabled: true, url: 'https://synesisai.org/anna/', channel: 'kosinchurch', autoOpen: true },
   // 네이버지도 로드뷰 링크 (오시는 길 · 하단 안내에 "로드뷰" 버튼으로 표시됩니다. 비우면 버튼이 사라집니다)
   roadviewUrl: 'https://map.naver.com/p/entry/place/1146617290?p=wXZzJoCyViKZ2cBusuFAQw,-74.63,2.9,80,Float&placePath=%2Fhome%3Ffrom%3Dmap%26fromPanelNum%3D1%26additionalHeight%3D76%26timestamp%3D202611231449%26locale%3Dko%26svcName%3Dmap_pcv5&c=15.00,0,0,0,adh',
 
