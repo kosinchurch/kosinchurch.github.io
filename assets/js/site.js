@@ -10,7 +10,7 @@
 
   var ROOT = document.body.getAttribute('data-root') || './';
   var NAVREF = document.body.getAttribute('data-nav-url');   // 상세 페이지에서 "현재 메뉴"를 지정할 때 사용
-  var DATA_FILES = ['church', 'worship', 'sermons', 'news', 'missions', 'books', 'departments', 'about', 'music'];
+  var DATA_FILES = ['church', 'worship', 'sermons', 'news', 'missions', 'books', 'departments', 'about', 'music', 'youtube'];
   window.KOSIN = window.KOSIN || {};
   var D = window.KOSIN;
   var R = {};   // 화면을 그리는 함수 모음
@@ -1333,7 +1333,23 @@
   };
 
   /* ---------------------------------------------------------------- 시작 */
+  /* 유튜브 새 영상 자동 반영: data/youtube.js (GitHub Actions 가 몇 시간마다 채널의 새 영상·쇼츠를 모아 둠)의
+     영상은 "3분 묵상" 목록에, 쇼츠는 "쇼츠" 목록에 합칩니다. 라이브 방송은 모으지 않습니다.
+     이미 손으로 적어 둔 영상(같은 영상 ID)은 건드리지 않습니다. */
+  function mergeYoutubeAuto() {
+    var Y = D.youtubeAuto; if (!Y) return;
+    var have = {};
+    ['sermons', 'meditations', 'shorts', 'wednesday'].forEach(function (k) { (D[k] || []).forEach(function (x) { if (x && x.youtube) have[x.youtube] = 1; }); });
+    function add(key, list) {
+      if (!list || !list.length) return;
+      D[key] = D[key] || [];
+      list.forEach(function (x) { if (x && x.youtube && !have[x.youtube]) { have[x.youtube] = 1; D[key].push({ title: x.title, date: x.date, youtube: x.youtube }); } });
+    }
+    add('meditations', Y.videos);
+    add('shorts', Y.shorts);
+  }
   function init() {
+    mergeYoutubeAuto();
     D.missionReports = [];   // 선교지별 보고를 하나로 합친 목록 (선교 첫 페이지·검색에서 사용)
     (D.missionFields || []).forEach(function (f) {
       (f.reports || []).forEach(function (r) {
