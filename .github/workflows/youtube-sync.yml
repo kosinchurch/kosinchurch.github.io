@@ -1,0 +1,53 @@
+# 고신교회 유튜브 새 영상 자동 반영
+# - 2시간마다 유튜브 채널(@kosinchurch)의 새 영상·쇼츠를 확인합니다. (라이브 방송은 제외)
+# - 새 것이 있으면 data/youtube.js 를 고쳐 저장하고, 홈페이지가 자동으로 새로 배포됩니다.
+# - 영상은 "3분 묵상" 목록, 쇼츠는 "쇼츠" 목록에 나타납니다.
+# - 지금 바로 확인하고 싶으면: GitHub 저장소 > Actions > "유튜브 새 영상 자동 반영" > Run workflow
+# - 끄고 싶으면: 이 파일을 지우거나, Actions 화면에서 이 항목을 Disable 하세요.
+# - 참고: 저장소에 두 달 넘게 아무 변동이 없으면 GitHub 이 정기 실행을 자동으로 멈춥니다 (Actions 화면에서 다시 켤 수 있습니다).
+name: 유튜브 새 영상 자동 반영
+
+on:
+  schedule:
+    - cron: '23 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: youtube-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 내려받기
+        uses: actions/checkout@v4
+
+      - name: 유튜브 새 영상 확인
+        run: python3 .github/scripts/youtube_sync.py
+
+      - name: 바뀐 것이 있으면 저장
+        id: save
+        run: |
+          if git diff --quiet -- data/youtube.js; then
+            echo "새 영상 없음 - 저장할 것이 없습니다"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "kosin-youtube-sync"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/youtube.js
+          git commit -m "유튜브 새 영상 자동 반영"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: 홈페이지 새로 배포 요청
+        if: steps.save.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "배포 요청은 건너뜁니다 (저장은 끝났고 곧 자동으로 반영됩니다)"
