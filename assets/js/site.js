@@ -1333,20 +1333,40 @@
   };
 
   /* ---------------------------------------------------------------- 시작 */
-  /* 유튜브 새 영상 자동 반영: data/youtube.js (GitHub Actions 가 몇 시간마다 채널의 새 영상·쇼츠를 모아 둠)의
-     영상은 "3분 묵상" 목록에, 쇼츠는 "쇼츠" 목록에 합칩니다. 라이브 방송은 모으지 않습니다.
-     이미 손으로 적어 둔 영상(같은 영상 ID)은 건드리지 않습니다. */
+  /* 유튜브 새 영상 자동 반영: data/youtube.js (GitHub Actions 가 몇 시간마다 채널의 새 영상·쇼츠를 모아 둠)를 목록에 합칩니다.
+     영상은 제목 모양을 보고 갈래를 나눕니다 (라이브 방송은 모으지 않습니다).
+       "설교 제목" (2026.05.31) | 고신교회 - 김경헌 담임목사  → 주일예배 설교 (날짜는 제목 속 설교 날짜)
+       "제목" 2026. 11. 04 고신교회 수요성경공부              → 수요성경공부
+       그 밖의 영상(3분 묵상 등)                                → 3분 묵상
+     쇼츠는 "쇼츠" 목록에 합칩니다. 이미 손으로 적어 둔 영상(같은 영상 ID, 또는 같은 날짜·같은 제목)은 건드리지 않습니다. */
   function mergeYoutubeAuto() {
     var Y = D.youtubeAuto; if (!Y) return;
+    var QUOTE = '["“”\'‘’]*';
+    var SERMON = new RegExp('^' + QUOTE + '\\s*(.+?)\\s*' + QUOTE + '\\s*\\(\\s*(\\d{4})[.\\-/]\\s*(\\d{1,2})[.\\-/]\\s*(\\d{1,2})\\s*\\)\\s*\\|\\s*(?:고신교회\\s*[-–—]\\s*)?(.+)$');
+    var WED = new RegExp('^' + QUOTE + '\\s*(.+?)\\s*' + QUOTE + '\\s*(\\d{4})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\s*고신교회\\s*수요성경공부');
+    function pad(n) { return ('0' + n).slice(-2); }
+    function ymd(m) { return m[2] + '-' + pad(m[3]) + '-' + pad(m[4]); }
+    function flat(s) { return String(s || '').replace(/\s+/g, ''); }
     var have = {};
     ['sermons', 'meditations', 'shorts', 'wednesday'].forEach(function (k) { (D[k] || []).forEach(function (x) { if (x && x.youtube) have[x.youtube] = 1; }); });
-    function add(key, list) {
-      if (!list || !list.length) return;
+    function put(key, item) {
       D[key] = D[key] || [];
-      list.forEach(function (x) { if (x && x.youtube && !have[x.youtube]) { have[x.youtube] = 1; D[key].push({ title: x.title, date: x.date, youtube: x.youtube }); } });
+      if (D[key].some(function (x) { return x.date === item.date && flat(x.title) === flat(item.title); })) return;   // 같은 날짜·같은 제목이 이미 있으면 건너뜀
+      D[key].push(item);
     }
-    add('meditations', Y.videos);
-    add('shorts', Y.shorts);
+    (Y.videos || []).forEach(function (x) {
+      if (!x || !x.youtube || have[x.youtube]) return;
+      have[x.youtube] = 1;
+      var t = String(x.title || ''), m;
+      if ((m = SERMON.exec(t))) put('sermons', { title: m[1], date: ymd(m), preacher: m[5].trim(), youtube: x.youtube });
+      else if ((m = WED.exec(t))) put('wednesday', { title: m[1], date: ymd(m), youtube: x.youtube });
+      else put('meditations', { title: t, date: x.date, youtube: x.youtube });
+    });
+    (Y.shorts || []).forEach(function (x) {
+      if (!x || !x.youtube || have[x.youtube]) return;
+      have[x.youtube] = 1;
+      put('shorts', { title: x.title, date: x.date, youtube: x.youtube });
+    });
   }
   function init() {
     mergeYoutubeAuto();
