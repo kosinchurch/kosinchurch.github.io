@@ -8,7 +8,7 @@ window.KOSIN = window.KOSIN || {};
 KOSIN.config = {
   // true  : "샘플" 표시가 붙은 임시 자료를 화면에 보여줍니다. (제작·검토 단계)
   // false : 샘플을 모두 숨깁니다. (실제 자료를 다 입력하고 공개하기 전에 false 로 바꾸세요)
-  showSamples: true
+  showSamples: false
 };
 
 KOSIN.church = {
