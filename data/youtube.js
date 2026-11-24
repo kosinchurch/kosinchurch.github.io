@@ -4,6 +4,8 @@
 window.KOSIN = window.KOSIN || {};
 KOSIN.youtubeAuto = {
   "videos": [
+    {"youtube":"Ryw8evfNN4w","date":"2026-11-24","p":"2026-11-24T07:38:38Z","title":"\"더욱 저주를 받아\" (2026.06.07) | 고신교회 - 김경헌 담임목사"},
+    {"youtube":"s5IHbd_Y61g","date":"2026-11-24","p":"2026-11-24T06:45:01Z","title":"\"복과 저주를 너희 앞에 두나니\" (2026.05.31) | 고신교회 - 김경헌 담임목사"},
     {"youtube":"KvevO_hVjEQ","date":"2026-10-13","p":"2026-10-13T01:27:54Z","title":"저주를 축복으로"},
     {"youtube":"7Ob3uHosJ3M","date":"2026-10-05","p":"2026-10-05T06:46:11Z","title":"험악한 세월"},
     {"youtube":"WJ8rLQ89E34","date":"2026-09-28","p":"2026-09-28T04:29:17Z","title":"일백쉰 세 마리"},
