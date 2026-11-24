@@ -1,0 +1,36 @@
+/* 자동으로 만들어지는 파일입니다 — 직접 고치지 마세요.
+   .github/workflows/youtube-sync.yml 이 몇 시간마다 유튜브 채널(라이브 제외)의 새 영상·쇼츠를 모아 이 파일을 갱신합니다.
+   videos → 3분 묵상 목록, shorts → 쇼츠 목록에 자동으로 합쳐집니다 (assets/js/site.js). */
+window.KOSIN = window.KOSIN || {};
+KOSIN.youtubeAuto = {
+  "videos": [
+    {"youtube":"WJ8rLQ89E34","date":"2026-09-28","p":"2026-09-28T04:29:17Z","title":"일백쉰 세 마리"},
+    {"youtube":"cRm23HHm45c","date":"2026-09-21","p":"2026-09-20T23:33:29Z","title":"나그네의 세월 130과 열조에게로 돌아간 147"},
+    {"youtube":"O0v0us-QGyc","date":"2026-09-14","p":"2026-09-13T19:52:24Z","title":"그의 수가 일백사십칠 세라"},
+    {"youtube":"QeQufemKl2A","date":"2026-09-07","p":"2026-09-07T09:54:01Z","title":"요셉이 그의 손으로 네 눈을 감기리라"},
+    {"youtube":"KuFHY0QyFJM","date":"2026-09-01","p":"2026-09-01T01:27:09Z","title":"근본 하나님의 본체시나"},
+    {"youtube":"Zfd8ZN55WOM","date":"2026-08-24","p":"2026-08-23T19:33:46Z","title":"엘엘로헤이스라엘"},
+    {"youtube":"foXbabR3Wf8","date":"2026-08-16","p":"2026-08-16T10:42:57Z","title":"브엘세바에 이르러"},
+    {"youtube":"k4WGEC90QDc","date":"2026-08-04","p":"2026-08-04T00:22:34Z","title":"그리스도로 옷 입었느니라"},
+    {"youtube":"--jkz1iHZhQ","date":"2026-07-27","p":"2026-07-27T04:36:30Z","title":"하나님 여호와의 백성이 되었으니"},
+    {"youtube":"7ORKnWiugVU","date":"2026-07-20","p":"2026-07-20T07:59:59Z","title":"그리심산과 에발산"},
+    {"youtube":"c39wwaJOse0","date":"2026-07-14","p":"2026-07-14T02:07:54Z","title":"아버지의 하체"},
+    {"youtube":"HFlMQPSoJLo","date":"2026-07-05","p":"2026-07-05T12:33:02Z","title":"에디오피아 내시"},
+    {"youtube":"K5aMOWIeCvM","date":"2026-06-28","p":"2026-06-28T13:25:05Z","title":"내시"}
+  ],
+  "shorts": [
+    {"youtube":"qJ3a476Lyvg","date":"2026-10-15","p":"2026-10-15T09:28:26Z","title":"저주를 축복으로(2) - 고라자손의 회복"},
+    {"youtube":"zD2xFUuDkcQ","date":"2026-09-23","p":"2026-09-23T05:07:08Z","title":"어떤 감동이 진짜 감동입니까?"},
+    {"youtube":"8fLjlvl07qM","date":"2026-09-15","p":"2026-09-15T04:51:50Z","title":"그의 수가 일백사십칠 세라"},
+    {"youtube":"MmiMsjLequs","date":"2026-09-09","p":"2026-09-09T11:10:36Z","title":"자기를 부인하고 그리스도를 따르는 삶"},
+    {"youtube":"DmJO73tsUrs","date":"2026-09-03","p":"2026-09-03T10:00:52Z","title":"근본 하나님의 본체시나"},
+    {"youtube":"IfYmyVQ7vAI","date":"2026-08-26","p":"2026-08-26T09:22:55Z","title":"엘엘로헤이스라엘"},
+    {"youtube":"XVGm4JJagrM","date":"2026-08-16","p":"2026-08-16T10:42:47Z","title":"경계표를 끝까지 사수하는 믿음"},
+    {"youtube":"-DUIL6kRgPE","date":"2026-08-13","p":"2026-08-13T10:33:19Z","title":"기운이 소생한지라"},
+    {"youtube":"ibe5n5ToWug","date":"2026-08-05","p":"2026-08-05T06:37:19Z","title":"그리스도로 옷 입었느니라"},
+    {"youtube":"8vSkF0aY8-k","date":"2026-07-28","p":"2026-07-28T00:16:08Z","title":"하나님 여호와의 백성이 되었으니"},
+    {"youtube":"8zKriWbNdlM","date":"2026-07-24","p":"2026-07-23T18:57:25Z","title":"그리심산과 에발산"},
+    {"youtube":"GFocGHiixb0","date":"2026-07-17","p":"2026-07-17T08:12:34Z","title":"아버지의 하체"},
+    {"youtube":"60Ot4pR2l9U","date":"2026-07-06","p":"2026-07-06T00:06:19Z","title":"에디오피아 내시"}
+  ]
+};
