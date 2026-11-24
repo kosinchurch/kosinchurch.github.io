@@ -646,6 +646,51 @@
     mountList(el, items, postRow, { tag: 'ul', wrapClass: 'post-list', pageSize: limit ? 0 : 12, empty: '주보를 준비하고 있습니다.' });
   };
 
+  /* 연도별 주보 (교회소식 > 주보)
+     - 올해 주보처럼 data/news.js 에 PDF 로 등록한 것과, 용량 때문에 "글자로만" 보관한 지난 주보(assets/bulletins/archive/index.json)를
+       연도 칸(2026 · 2025 · 2024 …)으로 나누어 보여 줍니다. 글자 주보는 누르면 이 페이지 안에서 열립니다 (?id=…).
+     - 새 해가 되어 지난해 주보를 글자로 옮길 때: archive 폴더에 그 해의 파일과 index.json 을 다시 만들어 올립니다 (관리자 메모 참고). */
+  R['bulletin-years'] = function (el) {
+    var LANG = { en: '영문', ru: '러시아어' };
+    var rows = {};   // 연도 → [{...postRow 항목, d, l}]
+    function put(y, x) { (rows[y] = rows[y] || []).push(x); }
+    visible(D.bulletins).forEach(function (b) {
+      put(String(b.date || '').slice(0, 4), { title: b.title, date: b.date, link: b.file, category: b.file ? '내려받기' : '준비 중', sample: b.sample, l: 'ko' });
+    });
+    function draw(archive) {
+      (archive || []).forEach(function (yr) {
+        (yr.items || []).forEach(function (a) {
+          var tag = (LANG[a.l] ? LANG[a.l] + ' · ' : '') + '글자로 보기';
+          put(String(yr.y), { title: a.t, date: a.d, link: 'news/bulletin.html?id=' + encodeURIComponent(a.id) + '&year=' + yr.y, category: tag, l: a.l });
+        });
+      });
+      var years = Object.keys(rows).filter(function (y) { return /^\d{4}$/.test(y); }).sort().reverse();
+      if (!years.length) { el.innerHTML = '<div class="empty">주보를 준비하고 있습니다.</div>'; return; }
+      var order = { ko: 0, en: 1, ru: 2 };
+      years.forEach(function (y) { rows[y].sort(function (p, q) { return byDateDesc(p, q) || ((order[p.l] || 0) - (order[q.l] || 0)); }); });
+      el.innerHTML = '<div class="tabs by-tabs" role="group" aria-label="연도 선택"></div><div class="by-body"></div>';
+      var tabs = $('.by-tabs', el), body = $('.by-body', el);
+      tabs.innerHTML = years.map(function (y) { return '<button type="button" class="tab" data-y="' + y + '" aria-pressed="false">' + y + '년 <small>' + rows[y].length + '</small></button>'; }).join('');
+      function show(y, keepUrl) {
+        $$('.tab', tabs).forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-y') === y ? 'true' : 'false'); });
+        var html = '', last = '';
+        rows[y].forEach(function (x) {
+          var m = String(x.date || '').slice(5, 7);
+          if (m !== last) { last = m; html += '<li class="by-month" aria-hidden="true">' + (+m || '') + '월</li>'; }
+          html += postRow(x);
+        });
+        body.innerHTML = '<ul class="post-list by-list" aria-label="' + y + '년 주보 목록">' + html + '</ul>';
+        if (!keepUrl) { try { var u = new URL(location.href); u.searchParams.set('year', y); u.searchParams.delete('id'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {} }
+      }
+      tabs.addEventListener('click', function (e) { var b = e.target.closest('.tab'); if (b) show(b.getAttribute('data-y')); });
+      var want = ''; try { want = new URL(location.href).searchParams.get('year') || ''; } catch (e) {}
+      show(years.indexOf(want) >= 0 ? want : years[0], true);
+    }
+    if (!window.fetch) { draw(null); return; }
+    fetch(ROOT + 'assets/bulletins/archive/index.json', { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) { draw(j.years); }, function () { draw(null); });
+  };
+
   /* 책 한 권마다 kind: 'pastor'(담임목사 저서, 기본) 또는 'church'(교회출판도서) */
   function booksOf(kind) { return visible(D.books).filter(function (b) { return (b.kind || 'pastor') === kind; }).sort(byDateDesc); }
   /* 메인 BOOKS 칸 한 권: 왼쪽 표지, 오른쪽 제목·글귀 */
