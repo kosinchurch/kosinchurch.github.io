@@ -4,6 +4,8 @@
 window.KOSIN = window.KOSIN || {};
 KOSIN.youtubeAuto = {
   "videos": [
+    {"youtube":"KvevO_hVjEQ","date":"2026-10-13","p":"2026-10-13T01:27:54Z","title":"저주를 축복으로"},
+    {"youtube":"7Ob3uHosJ3M","date":"2026-10-05","p":"2026-10-05T06:46:11Z","title":"험악한 세월"},
     {"youtube":"WJ8rLQ89E34","date":"2026-09-28","p":"2026-09-28T04:29:17Z","title":"일백쉰 세 마리"},
     {"youtube":"cRm23HHm45c","date":"2026-09-21","p":"2026-09-20T23:33:29Z","title":"나그네의 세월 130과 열조에게로 돌아간 147"},
     {"youtube":"O0v0us-QGyc","date":"2026-09-14","p":"2026-09-13T19:52:24Z","title":"그의 수가 일백사십칠 세라"},
@@ -19,6 +21,8 @@ KOSIN.youtubeAuto = {
     {"youtube":"K5aMOWIeCvM","date":"2026-06-28","p":"2026-06-28T13:25:05Z","title":"내시"}
   ],
   "shorts": [
+    {"youtube":"yyOlIVRS3HI","date":"2026-10-16","p":"2026-10-16T04:38:29Z","title":"험악한 세월"},
+    {"youtube":"Eb6V5I4YRzU","date":"2026-10-15","p":"2026-10-15T09:45:57Z","title":"저주를 축복으로 (1) - 고라의 반역"},
     {"youtube":"qJ3a476Lyvg","date":"2026-10-15","p":"2026-10-15T09:28:26Z","title":"저주를 축복으로(2) - 고라자손의 회복"},
     {"youtube":"zD2xFUuDkcQ","date":"2026-09-23","p":"2026-09-23T05:07:08Z","title":"어떤 감동이 진짜 감동입니까?"},
     {"youtube":"8fLjlvl07qM","date":"2026-09-15","p":"2026-09-15T04:51:50Z","title":"그의 수가 일백사십칠 세라"},
