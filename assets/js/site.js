@@ -872,6 +872,19 @@
       root.addEventListener('touchend', function () { setTimeout(function () { paused = false; }, 6000); }, { passive: true });
     }
   };
+  /* 메인 "선교 소식" 제목 옆: 지금까지 세운 교회·우물 수가 깜빡이며 켜집니다.
+     숫자는 data/missions.js 의 missionStats 에서 고칩니다 (0 이거나 비우면 그 칸이 사라지고, 둘 다 없으면 통째로 사라집니다). */
+  R['mission-stats'] = function (el) {
+    var s = D.missionStats || {};
+    var items = [['churches', '교회'], ['wells', '우물']].filter(function (p) { return +s[p[0]] > 0; });
+    if (!items.length) { el.classList.add('is-hidden'); return; }
+    el.className = 'mission-stats';
+    el.setAttribute('role', 'group');
+    el.setAttribute('aria-label', '지금까지 세운 ' + items.map(function (p) { return p[1] + ' ' + (+s[p[0]]) + '개'; }).join(', '));
+    el.innerHTML = items.map(function (p, i) {
+      return '<span class="ms-item" style="animation-delay:' + (i * 1.1) + 's"><i class="ms-dot" aria-hidden="true"></i><span><b class="ms-num">' + (+s[p[0]]) + '</b>개 ' + p[1] + '</span></span>';
+    }).join('');
+  };
   R['mission-field'] = function (el) {
     var id = qs('id') || 'nepal', f = (D.missionFields || []).filter(function (x) { return x.id === id; })[0];
     if (!f) { notFound(el, '요청하신 선교지를 찾을 수 없습니다.', 'mission/index.html', '선교 첫 페이지로'); return; }
