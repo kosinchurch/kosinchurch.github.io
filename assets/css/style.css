@@ -253,6 +253,21 @@ a.msl-slide:hover, a.msl-slide:focus-visible { transform: translateY(-3px); box-
 .msl-dot { width: 9px; height: 9px; border-radius: 6px; border: 0; background: #d9c9cf; padding: 0; cursor: pointer; transition: width .2s, background .2s; }
 .msl-dot.is-on { width: 24px; background: var(--c-primary); }
 .mission-more { margin-top: 22px; text-align: center; }
+/* "선교 소식" 제목 옆 — 세운 교회·우물 수가 깜빡이며 켜집니다 (숫자는 data/missions.js 의 missionStats) */
+.mission-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 20px; }
+.mission-stats { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.ms-item { display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px 6px 12px; border-radius: 999px; border: 1px solid var(--c-gold); background: var(--c-beige); color: var(--c-primary-deep); font-size: .95rem; font-weight: 600; white-space: nowrap; animation: ms-lit 2.4s ease-in-out infinite; }
+.ms-num { font-family: var(--f-serif); font-size: 1.35rem; line-height: 1; font-weight: 700; color: var(--c-primary); }
+.ms-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-gold); box-shadow: 0 0 8px 2px rgba(201, 162, 39, .7); }
+@keyframes ms-lit {
+  0%, 100% { opacity: 1; box-shadow: 0 0 16px 1px rgba(201, 162, 39, .55); }
+  50% { opacity: .38; box-shadow: 0 0 0 0 rgba(201, 162, 39, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .ms-item { animation: none; } }
+@media (max-width: 768px) {
+  .ms-item { font-size: .88rem; padding: 5px 12px 5px 10px; }
+  .ms-num { font-size: 1.2rem; }
+}
 @media (max-width: 768px) {
   .msl-slide { flex-basis: 100%; }
   .msl-btn { width: 40px; height: 40px; top: calc(50% - 40px); }
