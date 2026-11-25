@@ -1299,7 +1299,8 @@
     /* 홈에 들어오면 팝업처럼 자동으로 한 번 띄웁니다 (같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않음) */
     var skipToday = false, seen = false;
     try { skipToday = localStorage.getItem('kosin-music-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-music-seen') === '1'; } catch (e) {}
-    if (m.autoOpen !== false && !skipToday && !seen) {
+    /* data-auto="off" 를 단 곳(예: 성경 타자)에서는 저절로 뜨는 팝업 없이 "찬양 듣기" 버튼만 보여 줍니다 */
+    if (m.autoOpen !== false && el.getAttribute('data-auto') !== 'off' && !skipToday && !seen) {
       setTimeout(function () {
         if (isOpen) return;
         function openIt() { if (isOpen) return; setOpen(true, true); try { sessionStorage.setItem('kosin-music-seen', '1'); } catch (e) {} }
