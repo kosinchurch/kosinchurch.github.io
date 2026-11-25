@@ -312,6 +312,7 @@
      videos : ['유튜브영상ID', 'clip.mp4']  → 유튜브는 영상 ID, 짧은 mp4 파일은 같은 폴더에 올리고 파일 이름을 적습니다 */
   function eventFile(x, f) { return /^(https?:|assets\/)/.test(f) ? f : (x.dir || 'assets/img/events') + '/' + f; }   // dir: 사진 폴더를 따로 지정 (선교보고 등)
   function photoNames(x) {
+    if (x.parts) { var all = []; x.parts.forEach(function (p) { all = all.concat(p.photos || []); }); return all; }   // parts: 글과 사진을 번갈아 보여 주는 글 (아래 partsHtml)
     var p = x.photos;
     if (typeof p === 'number') { var a = []; for (var i = 1; i <= p; i++) a.push(x.id + '_' + ('00' + i).slice(-3) + '.jpg'); return a; }
     return p || [];
@@ -323,7 +324,7 @@
   }
   var EV_FIRST = 24;   // 사진이 많은 행사는 처음 24장만 보이고 "사진 더 보기"로 펼칩니다
   function eventMedia(x) {
-    var ph = photoNames(x), vd = x.videos || [], html = '';
+    var ph = x.parts ? [] : photoNames(x), vd = x.videos || [], html = '';   // parts 글의 사진은 partsHtml 이 글 사이사이에 넣습니다
     if (vd.length) html += '<div class="event-videos">' + vd.map(function (v) { return videoItem(x, v); }).join('') + '</div>';
     if (ph.length) {
       html += '<div class="photo-grid event-photos' + (x.layout === 'doc' ? ' doc-photos' : '') + '">' + ph.map(function (p, i) {   // layout: 'doc' = 세로 문서(보고서) 그림, 잘라내지 않고 그대로
@@ -333,6 +334,20 @@
       if (ph.length > EV_FIRST) html += '<p class="event-more-wrap"><button type="button" class="btn btn--outline btn--sm event-more">사진 더 보기 (' + EV_FIRST + ' / ' + ph.length + ')</button></p>';
     }
     return html;
+  }
+  /* parts : [ { body: '<p>글</p>', photos: ['a.jpg', 'b.jpg'] }, … ] → 글 한 덩어리 아래에 그 글의 사진을 붙여, 글과 사진이 번갈아 나옵니다.
+     (사진 파일은 보고 항목의 dir 폴더 안에 둡니다. body 나 photos 는 한쪽만 적어도 됩니다.) */
+  function partsHtml(x) {
+    var n = photoNames(x).length, k = 0;
+    return (x.parts || []).map(function (p) {
+      var h = p.body ? rich(p.body) : '', ph = p.photos || [];
+      if (ph.length) h += '<div class="photo-grid event-photos part-photos">' + ph.map(function (f) {
+        k++;
+        var u = link(eventFile(x, f));
+        return '<a href="' + esc(u) + '" data-full="' + esc(u) + '" data-caption="' + esc(x.title + ' (' + k + '/' + n + ')') + '"><img src="' + esc(u) + '" alt="' + esc(x.title + ' 사진 ' + k) + '" loading="lazy"></a>';
+      }).join('') + '</div>';
+      return h;
+    }).join('');
   }
   function setupEventMore() {
     document.addEventListener('click', function (e) {
@@ -350,7 +365,7 @@
     var head = '<span class="post-date">' + fmtDate(x.date) + '</span><span class="post-title">' + esc(x.title) + '</span><span>' + badges + '</span>';
     var open = '<li' + (x.id ? ' id="' + esc(x.id) + '"' : '') + (x.sharePath ? ' class="has-share"' : '') + '>', tail = shareBtn(x) + '</li>';
     if (x.link) return open + '<a class="post-row" href="' + esc(link(x.link)) + '"' + (/^https?:|\.pdf$/i.test(x.link) ? ' target="_blank" rel="noopener"' : '') + '>' + head + '</a>' + tail;
-    if (x.body || media) return open + '<details><summary class="post-row">' + head + '</summary><div class="post-body">' + (x.body ? rich(x.body) : '') + media + '</div></details>' + tail;
+    if (x.body || media || x.parts) return open + '<details><summary class="post-row">' + head + '</summary><div class="post-body">' + (x.parts ? partsHtml(x) : (x.body ? rich(x.body) : '')) + media + '</div></details>' + tail;
     return open + '<div class="post-row">' + head + '</div>' + tail;
   }
   function sermonRow(x) {
@@ -1129,7 +1144,7 @@
     document.addEventListener('click', function (e) {
       var a = e.target.closest('.photo-grid a[data-full]'); if (!a) return;
       e.preventDefault();
-      var group = $$('a[data-full]', a.closest('.photo-grid'));
+      var group = $$('a[data-full]', a.closest('.part-photos') ? a.closest('.post-body') : a.closest('.photo-grid'));   // 글·사진이 번갈아 나오는 글은 그 글의 사진 전체를 이어서 넘겨 봅니다
       lbOpen(group, group.indexOf(a), a);
     });
   }
