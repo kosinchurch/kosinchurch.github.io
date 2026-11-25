@@ -2,7 +2,8 @@
    성경 타자 (예배·말씀 > 성경 타자)
    - 번역을 고르고(개역개정·개역한글) 책·장을 고르면 본문을 한 절씩 보여 주고, 따라 쓰는 대로 글자마다 맞고 틀림을 표시합니다.
    - 한 절을 다 쓰면 자동으로 다음 절로 넘어갑니다. 한글은 마지막 글자가 아직 "조합 중"이면 스페이스나 Enter 로 확정하면 됩니다.
-   - 쓴 기록(어느 장을 썼는지·속도)은 이 기기의 브라우저(localStorage)에만 저장됩니다. (로그인 없음) 번역마다 따로 기록합니다.
+   - 쓴 기록(어느 장을 썼는지·속도)은 이 기기의 브라우저(localStorage)에 저장됩니다. 번역마다 따로 기록합니다.
+     로그인하면(assets/js/account.js, 카카오·구글) 계정에도 자동 저장되어 다른 기기에서 이어집니다. 합치는 방법은 맨 아래 mergeTyping 참고.
    - 본문은 assets/bible/<번역>/01.json ~ 66.json (책별 → 장별 → 절 글자). 번역: nkrv 개역개정, krv 개역한글.
    - "(18절에 포함되어 있음)" 처럼 앞 절에 합쳐진 절은 쓰지 않고 건너뜁니다.
    - 한글 본문의 「 」 … — 처럼 키보드로 치기 어려운 부호는 쓰지 않아도 맞는 것으로 봅니다.
@@ -40,6 +41,13 @@
   S.fin = S.fin || {}; S.opts = S.opts || {};
   if (!TR[S.t]) S.t = 'nkrv';
   S.st = S.st || { ko: { chars: S.chars || 0, ms: S.ms || 0 } };            // 예전 기록(글자 수·시간)은 한글 쪽으로 옮김
+  /* 계정 저장(로그인)용: ts = 장별 마지막으로 쓴 시각, del = 장별 "다시 쓰기"로 지운 시각, rs = 번역 전체 지우기 시각,
+     ep = 글자 수·시간 지우기 시각, dev = 이 기기 번호, devs = 다른 기기들이 쓴 글자 수·시간 */
+  S.ts = S.ts || {}; S.del = S.del || {}; S.rs = S.rs || {}; S.ep = S.ep || 0; S.devs = S.devs || {};
+  S.days = S.days || {};                                                    // 이 기기에서 날마다 쓴 [글자 수, 시간(ms), 절 수] — 현황판용 (다른 기기 것은 S.devs[기기].d)
+  if (!S.dev) S.dev = 'd' + Math.random().toString(36).slice(2, 10);
+  var ACC = window.KOSIN && window.KOSIN.account;                           // 로그인 기능이 꺼져 있으면 아무 일도 하지 않음
+  function touch() { if (ACC) ACC.touch('typing'); }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   /* 주소 끝에 ?t=krv&b=43&c=3 (번역·책 번호 1~66·장) 을 붙이면 그 장을 바로 엽니다 */
@@ -88,9 +96,21 @@
       '<h3 id="ty-donetitle"></h3><p id="ty-donetext"></p>' +
       '<div class="btn-row"><button type="button" class="btn btn--primary" id="ty-donenext">다음 장 쓰기 &rsaquo;</button><button type="button" class="btn btn--outline" id="ty-doneagain">이 장 다시 쓰기</button></div>' +
     '</div>' +
+    '<section class="ty-stats" id="ty-stats" aria-label="내 타자 기록">' +
+      '<div class="ty-stats__head"><h3>내 타자 기록</h3><span class="ty-stats__live">쓰는 대로 바로 올라가요</span></div>' +
+      '<div class="ty-tiles">' +
+        '<div class="ty-tile"><span>오늘 쓴 글자</span><b id="ty-st-today">0</b><small id="ty-st-todaysub">0절 완료</small></div>' +
+        '<div class="ty-tile"><span>연속 쓴 날</span><b id="ty-st-streak">0일</b><small id="ty-st-streaksub"></small></div>' +
+        '<div class="ty-tile"><span>완료한 장</span><b id="ty-st-chap">0</b><small id="ty-st-chapsub"></small></div>' +
+        '<div class="ty-tile" id="ty-st-spdbox"><span id="ty-st-spdk">평균 속도</span><b id="ty-st-spd">0</b><small>자 / 분</small></div>' +
+      '</div>' +
+      '<details class="ty-books"><summary>책별 진행 보기</summary><div class="ty-bkgrid" id="ty-bkgrid"></div></details>' +
+    '</section>' +
     '<ol class="ty-list" id="ty-list" aria-label="이 장의 말씀 (누르면 그 절부터 씁니다)"></ol>' +
     '<p class="ty-credit" id="ty-credit"></p>' +
-    '<p class="ty-credit">쓴 기록은 이 기기의 브라우저에만 저장되며, 다른 기기와는 이어지지 않습니다. 번역마다 따로 기록합니다.</p>';
+    '<p class="ty-credit">' + (ACC && ACC.enabled()
+      ? '쓴 기록은 이 기기의 브라우저에 저장되고, 로그인하면 계정에도 저장되어 다른 기기에서 이어집니다. 번역마다 따로 기록합니다.'
+      : '쓴 기록은 이 기기의 브라우저에만 저장되며, 다른 기기와는 이어지지 않습니다. 번역마다 따로 기록합니다.') + '</p>';
 
   function $(id) { return document.getElementById(id); }
   var elTrans = $('ty-trans'), elBook = $('ty-book'), elChap = $('ty-chap'), elPrev = $('ty-prev'), elNext = $('ty-next'), elSum = $('ty-sum'),
@@ -100,14 +120,56 @@
       elDone = $('ty-done'), elList = $('ty-list'), elCredit = $('ty-credit');
 
   /* ---------- 상태 ---------- */
-  var verses = [], typable = [], cur = -1, composing = false, startTs = 0, errors = 0, badSeen = {}, liveKind = '', token = 0;
+  var verses = [], typable = [], cur = -1, composing = false, startTs = 0, errors = 0, badSeen = {}, liveKind = '', token = 0, liveOk = 0;
   elSpace.checked = !!S.opts.ignoreSpace;
 
   function doneArr() { return S.done[key()] || []; }
   function isDone(i) { return doneArr().indexOf(i + 1) >= 0; }
-  function resetVerse() { startTs = 0; errors = 0; badSeen = {}; }
+  function resetVerse() { startTs = 0; errors = 0; badSeen = {}; liveOk = 0; }
   function say(msg, kind) { elLive.textContent = msg || ''; elLive.className = 'ty-live' + (kind ? ' is-' + kind : ''); liveKind = kind || ''; }
   function stat() { return S.st.ko || (S.st.ko = { chars: 0, ms: 0 }); }
+
+  /* ---------- 내 기록 현황 (쓰는 동안 실시간으로 올라갑니다) ---------- */
+  function dkey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function allDays() {                                                      // 날짜 → [글자 수, 시간, 절 수] (이 기기 + 로그인으로 가져온 다른 기기 것)
+    var out = {}, id, e;
+    function add(days) { var d, a, o; for (d in days) { a = days[d] || []; o = out[d] || (out[d] = [0, 0, 0]); o[0] += a[0] || 0; o[1] += a[1] || 0; o[2] += a[2] || 0; } }
+    add(S.days);
+    for (id in S.devs) { e = S.devs[id] || {}; if ((e.e || 0) >= (S.ep || 0)) add(e.d); }
+    return out;
+  }
+  function streakOf(days) {                                                 // 오늘(또는 어제)부터 거꾸로 이어서 쓴 날 수
+    var d = new Date(), n = 0;
+    if (!(days[dkey(d)] && days[dkey(d)][0] > 0)) d.setDate(d.getDate() - 1);
+    while (days[dkey(d)] && days[dkey(d)][0] > 0) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function totals() {                                                       // 이 기기 + 다른 기기에서 쓴 글자 수·시간
+    var ss = stat(), t = { chars: ss.chars, ms: ss.ms }, id, e;
+    for (id in S.devs) { e = S.devs[id] || {}; if ((e.e || 0) >= (S.ep || 0)) { t.chars += e.c || 0; t.ms += e.m || 0; } }
+    return t;
+  }
+  function renderStats(light) {
+    var el = $('ty-stats'); if (!el) return;
+    var days = allDays(), td = days[dkey(new Date())] || [0, 0, 0], t = totals(), n = 0, st, live = 0;
+    $('ty-st-today').textContent = (td[0] + liveOk).toLocaleString('ko-KR');
+    $('ty-st-todaysub').textContent = td[2] + '절 완료' + (liveOk ? ' · 쓰는 중' : '');
+    st = streakOf(days); $('ty-st-streak').textContent = st + '일';
+    $('ty-st-streaksub').textContent = st ? (days[dkey(new Date())] ? '오늘도 쓰셨어요' : '오늘 쓰면 이어져요') : '오늘 첫 절을 써 보세요';
+    finKeys(function () { n++; });
+    $('ty-st-chap').textContent = n; $('ty-st-chapsub').textContent = '/ ' + TOTAL + '장 · ' + tr().name;
+    if (startTs && liveOk >= 3 && Date.now() - startTs > 1500) live = Math.round(liveOk / ((Date.now() - startTs) / 60000));
+    $('ty-st-spdk').textContent = live ? '지금 속도' : '평균 속도';
+    $('ty-st-spdbox').className = 'ty-tile' + (live ? ' is-live' : '');
+    $('ty-st-spd').textContent = live || (t.ms > 0 ? Math.round(t.chars / (t.ms / 60000)) : 0);
+    if (light) return;
+    var h = '', i, f, c, p;
+    for (i = 0; i < NB; i++) {
+      f = finCount(i); c = BOOKS[i][1]; p = Math.round(100 * f / c);
+      h += '<button type="button" class="ty-bk' + (f === c ? ' is-full' : '') + (i === S.b ? ' is-cur' : '') + '" data-b="' + i + '" style="--p:' + p + '%" title="' + esc(BOOKS[i][0]) + ' ' + f + '/' + c + unit(i) + '"><span>' + esc(BOOKS[i][0]) + '</span><i>' + f + '/' + c + '</i></button>';
+    }
+    $('ty-bkgrid').innerHTML = h;
+  }
 
   /* 고른 번역에 맞게 화면의 안내(출처 표시·입력칸 문구)를 바꿈 */
   function applyLang() {
@@ -198,6 +260,8 @@
       h += '<span class="c-' + r.st[i] + (i === r.caret ? ' c-cur' : '') + '">' + esc(t.charAt(i)) + '</span>';
     }
     elTarget.innerHTML = h;
+    var ok = 0; for (i = 0; i < t.length; i++) if (r.st[i] === 'ok' && !/\s/.test(t.charAt(i))) ok++;   // 지금 쓰는 절에서 맞게 쓴 글자 수 (현황판에 실시간 반영)
+    liveOk = ok; renderStats(true);
     if (r.extra && !composing) say('글자가 더 많이 입력됐어요. 뒤쪽을 지워 주세요.', 'warn');
     else if (r.ok && composing) say('✓ 다 썼어요! 스페이스나 Enter 키를 누르면 다음 절로 넘어갑니다.', 'hint');
     else if (liveKind === 'hint' || liveKind === 'warn' || liveKind === 'ok') say('', '');
@@ -211,9 +275,12 @@
     var wasFin = !!S.fin[k], n;
     if (arr.indexOf(v) < 0) arr.push(v);
     ss.chars += len; ss.ms += ms;
+    var dk = dkey(new Date()), dd = S.days[dk] || (S.days[dk] = [0, 0, 0]), dks;
+    dd[0] += len; dd[1] += ms; dd[2] += 1;
+    dks = Object.keys(S.days).sort(); while (dks.length > 400) delete S.days[dks.shift()];   // 날짜 기록은 최근 400일만
     if (!wasFin && typable.every(isDone)) { S.fin[k] = 1; n = -1; } else n = nextTypable(cur);
     elIn.value = ''; resetVerse(); cur = n;
-    save(); fillBooks(); fillChaps(); renderAll();
+    S.ts[k] = Date.now(); save(); touch(); fillBooks(); fillChaps(); renderAll();
     say('✓ ' + v + '절 완료 · 정확도 ' + acc + '% · 분당 ' + Math.round(len / (ms / 60000)) + '자', 'ok');
     if (cur >= 0) elIn.focus({ preventScroll: true });
   }
@@ -236,9 +303,10 @@
     elProgBar.style.width = (typable.length ? Math.round(100 * d / typable.length) : 0) + '%';
   }
   function renderSummary() {
-    var n = 0, ss = stat(), avg = ss.ms > 0 ? Math.round(ss.chars / (ss.ms / 60000)) : 0;
+    var n = 0, t = totals(), avg = t.ms > 0 ? Math.round(t.chars / (t.ms / 60000)) : 0;      // 다른 기기에서 쓴 글자 수·시간도 더함
     finKeys(function () { n++; });
-    elSum.textContent = tr().name + ' · 완료한 장 ' + n + ' / ' + TOTAL + ' · 쓴 글자 ' + ss.chars.toLocaleString('ko-KR') + '자' + (avg ? ' · 평균 분당 ' + avg + '자' : '');
+    elSum.textContent = tr().name + ' · 완료한 장 ' + n + ' / ' + TOTAL + ' · 쓴 글자 ' + t.chars.toLocaleString('ko-KR') + '자' + (avg ? ' · 평균 분당 ' + avg + '자' : '');
+    renderStats(false);
   }
   function renderStage() {
     var name = chapLabel(S.b, S.c);
@@ -281,7 +349,7 @@
   elNext.addEventListener('click', function () { gotoRel(1); });
   $('ty-donenext').addEventListener('click', function () { gotoRel(1); });
   $('ty-doneagain').addEventListener('click', function () {
-    delete S.done[key()]; delete S.fin[key()]; save(); fillBooks(); fillChaps();
+    var kk = key(); delete S.done[kk]; delete S.fin[kk]; S.del[kk] = Date.now(); save(); touch(); fillBooks(); fillChaps();
     pickStart(); resetVerse(); renderAll(); say('', ''); if (cur >= 0) elIn.focus();
   });
   elSpace.addEventListener('change', function () { S.opts.ignoreSpace = elSpace.checked; save(); paint(); check(); });
@@ -292,12 +360,21 @@
   });
   elRedo.addEventListener('click', function () { elIn.value = ''; resetVerse(); say('', ''); paint(); elIn.focus(); });
   $('ty-reset').addEventListener('click', function () {
-    if (!window.confirm('이 기기에 저장된 ' + tr().name + ' 성경 타자 기록(쓴 장·글자 수·속도)을 모두 지울까요? 다른 번역의 기록은 그대로 남습니다.')) return;
+    var who = (ACC && ACC.user && ACC.user()) ? '이 기기와 내 계정에 저장된 ' : '이 기기에 저장된 ';
+    if (!window.confirm(who + tr().name + ' 성경 타자 기록(쓴 장·글자 수·속도)을 모두 지울까요? 다른 번역의 기록은 그대로 남습니다.')) return;
     var re = S.t === 'krv' ? /^\d+-\d+$/ : new RegExp('^' + S.t + ':'), k;
     for (k in S.done) if (re.test(k)) delete S.done[k];
     for (k in S.fin) if (re.test(k)) delete S.fin[k];
+    for (k in S.ts) if (re.test(k)) delete S.ts[k];
+    for (k in S.del) if (re.test(k)) delete S.del[k];
+    S.rs[S.t] = Date.now(); S.ep = Date.now(); S.devs = {}; S.days = {};   // 계정에 저장된 같은 번역 기록·글자 수도 이 시각 이전 것은 모두 지워진 것으로 합니다
     S.st.ko = { chars: 0, ms: 0 };
-    save(); fillBooks(); fillChaps(); pickStart(); resetVerse(); renderAll(); say('기록을 지웠습니다.', '');
+    save(); touch(); fillBooks(); fillChaps(); pickStart(); resetVerse(); renderAll(); say('기록을 지웠습니다.', '');
+  });
+  $('ty-bkgrid').addEventListener('click', function (e) {                // 책별 진행에서 책을 누르면 그 책 1장으로 이동
+    var b = e.target.closest('button[data-b]'); if (!b) return;
+    openChapter(+b.getAttribute('data-b'), 1, false);
+    try { elPlay.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {}
   });
   elList.addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (b) jump(+b.getAttribute('data-i')); });
 
@@ -328,4 +405,68 @@
 
   applyLang(); fillBooks(); fillChaps(); renderSummary();
   openChapter(S.b, S.c, true);
+
+  /* ---------- 계정에 저장 (로그인했을 때) ----------
+     장마다: done(쓴 절 번호들)은 두 기록을 합치고, 그 장을 "다시 쓰기"로 지운 시각(del)이나 번역 전체 지우기 시각(rs)보다
+     오래된 기록은 버립니다. 글자 수·시간은 기기마다 따로 적어 두었다가 더합니다(dev). 지우기(ep) 이전 것은 무시. */
+  function mergeTyping(L, R) {
+    L = L || {}; R = R || {};
+    function g(x, f) { return (x && x[f]) || {}; }
+    var out = { v: 1, done: {}, fin: {}, ts: {}, del: {}, rs: {}, ep: 0, dev: {} }, keys = {};
+    [L, R].forEach(function (x) { var r = g(x, 'rs'), t; for (t in r) out.rs[t] = Math.max(out.rs[t] || 0, r[t] || 0); });
+    [L, R].forEach(function (x) { ['done', 'fin', 'ts', 'del'].forEach(function (f) { var o = g(x, f), k; for (k in o) keys[k] = 1; }); });
+    Object.keys(keys).forEach(function (k) {
+      var tr = k.indexOf(':') > 0 ? k.split(':')[0] : 'krv';
+      var kd = Math.max(g(L, 'del')[k] || 0, g(R, 'del')[k] || 0), d = Math.max(kd, out.rs[tr] || 0);
+      var arr = [], seen = {}, ts = 0, fin = 0;
+      [L, R].forEach(function (x) {
+        var a = g(x, 'done')[k], f = g(x, 'fin')[k], t0 = g(x, 'ts')[k] || 0;
+        if (!a && !f) return;
+        if (d > 0 && !(t0 > d)) return;                                    // 지운 뒤에 쓴 기록만 남김 (시각이 없는 예전 기록은 지운 기록이 없을 때만 남음)
+        (a || []).forEach(function (n) { if (!seen[n]) { seen[n] = 1; arr.push(n); } });
+        if (f) fin = 1;
+        if (t0 > ts) ts = t0;
+      });
+      if (arr.length) out.done[k] = arr.sort(function (a, b) { return a - b; });
+      if (fin) out.fin[k] = 1;
+      if (ts) out.ts[k] = ts;
+      if (kd) out.del[k] = kd;
+    });
+    out.ep = Math.max(L.ep || 0, R.ep || 0);
+    [L, R].forEach(function (x) {
+      var dv = g(x, 'dev'), id;
+      for (id in dv) {
+        var e = dv[id] || {}, cur = out.dev[id];
+        if ((e.e || 0) < out.ep) continue;
+        if (!cur || (e.c || 0) > cur.c) out.dev[id] = { c: e.c || 0, m: e.m || 0, e: e.e || 0, d: e.d || {} };
+      }
+    });
+    return out;
+  }
+  if (ACC) ACC.register('typing', {
+    get: function () {
+      var dev = {}, id, ss = stat();
+      for (id in S.devs) dev[id] = S.devs[id];
+      dev[S.dev] = { c: ss.chars, m: ss.ms, e: S.ep || 0, d: S.days };
+      return { v: 1, done: S.done, fin: S.fin, ts: S.ts, del: S.del, rs: S.rs, ep: S.ep || 0, dev: dev };
+    },
+    merge: mergeTyping,
+    set: function (m) {
+      var id, me = m.dev[S.dev];
+      S.done = m.done; S.fin = m.fin; S.ts = m.ts; S.del = m.del; S.rs = m.rs; S.ep = m.ep;
+      S.st.ko = me ? { chars: me.c, ms: me.m } : { chars: 0, ms: 0 };
+      S.days = (me && me.d) || {};
+      S.devs = {}; for (id in m.dev) if (id !== S.dev) S.devs[id] = m.dev[id];
+      save();
+      if (!verses.length) { fillBooks(); fillChaps(); renderSummary(); return; }   // 본문을 아직 불러오는 중이면 불러온 뒤 새 기록으로 그려짐
+      var before = cur; if (cur >= 0 && isDone(cur)) pickStart();
+      if (cur !== before) { elIn.value = ''; resetVerse(); }
+      fillBooks(); fillChaps(); renderAll();
+    },
+    has: function () { return Object.keys(S.done).length > 0; },
+    clear: function () {
+      S.done = {}; S.fin = {}; S.ts = {}; S.del = {}; S.rs = {}; S.ep = 0; S.devs = {}; S.days = {}; S.st.ko = { chars: 0, ms: 0 };
+      save(); if (verses.length) { pickStart(); resetVerse(); } fillBooks(); fillChaps(); renderAll();
+    }
+  });
 })();

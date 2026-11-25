@@ -1,7 +1,8 @@
 /* ==========================================================================
    성경 통독 (예배·말씀 > 성경 통독)
    - 365일 통독 / 맥체인 통독: 오늘 날짜에 맞는 읽을 곳을 보여 주고, 장마다 영상(팝업 재생)을 연결합니다.
-   - 읽기 완료 표시와 달력은 이 기기의 브라우저(localStorage)에만 저장됩니다. (로그인 없음)
+   - 읽기 완료 표시와 달력은 이 기기의 브라우저(localStorage)에 저장됩니다. 로그인하면(assets/js/account.js, 카카오·구글) 계정에도 자동 저장되어 다른 기기에서 이어집니다.
+     (날마다 "읽음"을 누른 시각을 state.t['계획|날짜'] 에 적어 두고, 두 기록은 가장 나중에 바꾼 쪽이 이깁니다)
    - 성경 전체: 책 → 장을 골라 영상을 봅니다.
    - 영상은 유튜브 채널 "공동체성경읽기"(개역개정)의 영상이며, 재생은 site.js 의 영상 팝업(setupVideoModal)이 맡습니다.
    자료는 data/bible.js 에 있습니다.
@@ -35,6 +36,9 @@
   function saveState() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   var state = loadState();
   state.done = state.done || {}; state.done.y365 = state.done.y365 || {}; state.done.mcheyne = state.done.mcheyne || {};
+  state.t = state.t || {};
+  var ACC = window.KOSIN && window.KOSIN.account;                // 로그인·기록 저장 (assets/js/account.js, 로그인 기능이 꺼져 있으면 아무 일도 하지 않음)
+  function loggedUi() { return !!(ACC && ACC.enabled()); }
 
   /* ---------- 날짜 ---------- */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -180,7 +184,9 @@
   }
   function noteHtml() {
     return '<p class="bible-note">영상은 유튜브 채널 <a href="' + B.channel + '" target="_blank" rel="noopener">공동체성경읽기</a>의 장별 구절 영상(개역개정)이며, 영상을 누르면 이 화면 위에서 재생되고 창 안의 "유튜브에서 보기"로 유튜브에서 열 수 있습니다. ' +
-      '읽은 날 표시는 지금 사용 중인 기기·브라우저에만 저장되어 다른 기기와는 이어지지 않으며, 브라우저 기록을 지우면 함께 지워집니다.</p>';
+      (loggedUi()
+        ? '읽은 날 표시는 이 기기에 저장되고, 로그인하면 계정에도 저장되어 다른 기기에서 이어집니다. 로그인하지 않으면 이 기기·브라우저에만 저장되며, 브라우저 기록을 지우면 함께 지워집니다.'
+        : '읽은 날 표시는 지금 사용 중인 기기·브라우저에만 저장되어 다른 기기와는 이어지지 않으며, 브라우저 기록을 지우면 함께 지워집니다.') + '</p>';
   }
 
   /* ---------- 그리기 ---------- */
@@ -211,7 +217,8 @@
       if (act === 'done') {
         var m = state.done[plan] = state.done[plan] || {};
         if (m[view.sel]) delete m[view.sel]; else m[view.sel] = 1;
-        saveState(); render('[data-act="done"]');
+        state.t[plan + '|' + view.sel] = Date.now();
+        saveState(); if (ACC) ACC.touch('bible'); render('[data-act="done"]');
       } else if (act === 'prev' || act === 'next') {
         view.mm += act === 'next' ? 1 : -1;
         if (view.mm < 0) { view.mm = 11; view.my--; } else if (view.mm > 11) { view.mm = 0; view.my++; }
@@ -220,6 +227,36 @@
         view.sel = todayKey; view.my = today.getFullYear(); view.mm = today.getMonth(); render('[data-date="' + todayKey + '"]');
       }
     }
+  });
+
+  /* ---------- 계정에 저장 (로그인했을 때) ----------
+     읽은 날 = state.done[계획][날짜]. 바꾼 시각 = state.t['계획|날짜']. 두 기록은 날짜마다 가장 나중에 바꾼 쪽이 이기고,
+     시각이 없는 예전 기록은 "읽음"으로 보고 합칩니다. */
+  var PLAN_IDS = ['y365', 'mcheyne'];
+  function mergeBible(L, R) {
+    L = L || {}; R = R || {};
+    var out = { v: 1, done: { y365: {}, mcheyne: {} }, t: {} }, ids = {};
+    function collect(x) {
+      PLAN_IDS.forEach(function (p) { Object.keys(((x.done || {})[p]) || {}).forEach(function (d) { ids[p + '|' + d] = 1; }); });
+      Object.keys(x.t || {}).forEach(function (k) { var p = k.split('|')[0]; if (PLAN_IDS.indexOf(p) >= 0) ids[k] = 1; });
+    }
+    collect(L); collect(R);
+    Object.keys(ids).forEach(function (id) {
+      var p = id.split('|')[0], d = id.slice(p.length + 1);
+      var lt = (L.t || {})[id] || 0, rt = (R.t || {})[id] || 0;
+      var lon = !!(((L.done || {})[p] || {})[d]), ron = !!(((R.done || {})[p] || {})[d]);
+      var on = lt === rt ? (lon || ron) : (rt > lt ? ron : lon);
+      if (on) out.done[p][d] = 1;
+      if (lt || rt) out.t[id] = Math.max(lt, rt);
+    });
+    return out;
+  }
+  if (ACC) ACC.register('bible', {
+    get: function () { return { v: 1, done: { y365: state.done.y365, mcheyne: state.done.mcheyne }, t: state.t }; },
+    merge: mergeBible,
+    set: function (m) { state.done.y365 = m.done.y365; state.done.mcheyne = m.done.mcheyne; state.t = m.t; saveState(); render(); },
+    has: function () { return Object.keys(state.done.y365).length + Object.keys(state.done.mcheyne).length > 0; },
+    clear: function () { state.done = { y365: {}, mcheyne: {} }; state.t = {}; saveState(); render(); }
   });
 
   render();
