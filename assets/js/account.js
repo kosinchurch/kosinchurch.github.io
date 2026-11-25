@@ -26,6 +26,9 @@
   var LAST = 'kosin.auth.last';                   // 이 기기에 남아 있는 기록의 주인(계정 번호)
   var ON = cfg.enabled !== false && /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(cfg.supabaseUrl || '') && String(cfg.supabaseKey || '').length > 20;
 
+  /* 보여 줄 로그인 방법 (data/account.js 의 providers: ['kakao'] / ['kakao', 'google']). Supabase 에서 켠 것만 넣으세요 */
+  var PROVIDERS = (Array.isArray(cfg.providers) ? cfg.providers : ['kakao', 'google']).filter(function (p) { return p === 'kakao' || p === 'google'; });
+  if (!PROVIDERS.length) PROVIDERS = ['kakao'];
   var H = {}, T = {}, sb = null, user = null, busy = 0, lastAt = 0, lastErr = '', msg = '', connecting = false, mode = '', clock = 0;
   /* ready: 페이지의 다른 스크립트(typing.js·bible.js)가 기록을 등록하고 난 뒤부터 true. hold: "누구 기록인가요?" 질문에 답하기 전에는 합치지 않음 */
   var ready = false, pendingLogin = false, hold = false, msgOk = false;     // msgOk: 안내 글이 오류가 아닌 인사말일 때
@@ -114,8 +117,11 @@
       el.innerHTML = '<section class="acc" aria-label="로그인"><div class="acc__txt"><b>로그인하면 읽은 기록이 어디서든 이어져요.</b>' +
         '<span>휴대폰에서 읽고, 컴퓨터에서 이어서 읽을 수 있어요. 처음이라면 누르기만 해도 자동으로 가입돼요.</span>' +
         '<small>로그인하지 않아도 지금처럼 쓸 수 있어요 · <a href="' + esc(root()) + 'privacy.html">개인정보처리방침</a></small></div>' +
-        '<div class="acc__btns"><button type="button" class="acc-btn acc-btn--kakao" data-p="kakao"' + dis + '>' + KAKAO + '<span>' + (connecting ? '연결하는 중…' : '카카오로 시작하기') + '</span></button>' +
-        '<button type="button" class="acc-btn acc-btn--google" data-p="google"' + dis + '>' + GOOGLE + '<span>Google로 시작하기</span></button></div>' + note + '</section>';
+        '<div class="acc__btns">' + PROVIDERS.map(function (p) {
+          return p === 'kakao'
+            ? '<button type="button" class="acc-btn acc-btn--kakao" data-p="kakao"' + dis + '>' + KAKAO + '<span>' + (connecting ? '연결하는 중…' : '카카오로 시작하기') + '</span></button>'
+            : '<button type="button" class="acc-btn acc-btn--google" data-p="google"' + dis + '>' + GOOGLE + '<span>Google로 시작하기</span></button>';
+        }).join('') + '</div>' + note + '</section>';
     }
   }
 
@@ -188,6 +194,7 @@
     if (!user) { lastAt = 0; lastErr = ''; hold = false; }
   }
   function signIn(p) {
+    if (PROVIDERS.indexOf(p) < 0) return;
     msg = ''; msgOk = false; connecting = true; mode = ''; render();
     lib(function () {
       var o = { redirectTo: location.origin + location.pathname };
