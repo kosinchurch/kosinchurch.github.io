@@ -1319,11 +1319,13 @@
     var cfg = church().interpreter || {};
     if (cfg.enabled === false || !/^https:\/\//.test(cfg.url || '')) return;
     var ch = cfg.channel || '', skip = false, seen = false, prev = null;
+    var when = cfg.when === undefined ? '주일 낮 · 오후 예배' : String(cfg.when || '');   // 제공 시간 안내(비우면 안내 띠가 사라집니다)
     try { skip = localStorage.getItem('kosin-live-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-live-seen') === '1'; } catch (e) {}
     el.innerHTML = '<div class="ln" hidden role="dialog" aria-modal="true" aria-labelledby="ln-title"><div class="ln__panel">' +
       '<button type="button" class="ln__x" aria-label="닫기">&times;</button>' +
       '<div class="ln__top"><span class="ln__live"><i></i>LIVE</span><h2 id="ln-title">실시간 통역 안내</h2>' +
         '<p>라이브 방송(예배 실황)을 보실 때, AI 실시간 통역으로 <strong>내 언어로 들으실 수</strong> 있습니다.</p></div>' +
+      (when ? '<div class="ln__when">' + ico('clock') + '<p><span>제공 시간</span><b>' + esc(when) + '</b>에만 제공됩니다.</p></div>' : '') +
       '<ul class="ln__langs" aria-label="제공 언어"><li lang="en">English</li><li lang="ru">Русский</li><li lang="ja">日本語</li><li lang="zh">中文</li><li class="is-more">그 밖의 여러 언어</li></ul>' +
       '<ol class="ln__steps">' +
         '<li>휴대폰의 <b>무음(진동) 스위치를 꺼</b> 주세요. 무음이면 소리가 나오지 않습니다.</li>' +
