@@ -862,6 +862,40 @@ html.ln-open { overflow: hidden; }
   .ln__when p { font-size: .95rem; }
   .ln__when b { font-size: 1.02rem; }
 }
+/* ---------- 교회학교: 교육 부서 표 · 모임 시간 ---------- */
+.edu-table-wrap { border: 1px solid var(--c-line); border-radius: var(--radius); overflow: hidden; background: #fff; box-shadow: var(--shadow-1); }
+.edu-table { width: calc(100% + 2px); margin: -1px; border-collapse: collapse; text-align: center; font-size: 1.02rem; }
+.edu-table th, .edu-table td { padding: 14px 10px; border: 1px solid var(--c-line); vertical-align: middle; }
+.edu-table thead th { background: var(--c-primary-deep); color: #fff; font-weight: 700; border-color: rgba(255, 255, 255, .16); }
+.edu-table .e-no { width: 48px; padding-left: 4px; padding-right: 4px; color: var(--c-muted); font-size: .92rem; }
+.edu-table thead .e-no { background: var(--c-primary-deep); }
+.edu-table .e-dept { padding: 0; font-weight: 700; color: var(--c-primary-deep); background: var(--c-bg-soft); white-space: nowrap; }
+.edu-table .e-dept span { display: block; padding: 14px 12px; }
+.edu-table .e-dept span + span { border-top: 1px solid var(--c-line); }
+.edu-table td { font-weight: 500; }
+.edu-table .e-note { min-width: 128px; background: var(--c-beige); line-height: 1.75; color: var(--c-ink-soft); }
+.edu-table .e-note b { display: block; margin-top: 4px; font-size: 1.05rem; color: var(--c-primary-deep); }
+.edu-none { color: var(--c-muted); }
+.edu-times { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.edu-times li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 20px; border-radius: var(--radius); background: var(--c-beige); }
+.edu-times span { font-weight: 700; color: var(--c-ink); }
+.edu-times b { font-size: 1.15rem; color: var(--c-primary); white-space: nowrap; }
+.edu-cards, .edu-note-m { display: none; }
+.edu-card { background: #fff; border: 1px solid var(--c-line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-1); }
+.edu-card header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.edu-card__no { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--c-primary-soft); color: var(--c-primary-dark); font-weight: 700; font-size: .9rem; }
+.edu-card h3 { margin: 0; font-size: 1.15rem; }
+.edu-card dl { margin: 0; display: grid; gap: 4px; }
+.edu-card dl div { display: flex; gap: 12px; }
+.edu-card dt { flex: none; width: 3.8em; color: var(--c-muted); font-size: .92rem; }
+.edu-card dd { margin: 0; font-weight: 700; }
+@media (max-width: 760px) {
+  .edu-table-wrap { display: none; }
+  .edu-cards { display: grid; gap: 12px; }
+  .edu-note-m { display: block; margin: 14px 0 0; padding: 14px 18px; border-radius: var(--radius); background: var(--c-beige); line-height: 1.6; color: var(--c-ink-soft); }
+  .edu-note-m strong { color: var(--c-primary-deep); }
+  .edu-times li { padding: 14px 16px; flex-wrap: wrap; gap: 4px 16px; }
+}
 /* ---------- 성경 타자 안내 팝업 (홈) ---------- */
 html.tn-open { overflow: hidden; }
 .tn { position: fixed; inset: 0; z-index: 600; display: grid; place-items: center; padding: 16px; background: rgba(42, 8, 20, .58); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: ln-fade .25s ease both; }
