@@ -824,6 +824,11 @@ html.ln-open { overflow: hidden; }
 .ln__top h2 { margin: 12px 0 8px; font-family: var(--f-serif); font-size: 1.6rem; color: #fff; }
 .ln__top p { margin: 0; font-size: 1rem; line-height: 1.65; opacity: .96; }
 .ln__top strong { color: var(--c-gold-light); }
+.ln__when { display: flex; align-items: center; gap: 12px; margin: 16px 24px 0; padding: 12px 16px; border-radius: 14px; background: var(--c-beige); border-left: 4px solid var(--c-gold-text); color: var(--c-ink); }
+.ln__when .ico { width: 1.7em; height: 1.7em; color: var(--c-primary); }
+.ln__when p { margin: 0; font-size: 1rem; line-height: 1.5; }
+.ln__when span { display: block; font-size: .8rem; font-weight: 700; letter-spacing: .06em; color: var(--c-gold-text); }
+.ln__when b { font-size: 1.1rem; color: var(--c-primary-deep); }
 .ln__langs { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 18px 24px 4px; }
 .ln__langs li { padding: 6px 14px; border-radius: 999px; background: var(--c-primary-soft); color: var(--c-primary-dark); font-weight: 700; font-size: .95rem; }
 .ln__langs .is-more { background: var(--c-bg-soft); color: var(--c-ink-soft); }
@@ -851,7 +856,11 @@ html.ln-open { overflow: hidden; }
   .ln__top h2 { font-size: 1.4rem; }
   .ln__langs { padding: 16px 18px 2px; }
   .ln__steps { padding: 0 20px 0 42px; font-size: .94rem; }
-  .ln__channel, .ln__go, .ln__foot, .ln__tag { margin-left: 18px; margin-right: 18px; }
+  .ln__channel, .ln__go, .ln__foot, .ln__tag, .ln__when { margin-left: 18px; margin-right: 18px; }
+  .ln__when { margin-top: 12px; padding: 9px 14px; }
+  .ln__when span { display: none; }
+  .ln__when p { font-size: .95rem; }
+  .ln__when b { font-size: 1.02rem; }
 }
 /* ---------- 성경 타자 안내 팝업 (홈) ---------- */
 html.tn-open { overflow: hidden; }
