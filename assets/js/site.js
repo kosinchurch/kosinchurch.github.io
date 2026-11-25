@@ -830,6 +830,46 @@
     R['dept-grid']($('.others', el));
   };
 
+  /* 교회학교 "교육 부서" 표 + "모임 시간" (자료: data/departments.js 의 eduDepts)
+     여러 줄에 걸치는 칸(교역자·당회원)은 PC 에서는 rowspan 표로, 휴대폰(≤760px)에서는 부서별 카드로 보여 줍니다. */
+  function eduExpand(rows) {
+    var out = rows.map(function (r) { return { dept: r.dept, head: r.head || '', clerk: r.clerk || '' }; });
+    ['minister', 'elder'].forEach(function (k) {
+      var left = 0, val = '';
+      rows.forEach(function (r, i) {
+        if (r[k] !== undefined) { val = r[k]; left = r[k + 'Span'] || 1; out[i][k + 'Start'] = true; out[i][k + 'Span'] = left; }
+        else if (left <= 0) { val = ''; out[i][k + 'Start'] = true; out[i][k + 'Span'] = 1; }
+        if (left > 0) { out[i][k] = val; left--; } else out[i][k] = '';
+      });
+    });
+    return out;
+  }
+  R['edu-table'] = function (el) {
+    var E = D.eduDepts || {}, src = E.rows || [];
+    if (!src.length) { el.innerHTML = ''; return; }
+    var rows = eduExpand(src), note = E.note, times = E.times || [], title = E.title || '교육 부서';
+    function lines(d) { return [].concat(d || []); }
+    function cell(v) { return v ? esc(v) : '<span class="edu-none" aria-label="없음">&mdash;</span>'; }
+    var head = '<thead><tr><th scope="col" class="e-no"><span class="sr-only">번호</span></th><th scope="col">부서</th><th scope="col">교역자</th><th scope="col">당회원</th><th scope="col">부장</th><th scope="col">총무</th>' + (note ? '<th scope="col">비고</th>' : '') + '</tr></thead>';
+    var noteTd = note ? '<td class="e-note" rowspan="' + rows.length + '">' + esc(note.label || '') + (note.name ? '<b>' + esc(note.name) + '</b>' : '') + '</td>' : '';
+    var body = rows.map(function (r, i) {
+      return '<tr><td class="e-no">' + (i + 1) + '</td><th scope="row" class="e-dept">' + lines(r.dept).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</th>' +
+        (r.ministerStart ? '<td rowspan="' + r.ministerSpan + '">' + cell(r.minister) + '</td>' : '') +
+        (r.elderStart ? '<td rowspan="' + r.elderSpan + '">' + cell(r.elder) + '</td>' : '') +
+        '<td>' + cell(r.head) + '</td><td>' + cell(r.clerk) + '</td>' + (i === 0 ? noteTd : '') + '</tr>';
+    }).join('');
+    var cards = rows.map(function (r, i) {
+      var pairs = [['교역자', r.minister], ['당회원', r.elder], ['부장', r.head], ['총무', r.clerk]].filter(function (p) { return p[1]; });
+      return '<article class="edu-card"><header><span class="edu-card__no">' + (i + 1) + '</span><h3>' + esc(lines(r.dept).join(' · ')) + '</h3></header>' +
+        (pairs.length ? '<dl>' + pairs.map(function (p) { return '<div><dt>' + p[0] + '</dt><dd>' + esc(p[1]) + '</dd></div>'; }).join('') + '</dl>' : '') + '</article>';
+    }).join('');
+    el.innerHTML = '<h2 class="group-title">' + esc(title) + '</h2>' +
+      '<div class="edu-table-wrap"><table class="edu-table"><caption class="sr-only">' + esc(title) + ' 담당</caption>' + head + '<tbody>' + body + '</tbody></table></div>' +
+      '<div class="edu-cards">' + cards + '</div>' +
+      (note ? '<p class="edu-note-m">※ ' + esc(note.label || '') + ' <strong>' + esc(note.name || '') + '</strong></p>' : '') +
+      (times.length ? '<h2 class="group-title">모임 시간</h2><ul class="edu-times">' + times.map(function (t) { return '<li><span>' + esc(t.who) + '</span><b>' + esc(t.time) + '</b></li>'; }).join('') + '</ul>' : '');
+  };
+
   R['mission-cards'] = function (el) {
     var latestMode = el.getAttribute('data-variant') === 'latest';
     el.innerHTML = '<div class="mission-grid">' + (D.missionFields || []).map(function (f) {
