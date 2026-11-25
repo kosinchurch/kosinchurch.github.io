@@ -30,7 +30,7 @@ KOSIN.church = {
   mapQuery: '고신교회 부산 사상구 가야대로213번길 12-19',
   // 실시간 통역(Anna Live): 홈에 들어오면 뜨는 안내 팝업과 하단 "실시간 통역(라이브)" 링크에 쓰입니다. enabled:false 로 바꾸면 모두 사라집니다.
   // ※ url 은 참석자(청중)용 공개 주소입니다. 관리자(/admin/) 주소와 token 은 이 파일이 공개되므로 절대 넣지 마세요.
-  interpreter: { enabled: true, url: 'https://synesisai.org/anna/', channel: 'kosinchurch1964', autoOpen: true },
+  interpreter: { enabled: true, url: 'https://synesisai.org/anna/', channel: 'kosinchurch1964', autoOpen: true, when: '주일 낮 · 오후 예배' },   // when: 팝업에 "…에만 제공됩니다"로 나오는 제공 시간(비우면 안내 띠가 사라집니다)
   // 성경 타자 안내 팝업: 홈에 들어오면 (통역 안내 다음, 찬양 팝업보다 먼저) 뜹니다. enabled:false 로 바꾸면 사라집니다.
   // 팝업 위쪽 그림에 쓰이는 말씀은 verse / verseRef 로 바꿀 수 있습니다 (저작권이 풀린 개역한글 본문만 쓰세요).
   typingNotice: { enabled: true, autoOpen: true },
