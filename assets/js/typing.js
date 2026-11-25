@@ -1,12 +1,12 @@
 /* ==========================================================================
    성경 타자 (예배·말씀 > 성경 타자)
-   - 번역을 고르고(개역개정·개역한글·영어 KJV) 책·장을 고르면 본문을 한 절씩 보여 주고, 따라 쓰는 대로 글자마다 맞고 틀림을 표시합니다.
+   - 번역을 고르고(개역개정·개역한글) 책·장을 고르면 본문을 한 절씩 보여 주고, 따라 쓰는 대로 글자마다 맞고 틀림을 표시합니다.
    - 한 절을 다 쓰면 자동으로 다음 절로 넘어갑니다. 한글은 마지막 글자가 아직 "조합 중"이면 스페이스나 Enter 로 확정하면 됩니다.
    - 쓴 기록(어느 장을 썼는지·속도)은 이 기기의 브라우저(localStorage)에만 저장됩니다. (로그인 없음) 번역마다 따로 기록합니다.
-   - 본문은 assets/bible/<번역>/01.json ~ 66.json (책별 → 장별 → 절 글자). 번역: nkrv 개역개정, krv 개역한글, kjv 영어 KJV.
+   - 본문은 assets/bible/<번역>/01.json ~ 66.json (책별 → 장별 → 절 글자). 번역: nkrv 개역개정, krv 개역한글.
    - "(18절에 포함되어 있음)" 처럼 앞 절에 합쳐진 절은 쓰지 않고 건너뜁니다.
    - 한글 본문의 「 」 … — 처럼 키보드로 치기 어려운 부호는 쓰지 않아도 맞는 것으로 봅니다.
-   - 책 이름·장 수는 data/bible.js 의 books 를 그대로 씁니다. (영어 책 이름은 아래 EN)
+   - 책 이름·장 수는 data/bible.js 의 books 를 그대로 씁니다.
    ========================================================================== */
 (function () {
   'use strict';
@@ -17,18 +17,15 @@
 
   var BOOKS = B.books, NB = BOOKS.length, TOTAL = 0;
   BOOKS.forEach(function (b) { TOTAL += b[1]; });                       // 성경 전체 장 수 (1189)
-  var EN = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'];
   var BASE = (document.body.getAttribute('data-root') || './') + 'assets/bible/';
   var KEY = 'kosin.typing.v1';
   var PLACE = /^\((\d+절에 포함되어 있음|원문에 없음)\)$/;                  // 앞 절에 합쳐졌거나 원문에 없는 절
   var AUTO = /[「」…—]/;                                                 // (한글 본문) 쓰지 않아도 되는 부호
-  var HANGUL = /[ㄱ-ㆎ가-힣]/;
   var TR = {
     nkrv: { name: '개역개정', dir: 'nkrv/', lang: 'ko', credit: '본문: 성경전서 개역개정판 ⓒ 대한성서공회. 교회 홈페이지의 성경 타자 용도로 싣습니다. (본문 글자는 그대로이고, 소제목과 각주 번호만 뺐습니다.)' },
-    krv: { name: '개역한글', dir: 'krv/', lang: 'ko', credit: '본문: 성경전서 개역한글판(1961) · 대한성서공회. 개역한글판은 저작재산권 보호기간이 끝나 누구나 쓸 수 있습니다.' },
-    kjv: { name: 'KJV (영어)', dir: 'kjv/', lang: 'en', credit: 'Text: King James Version (Authorized Version, 1611) — public domain. 타자하기 쉽도록 굽은 따옴표(’)는 곧은 따옴표(\')로 바꾸었습니다.' }
+    krv: { name: '개역한글', dir: 'krv/', lang: 'ko', credit: '본문: 성경전서 개역한글판(1961) · 대한성서공회. 개역한글판은 저작재산권 보호기간이 끝나 누구나 쓸 수 있습니다.' }
   };
-  var ORDER = ['nkrv', 'krv', 'kjv'];
+  var ORDER = ['nkrv', 'krv'];
   var CACHE = {};
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -37,15 +34,15 @@
   /* ---------- 저장 ---------- */
   function load() {
     try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) return s; } catch (e) {}
-    return { b: 0, c: 1, t: 'nkrv', done: {}, fin: {}, opts: { ignoreSpace: false, ignoreCase: false } };
+    return { b: 0, c: 1, t: 'nkrv', done: {}, fin: {}, opts: { ignoreSpace: false } };
   }
   var S = load();
   S.fin = S.fin || {}; S.opts = S.opts || {};
   if (!TR[S.t]) S.t = 'nkrv';
-  S.st = S.st || { ko: { chars: S.chars || 0, ms: S.ms || 0 }, en: { chars: 0, ms: 0 } };   // 예전 기록(글자 수·시간)은 한글 쪽으로 옮김
+  S.st = S.st || { ko: { chars: S.chars || 0, ms: S.ms || 0 } };            // 예전 기록(글자 수·시간)은 한글 쪽으로 옮김
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
-  /* 주소 끝에 ?t=kjv&b=43&c=3 (번역·책 번호 1~66·장) 을 붙이면 그 장을 바로 엽니다 */
+  /* 주소 끝에 ?t=krv&b=43&c=3 (번역·책 번호 1~66·장) 을 붙이면 그 장을 바로 엽니다 */
   (function () {
     var t = /[?&]t=(\w+)/.exec(location.search), m = /[?&]b=(\d+)/.exec(location.search), n = /[?&]c=(\d+)/.exec(location.search);
     if (t && TR[t[1]]) S.t = t[1];
@@ -55,10 +52,9 @@
   })();
 
   function tr() { return TR[S.t]; }
-  function isEn() { return tr().lang === 'en'; }
-  function bname(i) { return isEn() ? EN[i] : BOOKS[i][0]; }
-  function unit(b) { return isEn() ? '' : (b === 18 ? '편' : '장'); }                // 시편만 "편"
-  function chapLabel(b, c) { return isEn() ? bname(b) + ' ' + c : BOOKS[b][0] + ' ' + c + unit(b); }
+  function bname(i) { return BOOKS[i][0]; }
+  function unit(b) { return b === 18 ? '편' : '장'; }                                  // 시편만 "편"
+  function chapLabel(b, c) { return BOOKS[b][0] + ' ' + c + unit(b); }
   function pfx() { return S.t === 'krv' ? '' : S.t + ':'; }                          // 개역한글 기록은 예전 형식 그대로(이어 쓰기 위해)
   function key() { return pfx() + S.b + '-' + S.c; }
 
@@ -84,7 +80,6 @@
       '<div class="ty-live" id="ty-live" role="status" aria-live="polite"></div>' +
       '<div class="ty-ctl">' +
         '<label class="ty-chk" id="ty-spacewrap"><input type="checkbox" id="ty-space"> 띄어쓰기는 틀려도 괜찮아요</label>' +
-        '<label class="ty-chk" id="ty-casewrap"><input type="checkbox" id="ty-case"> 대문자·소문자는 틀려도 괜찮아요</label>' +
         '<button type="button" class="btn btn--outline btn--sm" id="ty-skip">이 절 건너뛰기</button>' +
         '<button type="button" class="btn btn--outline btn--sm" id="ty-redo">이 절 다시 쓰기</button>' +
       '</div>' +
@@ -100,27 +95,24 @@
   function $(id) { return document.getElementById(id); }
   var elTrans = $('ty-trans'), elBook = $('ty-book'), elChap = $('ty-chap'), elPrev = $('ty-prev'), elNext = $('ty-next'), elSum = $('ty-sum'),
       elProgTxt = $('ty-progtxt'), elProgBar = $('ty-progbar'), elPlay = $('ty-play'), elRef = $('ty-ref'), elSr = $('ty-sr'),
-      elTarget = $('ty-target'), elIn = $('ty-input'), elLive = $('ty-live'), elSpace = $('ty-space'), elCase = $('ty-case'),
-      elSpaceWrap = $('ty-spacewrap'), elCaseWrap = $('ty-casewrap'), elSkip = $('ty-skip'), elRedo = $('ty-redo'),
+      elTarget = $('ty-target'), elIn = $('ty-input'), elLive = $('ty-live'), elSpace = $('ty-space'),
+      elSkip = $('ty-skip'), elRedo = $('ty-redo'),
       elDone = $('ty-done'), elList = $('ty-list'), elCredit = $('ty-credit');
 
   /* ---------- 상태 ---------- */
   var verses = [], typable = [], cur = -1, composing = false, startTs = 0, errors = 0, badSeen = {}, liveKind = '', token = 0;
-  elSpace.checked = !!S.opts.ignoreSpace; elCase.checked = !!S.opts.ignoreCase;
+  elSpace.checked = !!S.opts.ignoreSpace;
 
   function doneArr() { return S.done[key()] || []; }
   function isDone(i) { return doneArr().indexOf(i + 1) >= 0; }
   function resetVerse() { startTs = 0; errors = 0; badSeen = {}; }
   function say(msg, kind) { elLive.textContent = msg || ''; elLive.className = 'ty-live' + (kind ? ' is-' + kind : ''); liveKind = kind || ''; }
-  function stat() { var l = isEn() ? 'en' : 'ko'; return S.st[l] || (S.st[l] = { chars: 0, ms: 0 }); }
+  function stat() { return S.st.ko || (S.st.ko = { chars: 0, ms: 0 }); }
 
-  /* 번역에 맞게 화면의 글자 언어·안내를 바꿈 */
+  /* 고른 번역에 맞게 화면의 안내(출처 표시·입력칸 문구)를 바꿈 */
   function applyLang() {
-    var en = isEn(), l = en ? 'en' : 'ko';
-    elTarget.setAttribute('lang', l); elIn.setAttribute('lang', l); elList.setAttribute('lang', l);
-    elIn.setAttribute('placeholder', en ? '여기에 위 영어 말씀을 그대로 입력하세요 (한/영 키가 영어인지 확인)' : '여기에 위 말씀을 그대로 입력하세요');
-    elIn.setAttribute('aria-label', en ? '위 영어 말씀을 그대로 입력하세요' : '위 말씀을 그대로 입력하세요');
-    elSpaceWrap.hidden = en; elCaseWrap.hidden = !en;
+    elIn.setAttribute('placeholder', '여기에 위 말씀을 그대로 입력하세요');
+    elIn.setAttribute('aria-label', '위 말씀을 그대로 입력하세요');
     elCredit.textContent = tr().credit;
     elTrans.value = S.t;
   }
@@ -133,7 +125,7 @@
     for (i = a; i < z; i++) { f = finCount(i); h += '<option value="' + i + '">' + esc(bname(i)) + (f ? ' (' + f + '/' + BOOKS[i][1] + ')' : '') + '</option>'; }
     return h;
   }
-  function fillBooks() { elBook.innerHTML = '<optgroup label="' + (isEn() ? 'Old Testament' : '구약') + '">' + bookOpts(0, 39) + '</optgroup><optgroup label="' + (isEn() ? 'New Testament' : '신약') + '">' + bookOpts(39, NB) + '</optgroup>'; elBook.value = S.b; }
+  function fillBooks() { elBook.innerHTML = '<optgroup label="구약">' + bookOpts(0, 39) + '</optgroup><optgroup label="신약">' + bookOpts(39, NB) + '</optgroup>'; elBook.value = S.b; }
   function fillChaps() {
     var n = BOOKS[S.b][1], h = '', c;
     for (c = 1; c <= n; c++) h += '<option value="' + c + '">' + (S.fin[pfx() + S.b + '-' + c] ? '✓ ' : '') + c + unit(S.b) + '</option>';
@@ -179,9 +171,9 @@
   /* ---------- 맞고 틀림 가리기 ---------- */
   function norm(t) { return t.replace(/\r?\n/g, ' ').replace(/^\s+/, ''); }
   function calc(t, y, comp) {
-    var en = isEn(), ign = !en && S.opts.ignoreSpace, fold = en && S.opts.ignoreCase, i, ch, k = 0, yf = '', st = [], needTotal = 0, caret = -1;
-    function need(c) { return !(!en && AUTO.test(c)) && !(ign && /\s/.test(c)); }
-    function same(a, b) { return fold ? a.toLowerCase() === b.toLowerCase() : a === b; }
+    var ign = S.opts.ignoreSpace, i, ch, k = 0, yf = '', st = [], needTotal = 0, caret = -1;
+    function need(c) { return !AUTO.test(c) && !(ign && /\s/.test(c)); }
+    function same(a, b) { return a === b; }
     y = y.replace(/\s+$/, '');                                          // 끝의 빈칸은 무시
     for (i = 0; i < y.length; i++) { ch = y.charAt(i); if (need(ch)) yf += ch; }
     for (i = 0; i < t.length; i++) if (need(t.charAt(i))) needTotal++;
@@ -206,8 +198,7 @@
       h += '<span class="c-' + r.st[i] + (i === r.caret ? ' c-cur' : '') + '">' + esc(t.charAt(i)) + '</span>';
     }
     elTarget.innerHTML = h;
-    if (isEn() && HANGUL.test(y)) say('한글이 입력되고 있어요. 한/영 키를 눌러 영어로 바꿔 주세요.', 'warn');
-    else if (r.extra && !composing) say(isEn() ? '글자가 더 많이 입력됐어요. 뒤쪽을 지워 주세요.' : '글자가 더 많이 입력됐어요. 뒤쪽을 지워 주세요.', 'warn');
+    if (r.extra && !composing) say('글자가 더 많이 입력됐어요. 뒤쪽을 지워 주세요.', 'warn');
     else if (r.ok && composing) say('✓ 다 썼어요! 스페이스나 Enter 키를 누르면 다음 절로 넘어갑니다.', 'hint');
     else if (liveKind === 'hint' || liveKind === 'warn' || liveKind === 'ok') say('', '');
   }
@@ -259,7 +250,7 @@
       return;
     }
     elPlay.hidden = false; elDone.hidden = true; elIn.disabled = false;
-    elRef.textContent = isEn() ? EN[S.b] + ' ' + S.c + ':' + (cur + 1) : name + ' ' + (cur + 1) + '절';
+    elRef.textContent = name + ' ' + (cur + 1) + '절';
     elSr.textContent = verses[cur];
     paint();
   }
@@ -294,7 +285,6 @@
     pickStart(); resetVerse(); renderAll(); say('', ''); if (cur >= 0) elIn.focus();
   });
   elSpace.addEventListener('change', function () { S.opts.ignoreSpace = elSpace.checked; save(); paint(); check(); });
-  elCase.addEventListener('change', function () { S.opts.ignoreCase = elCase.checked; save(); paint(); check(); });
   elSkip.addEventListener('click', function () {
     var n = nextTypable(cur);
     if (n < 0 || n === cur) { say('건너뛸 다음 절이 없어요.', 'warn'); return; }
@@ -306,7 +296,7 @@
     var re = S.t === 'krv' ? /^\d+-\d+$/ : new RegExp('^' + S.t + ':'), k;
     for (k in S.done) if (re.test(k)) delete S.done[k];
     for (k in S.fin) if (re.test(k)) delete S.fin[k];
-    S.st[isEn() ? 'en' : 'ko'] = { chars: 0, ms: 0 };
+    S.st.ko = { chars: 0, ms: 0 };
     save(); fillBooks(); fillChaps(); pickStart(); resetVerse(); renderAll(); say('기록을 지웠습니다.', '');
   });
   elList.addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (b) jump(+b.getAttribute('data-i')); });
