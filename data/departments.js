@@ -13,8 +13,9 @@ KOSIN.departments = [
   { id: 'elem', name: '초등부', icon: 'book', minister: '김정태', intro: '' },
   { id: 'youth', name: '중고등부', icon: 'users', minister: '김정태', intro: '' },
   { id: 'univ', name: '대학청년부', icon: 'graduation', minister: '조필근', intro: '' },
-  { id: 'women', name: '여선교회', icon: 'heart', minister: '', intro: '', timeText: '' },
-  { id: 'choir', name: '찬양대', icon: 'music', url: 'worship/choir.html' }
+  // 아래 두 줄은 2026-11-26 사용자 요청으로 메뉴·카드에서 뺐습니다. 다시 넣으려면 두 줄 앞의 // 를 지우세요.
+  // { id: 'women', name: '여선교회', icon: 'heart', minister: '', intro: '', timeText: '' },
+  // { id: 'choir', name: '찬양대', icon: 'music', url: 'worship/choir.html' }
 ];
 
 /* ==========================================================================
