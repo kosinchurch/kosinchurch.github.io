@@ -40,6 +40,7 @@
   var S = load();
   S.fin = S.fin || {}; S.opts = S.opts || {};
   if (!TR[S.t]) S.t = 'nkrv';
+  if (S.tv !== 2) { S.t = 'nkrv'; S.tv = 2; }                              // 개역개정이 기본입니다. (예전에 주소로 딸려 들어온 번역 선택은 이때 한 번만 개역개정으로 되돌림. 이후 고른 번역은 그대로 기억)
   S.st = S.st || { ko: { chars: S.chars || 0, ms: S.ms || 0 } };            // 예전 기록(글자 수·시간)은 한글 쪽으로 옮김
   /* 계정 저장(로그인)용: ts = 장별 마지막으로 쓴 시각, del = 장별 "다시 쓰기"로 지운 시각, rs = 번역 전체 지우기 시각,
      ep = 글자 수·시간 지우기 시각, dev = 이 기기 번호, devs = 다른 기기들이 쓴 글자 수·시간 */
@@ -50,10 +51,9 @@
   function touch() { if (ACC) ACC.touch('typing'); }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
-  /* 주소 끝에 ?t=krv&b=43&c=3 (번역·책 번호 1~66·장) 을 붙이면 그 장을 바로 엽니다 */
+  /* 주소 끝에 ?b=43&c=3 (책 번호 1~66·장) 을 붙이면 그 장을 바로 엽니다 (번역은 개역개정이 기본, 화면에서 고르면 이 기기가 기억) */
   (function () {
-    var t = /[?&]t=(\w+)/.exec(location.search), m = /[?&]b=(\d+)/.exec(location.search), n = /[?&]c=(\d+)/.exec(location.search);
-    if (t && TR[t[1]]) S.t = t[1];
+    var m = /[?&]b=(\d+)/.exec(location.search), n = /[?&]c=(\d+)/.exec(location.search);   // (번역은 주소로 정하지 않습니다 — 주소를 복사해 나눌 때 받는 분이 내 번역으로 열리지 않도록)
     if (m && +m[1] >= 1 && +m[1] <= NB) { S.b = +m[1] - 1; S.c = (n && +n[1] >= 1 && +n[1] <= BOOKS[S.b][1]) ? +n[1] : 1; }
     if (!(S.b >= 0 && S.b < NB)) S.b = 0;
     if (!(S.c >= 1 && S.c <= BOOKS[S.b][1])) S.c = 1;
@@ -200,7 +200,7 @@
     if (CACHE[ck]) return Promise.resolve(CACHE[ck]);
     return fetch(BASE + tr().dir + pad(b + 1) + '.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (d) { CACHE[ck] = d; return d; });
   }
-  function syncUrl() { try { history.replaceState(null, '', location.pathname + '?t=' + S.t + '&b=' + (S.b + 1) + '&c=' + S.c); } catch (e) {} }
+  function syncUrl() { try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }   // 주소창은 늘 깨끗하게 (내 책·장·번역이 주소에 묻어 공유되지 않게)
 
   function openChapter(b, c, focus) {
     S.b = b; S.c = c; save(); syncUrl(); applyLang(); fillBooks(); fillChaps();
