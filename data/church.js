@@ -31,6 +31,9 @@ KOSIN.church = {
   // 실시간 통역(Anna Live): 홈에 들어오면 뜨는 안내 팝업과 하단 "실시간 통역(라이브)" 링크에 쓰입니다. enabled:false 로 바꾸면 모두 사라집니다.
   // ※ url 은 참석자(청중)용 공개 주소입니다. 관리자(/admin/) 주소와 token 은 이 파일이 공개되므로 절대 넣지 마세요.
   interpreter: { enabled: true, url: 'https://synesisai.org/anna/', channel: 'kosinchurch1964', autoOpen: true },
+  // 성경 타자 안내 팝업: 홈에 들어오면 (통역 안내 다음, 찬양 팝업보다 먼저) 뜹니다. enabled:false 로 바꾸면 사라집니다.
+  // 팝업 위쪽 그림에 쓰이는 말씀은 verse / verseRef 로 바꿀 수 있습니다 (저작권이 풀린 개역한글 본문만 쓰세요).
+  typingNotice: { enabled: true, autoOpen: true },
   // 네이버지도 로드뷰 링크 (오시는 길 · 하단 안내에 "로드뷰" 버튼으로 표시됩니다. 비우면 버튼이 사라집니다)
   roadviewUrl: 'https://map.naver.com/p/entry/place/1146617290?p=wXZzJoCyViKZ2cBusuFAQw,-74.63,2.9,80,Float&placePath=%2Fhome%3Ffrom%3Dmap%26fromPanelNum%3D1%26additionalHeight%3D76%26timestamp%3D202611231449%26locale%3Dko%26svcName%3Dmap_pcv5&c=15.00,0,0,0,adh',
 
