@@ -1,0 +1,292 @@
+/* ==========================================================================
+   성경 타자 (예배·말씀 > 성경 타자)
+   - 책·장을 고르면 개역한글 본문을 한 절씩 보여 주고, 따라 쓰는 대로 글자마다 맞고 틀림을 표시합니다.
+   - 한 절을 다 쓰면 자동으로 다음 절로 넘어갑니다. 마지막 글자가 아직 "조합 중"이면 스페이스나 Enter 로 확정하면 됩니다.
+   - 쓴 기록(어느 장을 썼는지·속도)은 이 기기의 브라우저(localStorage)에만 저장됩니다. (로그인 없음)
+   - 본문은 assets/bible/krv/01.json ~ 66.json (책별 → 장별 → 절 글자). 성경전서 개역한글판(1961) 입니다.
+   - "(18절에 포함되어 있음)" 처럼 앞 절에 합쳐진 절은 쓰지 않고 건너뜁니다.
+   - 「 」 … — 처럼 키보드로 치기 어려운 부호는 쓰지 않아도 맞는 것으로 봅니다.
+   - 책 이름·장 수는 data/bible.js 의 books 를 그대로 씁니다.
+   ========================================================================== */
+(function () {
+  'use strict';
+  var root = document.getElementById('typing-app');
+  if (!root) return;
+  var B = window.KOSIN && window.KOSIN.bible;
+  if (!B || !B.books || !window.fetch) { root.innerHTML = '<p>성경 타자 자료를 불러오지 못했습니다. 잠시 뒤에 다시 열어 주세요.</p>'; return; }
+
+  var BOOKS = B.books, NB = BOOKS.length, TOTAL = 0;
+  BOOKS.forEach(function (b) { TOTAL += b[1]; });                       // 성경 전체 장 수 (1189)
+  var DIR = (document.body.getAttribute('data-root') || './') + 'assets/bible/krv/';
+  var KEY = 'kosin.typing.v1';
+  var PLACE = /^\(\d+절에 포함되어 있음\)$/;                              // 앞 절에 합쳐진 절
+  var AUTO = /[「」…—]/;                                                 // 쓰지 않아도 되는 부호
+  var CACHE = {};
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function unit(b) { return b === 18 ? '편' : '장'; }                    // 시편만 "편"
+
+  /* ---------- 저장 ---------- */
+  function load() {
+    try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) return s; } catch (e) {}
+    return { b: 0, c: 1, done: {}, fin: {}, chars: 0, ms: 0, opts: { ignoreSpace: false } };
+  }
+  var S = load();
+  S.fin = S.fin || {}; S.chars = S.chars || 0; S.ms = S.ms || 0; S.opts = S.opts || { ignoreSpace: false };
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+  /* 주소 끝에 ?b=43&c=3 (책 번호·장) 을 붙이면 그 장을 바로 엽니다 */
+  (function () {
+    var m = /[?&]b=(\d+)/.exec(location.search), n = /[?&]c=(\d+)/.exec(location.search);
+    if (m && +m[1] >= 1 && +m[1] <= NB) { S.b = +m[1] - 1; S.c = (n && +n[1] >= 1 && +n[1] <= BOOKS[S.b][1]) ? +n[1] : 1; }
+    if (!(S.b >= 0 && S.b < NB)) S.b = 0;
+    if (!(S.c >= 1 && S.c <= BOOKS[S.b][1])) S.c = 1;
+  })();
+
+  /* ---------- 화면 뼈대 ---------- */
+  root.innerHTML =
+    '<div class="ty-bar">' +
+      '<div class="ty-pick">' +
+        '<label class="ty-lab"><span>책</span><select id="ty-book"></select></label>' +
+        '<label class="ty-lab"><span>장</span><select id="ty-chap"></select></label>' +
+        '<button type="button" class="btn btn--outline btn--sm" id="ty-prev">&lsaquo; 이전 장</button>' +
+        '<button type="button" class="btn btn--outline btn--sm" id="ty-next">다음 장 &rsaquo;</button>' +
+      '</div>' +
+      '<div class="ty-sum"><span id="ty-sum"></span> <button type="button" class="ty-link" id="ty-reset">기록 지우기</button></div>' +
+    '</div>' +
+    '<div class="ty-prog"><div class="ty-prog__txt" id="ty-progtxt"></div><div class="ty-prog__bar"><i id="ty-progbar"></i></div></div>' +
+    '<section class="ty-stage ty-play" id="ty-play" aria-label="따라 쓰기">' +
+      '<div class="ty-ref" id="ty-ref"></div>' +
+      '<p class="ty-sr" id="ty-sr"></p>' +
+      '<p class="ty-target" id="ty-target" aria-hidden="true" lang="ko"></p>' +
+      '<textarea id="ty-input" class="ty-input" rows="3" lang="ko" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="위 말씀을 그대로 입력하세요" placeholder="여기에 위 말씀을 그대로 입력하세요"></textarea>' +
+      '<div class="ty-live" id="ty-live" role="status" aria-live="polite"></div>' +
+      '<div class="ty-ctl">' +
+        '<label class="ty-chk"><input type="checkbox" id="ty-space"> 띄어쓰기는 틀려도 괜찮아요</label>' +
+        '<button type="button" class="btn btn--outline btn--sm" id="ty-skip">이 절 건너뛰기</button>' +
+        '<button type="button" class="btn btn--outline btn--sm" id="ty-redo">이 절 다시 쓰기</button>' +
+      '</div>' +
+    '</section>' +
+    '<div class="ty-donebox" id="ty-done" hidden>' +
+      '<h3 id="ty-donetitle"></h3><p id="ty-donetext"></p>' +
+      '<div class="btn-row"><button type="button" class="btn btn--primary" id="ty-donenext">다음 장 쓰기 &rsaquo;</button><button type="button" class="btn btn--outline" id="ty-doneagain">이 장 다시 쓰기</button></div>' +
+    '</div>' +
+    '<ol class="ty-list" id="ty-list" aria-label="이 장의 말씀 (누르면 그 절부터 씁니다)"></ol>' +
+    '<p class="ty-credit">본문: 성경전서 개역한글판(1961) · 대한성서공회. 개역한글판은 저작재산권 보호기간이 끝나 누구나 쓸 수 있습니다. 쓴 기록은 이 기기의 브라우저에만 저장되며, 다른 기기와는 이어지지 않습니다.</p>';
+
+  function $(id) { return document.getElementById(id); }
+  var elBook = $('ty-book'), elChap = $('ty-chap'), elPrev = $('ty-prev'), elNext = $('ty-next'), elSum = $('ty-sum'),
+      elProgTxt = $('ty-progtxt'), elProgBar = $('ty-progbar'), elPlay = $('ty-play'), elRef = $('ty-ref'), elSr = $('ty-sr'),
+      elTarget = $('ty-target'), elIn = $('ty-input'), elLive = $('ty-live'), elSpace = $('ty-space'), elSkip = $('ty-skip'), elRedo = $('ty-redo'),
+      elDone = $('ty-done'), elList = $('ty-list');
+
+  /* ---------- 상태 ---------- */
+  var verses = [], typable = [], cur = -1, composing = false, startTs = 0, errors = 0, badSeen = {}, liveKind = '', token = 0;
+  elSpace.checked = !!S.opts.ignoreSpace;
+
+  function key() { return S.b + '-' + S.c; }
+  function doneArr() { return S.done[key()] || []; }
+  function isDone(i) { return doneArr().indexOf(i + 1) >= 0; }
+  function resetVerse() { startTs = 0; errors = 0; badSeen = {}; }
+  function say(msg, kind) { elLive.textContent = msg || ''; elLive.className = 'ty-live' + (kind ? ' is-' + kind : ''); liveKind = kind || ''; }
+
+  /* ---------- 책·장 고르는 칸 ---------- */
+  function finCount(b) { var n = 0, k; for (k in S.fin) if (S.fin[k] && k.indexOf(b + '-') === 0) n++; return n; }
+  function bookOpts(a, z) {
+    var h = '', i, f;
+    for (i = a; i < z; i++) { f = finCount(i); h += '<option value="' + i + '">' + esc(BOOKS[i][0]) + (f ? ' (' + f + '/' + BOOKS[i][1] + unit(i) + ')' : '') + '</option>'; }
+    return h;
+  }
+  function fillBooks() { elBook.innerHTML = '<optgroup label="구약">' + bookOpts(0, 39) + '</optgroup><optgroup label="신약">' + bookOpts(39, NB) + '</optgroup>'; elBook.value = S.b; }
+  function fillChaps() {
+    var n = BOOKS[S.b][1], h = '', c;
+    for (c = 1; c <= n; c++) h += '<option value="' + c + '">' + (S.fin[S.b + '-' + c] ? '✓ ' : '') + c + unit(S.b) + '</option>';
+    elChap.innerHTML = h; elChap.value = S.c;
+  }
+
+  /* ---------- 본문 불러오기 ---------- */
+  function getBook(b) {
+    if (CACHE[b]) return Promise.resolve(CACHE[b]);
+    return fetch(DIR + pad(b + 1) + '.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (d) { CACHE[b] = d; return d; });
+  }
+  function syncUrl() { try { history.replaceState(null, '', location.pathname + '?b=' + (S.b + 1) + '&c=' + S.c); } catch (e) {} }
+
+  function openChapter(b, c, focus) {
+    S.b = b; S.c = c; save(); syncUrl(); fillBooks(); fillChaps();
+    var my = ++token;
+    elIn.value = ''; resetVerse(); cur = -1; say('본문을 불러오는 중입니다…', '');
+    getBook(b).then(function (d) {
+      if (my !== token) return;
+      verses = d[c - 1] || [];
+      typable = []; verses.forEach(function (v, i) { if (!PLACE.test(v)) typable.push(i); });
+      pickStart(); renderAll(); say('', '');
+      if (focus && cur >= 0 && window.matchMedia && matchMedia('(pointer: fine)').matches) elIn.focus({ preventScroll: true });
+    }).catch(function () {
+      if (my !== token) return;
+      say('본문을 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.', 'warn');
+      elPlay.hidden = false; elDone.hidden = true; elIn.disabled = true; elTarget.textContent = '';
+    });
+  }
+  function pickStart() {
+    var j, i; cur = -1;
+    for (j = 0; j < typable.length; j++) { i = typable[j]; if (!isDone(i)) { cur = i; break; } }
+    if (cur < 0 && typable.length && !S.fin[key()]) cur = typable[0];
+  }
+  function nextTypable(from) {
+    var fin = S.fin[key()], j, i;
+    for (j = 0; j < typable.length; j++) { i = typable[j]; if (i > from && (fin || !isDone(i))) return i; }
+    if (!fin) for (j = 0; j < typable.length; j++) { i = typable[j]; if (!isDone(i)) return i; }
+    return -1;
+  }
+
+  /* ---------- 맞고 틀림 가리기 ---------- */
+  function norm(t) { return t.replace(/\r?\n/g, ' ').replace(/^\s+/, ''); }
+  function calc(t, y, comp) {
+    var ign = S.opts.ignoreSpace, i, ch, k = 0, yf = '', st = [], needTotal = 0, caret = -1;
+    function need(c) { return !AUTO.test(c) && !(ign && /\s/.test(c)); }
+    y = y.replace(/\s+$/, '');                                          // 끝의 빈칸은 무시
+    for (i = 0; i < y.length; i++) { ch = y.charAt(i); if (need(ch)) yf += ch; }
+    for (i = 0; i < t.length; i++) if (need(t.charAt(i))) needTotal++;
+    for (i = 0; i < t.length; i++) {
+      ch = t.charAt(i);
+      if (!need(ch)) { st.push((k < yf.length || yf.length >= needTotal) ? 'ok' : 'todo'); continue; }
+      if (k >= yf.length) st.push('todo');
+      else if (yf.charAt(k) === ch) st.push('ok');
+      else st.push(comp && k === yf.length - 1 ? 'comp' : 'bad');       // 마지막 글자가 조합 중이면 아직 틀린 것으로 보지 않음
+      k++;
+    }
+    for (i = 0; i < st.length; i++) if (st[i] === 'todo') { caret = i; break; }
+    return { st: st, caret: caret, extra: yf.length > needTotal, ok: yf.length === needTotal && st.indexOf('bad') < 0 && st.indexOf('comp') < 0 };
+  }
+  function matches() { return cur >= 0 && calc(verses[cur], norm(elIn.value), false).ok; }
+
+  function paint() {
+    if (cur < 0) return;
+    var t = verses[cur], r = calc(t, norm(elIn.value), composing), h = '', i;
+    for (i = 0; i < t.length; i++) {
+      if (!composing && r.st[i] === 'bad' && !badSeen[i]) { badSeen[i] = 1; errors++; }
+      h += '<span class="c-' + r.st[i] + (i === r.caret ? ' c-cur' : '') + '">' + esc(t.charAt(i)) + '</span>';
+    }
+    elTarget.innerHTML = h;
+    if (r.extra && !composing) say('글자가 더 많이 입력됐어요. 뒤쪽을 지워 주세요.', 'warn');
+    else if (r.ok && composing) say('✓ 다 썼어요! 스페이스나 Enter 키를 누르면 다음 절로 넘어갑니다.', 'hint');
+    else if (liveKind === 'hint' || liveKind === 'warn' || liveKind === 'ok') say('', '');
+  }
+
+  /* ---------- 한 절 마치기 ---------- */
+  function finishVerse() {
+    var k = key(), arr = S.done[k] || (S.done[k] = []), v = cur + 1, t = verses[cur], len = t.replace(/\s/g, '').length || 1;
+    var ms = Math.max(800, Date.now() - (startTs || Date.now()));
+    var acc = Math.max(0, Math.round(100 * (len - Math.min(errors, len)) / len));
+    var wasFin = !!S.fin[k], n;
+    if (arr.indexOf(v) < 0) arr.push(v);
+    S.chars += len; S.ms += ms;
+    if (!wasFin && typable.every(isDone)) { S.fin[k] = 1; n = -1; } else n = nextTypable(cur);
+    elIn.value = ''; resetVerse(); cur = n;
+    save(); fillBooks(); fillChaps(); renderAll();
+    say('✓ ' + v + '절 완료 · 정확도 ' + acc + '% · 분당 ' + Math.round(len / (ms / 60000)) + '자', 'ok');
+    if (cur >= 0) elIn.focus({ preventScroll: true });
+  }
+  function check() { if (cur < 0 || composing) return; if (matches()) finishVerse(); }
+
+  /* ---------- 그리기 ---------- */
+  function renderList() {
+    var h = '', i, v;
+    for (i = 0; i < verses.length; i++) {
+      v = verses[i];
+      if (PLACE.test(v)) { h += '<li class="is-merged"><div class="ty-row" aria-label="' + (i + 1) + '절은 앞 절에 합쳐져 있습니다"><span class="ty-n">' + (i + 1) + '</span><span class="ty-t">' + esc(v) + '</span><span class="ty-ck"></span></div></li>'; continue; }
+      h += '<li class="' + (isDone(i) ? 'is-done ' : '') + (i === cur ? 'is-cur' : '') + '"><button type="button" class="ty-row" data-i="' + i + '"' + (i === cur ? ' aria-current="true"' : '') + '><span class="ty-n">' + (i + 1) + '</span><span class="ty-t">' + esc(v) + '</span><span class="ty-ck" aria-hidden="true">✓</span></button></li>';
+    }
+    elList.innerHTML = h;
+  }
+  function renderProgress() {
+    var d = 0, i, f = S.fin[key()];
+    for (i = 0; i < typable.length; i++) if (isDone(typable[i])) d++;
+    elProgTxt.textContent = BOOKS[S.b][0] + ' ' + S.c + unit(S.b) + ' · ' + d + ' / ' + typable.length + '절 완료' + (f ? ' ✓' : '');
+    elProgBar.style.width = (typable.length ? Math.round(100 * d / typable.length) : 0) + '%';
+  }
+  function renderSummary() {
+    var n = 0, k, avg;
+    for (k in S.fin) if (S.fin[k]) n++;
+    avg = S.ms > 0 ? Math.round(S.chars / (S.ms / 60000)) : 0;
+    elSum.textContent = '완료한 장 ' + n + ' / ' + TOTAL + ' · 쓴 글자 ' + S.chars.toLocaleString('ko-KR') + '자' + (avg ? ' · 평균 분당 ' + avg + '자' : '');
+  }
+  function renderStage() {
+    var name = BOOKS[S.b][0] + ' ' + S.c + unit(S.b);
+    if (cur < 0) {
+      elPlay.hidden = true; elDone.hidden = false;
+      $('ty-donetitle').textContent = '✓ ' + name + ' 완료!';
+      $('ty-donetext').textContent = typable.length + '절을 모두 썼어요. 수고하셨습니다.';
+      $('ty-donenext').hidden = (S.b === NB - 1 && S.c === BOOKS[S.b][1]);
+      return;
+    }
+    elPlay.hidden = false; elDone.hidden = true; elIn.disabled = false;
+    elRef.textContent = name + ' ' + (cur + 1) + '절';
+    elSr.textContent = verses[cur];
+    paint();
+  }
+  function renderAll() {
+    renderList(); renderProgress(); renderSummary(); renderStage();
+    var first = (S.b === 0 && S.c === 1), last = (S.b === NB - 1 && S.c === BOOKS[S.b][1]);
+    elPrev.disabled = first; elNext.disabled = last;
+  }
+
+  /* ---------- 동작 ---------- */
+  function gotoRel(d) {
+    var b = S.b, c = S.c + d;
+    if (c < 1) { if (b === 0) return; b--; c = BOOKS[b][1]; }
+    else if (c > BOOKS[b][1]) { if (b === NB - 1) return; b++; c = 1; }
+    openChapter(b, c, true);
+  }
+  function jump(i) {
+    if (PLACE.test(verses[i])) return;
+    cur = i; elIn.value = ''; resetVerse(); renderAll(); say('', '');
+    elIn.focus();
+    try { elPlay.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  }
+
+  elBook.addEventListener('change', function () { openChapter(+elBook.value, 1, false); });
+  elChap.addEventListener('change', function () { openChapter(S.b, +elChap.value, false); });
+  elPrev.addEventListener('click', function () { gotoRel(-1); });
+  elNext.addEventListener('click', function () { gotoRel(1); });
+  $('ty-donenext').addEventListener('click', function () { gotoRel(1); });
+  $('ty-doneagain').addEventListener('click', function () {
+    delete S.done[key()]; delete S.fin[key()]; save(); fillBooks(); fillChaps();
+    pickStart(); resetVerse(); renderAll(); say('', ''); if (cur >= 0) elIn.focus();
+  });
+  elSpace.addEventListener('change', function () { S.opts.ignoreSpace = elSpace.checked; save(); paint(); check(); });
+  elSkip.addEventListener('click', function () {
+    var n = nextTypable(cur);
+    if (n < 0 || n === cur) { say('건너뛸 다음 절이 없어요.', 'warn'); return; }
+    cur = n; elIn.value = ''; resetVerse(); renderAll(); say('', ''); elIn.focus();
+  });
+  elRedo.addEventListener('click', function () { elIn.value = ''; resetVerse(); say('', ''); paint(); elIn.focus(); });
+  $('ty-reset').addEventListener('click', function () {
+    if (!window.confirm('이 기기에 저장된 성경 타자 기록(쓴 장·글자 수·속도)을 모두 지울까요?')) return;
+    S.done = {}; S.fin = {}; S.chars = 0; S.ms = 0; save(); fillBooks(); fillChaps(); pickStart(); resetVerse(); renderAll(); say('기록을 지웠습니다.', '');
+  });
+  elList.addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (b) jump(+b.getAttribute('data-i')); });
+
+  /* 입력: 한글은 글자를 "조합"하며 쓰므로, 조합 중인 마지막 글자는 틀린 것으로 보지 않고, 조합이 끝난 뒤에 맞는지 확인합니다 */
+  elIn.addEventListener('compositionstart', function () { composing = true; });
+  elIn.addEventListener('compositionend', function () { composing = false; paint(); setTimeout(check, 0); });
+  elIn.addEventListener('input', function (e) {
+    if (cur < 0) return;
+    composing = !!e.isComposing;
+    if (!startTs && elIn.value) startTs = Date.now();
+    if (liveKind === 'ok') say('', '');
+    paint();
+    if (!composing) check();
+  });
+  elIn.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    if (e.isComposing || e.keyCode === 229) return;                     // 조합 중 Enter 는 글자를 확정하는 키 — 이어서 compositionend 가 처리합니다
+    e.preventDefault();
+    if (cur < 0) return;
+    if (matches()) finishVerse(); else say('틀리거나 빠진 글자가 있어요. 빨간 글자를 고쳐 주세요.', 'warn');
+  });
+
+  fillBooks(); fillChaps(); renderSummary();
+  openChapter(S.b, S.c, true);
+})();
