@@ -95,7 +95,8 @@
     fax: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>',
     chat: '<path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.6 4.5 4 5.8L6 20l3.6-2.2c.8.2 1.5.2 2.4.2 5 0 9-3.1 9-7s-4-7-9-7z"/>',
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
-    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>'
+    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>',
+    pen: '<path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="m14.5 6.5 3 3M12 20h8"/>'
   };
   function ico(name, cls) {
     return '<svg class="ico' + (name === 'play' ? ' ico--fill' : '') + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONS[name] || ICONS.church) + '</svg>';
@@ -1304,8 +1305,8 @@
       setTimeout(function () {
         if (isOpen) return;
         function openIt() { if (isOpen) return; setOpen(true, true); try { sessionStorage.setItem('kosin-music-seen', '1'); } catch (e) {} }
-        // 실시간 통역 안내 팝업이 떠 있으면 두 팝업이 겹치지 않게, 그 팝업을 닫은 뒤에 찬양 팝업을 띄웁니다
-        if (D._noticeOpen) { document.addEventListener('kosin:notice-closed', function () { setTimeout(openIt, 350); }, { once: true }); return; }
+        // 실시간 통역 안내·성경 타자 안내 팝업이 떠 있으면(또는 뜰 차례면) 겹치지 않게, 그 팝업들을 모두 닫은 뒤에 찬양 팝업을 띄웁니다
+        if (D._noticeOpen) { (function wait() { document.addEventListener('kosin:notice-closed', function () { setTimeout(function () { if (D._noticeOpen) wait(); else openIt(); }, 350); }, { once: true }); })(); return; }
         openIt();
       }, 900);
     }
@@ -1364,6 +1365,68 @@
     });
     document.addEventListener('kosin:video-open', close);   // 영상을 틀면 안내 팝업은 닫습니다
     if (cfg.autoOpen !== false && !skip && !seen) { D._noticeOpen = true; setTimeout(open, 450); }
+  };
+
+  /* 성경 타자 안내 팝업 (홈): 통역 안내 팝업 다음, 찬양 듣기 팝업보다 먼저 뜹니다. (설정: data/church.js 의 typingNotice)
+     같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않습니다. 닫으면 찬양 듣기 팝업이 이어서 뜹니다.
+     위쪽 그림의 말씀은 한 글자씩 "써지는" 모습으로 보여 줍니다(글자 하나 = span.c, 순서는 --i). */
+  R['typing-notice'] = function (el) {
+    var cfg = church().typingNotice || {};
+    if (cfg.enabled === false) return;
+    var skip = false, seen = false, prev = null, n = 0;
+    try { skip = localStorage.getItem('kosin-typing-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-typing-seen') === '1'; } catch (e) {}
+    var VERSE = cfg.verse || '주의 말씀은 내 발에 등이요 내 길에 빛이니이다', REF = cfg.verseRef || '시편 119:105 · 개역한글';
+    var verseHtml = VERSE.split(' ').map(function (w) {
+      return '<span class="tn__w">' + w.split('').map(function (ch) { return '<span class="c" style="--i:' + (n++) + '">' + esc(ch) + '</span>'; }).join('') + '</span>';
+    }).join(' ');
+    var BOOK = '<svg class="tn__book" viewBox="0 0 200 118" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M100 6v26M90.5 15h19" stroke-width="2.2"/>' +
+      '<path d="M100 100C86 90 58 86 28 92V46c30-6 58-2 72 8" fill="rgba(255,255,255,.07)"/>' +
+      '<path d="M100 100c14-10 42-14 72-8V46c-30-6-58-2-72 8" fill="rgba(255,255,255,.15)"/>' +
+      '<path d="M100 54v46"/>' +
+      '<path d="M42 60c13-2 28-1 44 5M42 71c13-2 28-1 44 5M42 82c13-2 28-1 44 5" stroke-opacity=".42"/>' +
+      '<path d="M114 65c16-6 31-7 44-5M114 76c16-6 31-7 44-5M114 87c10-3 20-4 28-3"/>' +
+      '<path d="M24 99c22-5 52-3 76 8 24-11 54-13 76-8" stroke-opacity=".5"/>' +
+      '<g stroke="none" fill="currentColor"><circle cx="36" cy="26" r="1.6"/><circle cx="168" cy="20" r="1.3"/><circle cx="148" cy="34" r="1"/><circle cx="52" cy="40" r="1"/></g></svg>';
+    el.innerHTML = '<div class="tn" hidden role="dialog" aria-modal="true" aria-labelledby="tn-title"><div class="tn__panel">' +
+      '<button type="button" class="tn__x" aria-label="닫기">&times;</button>' +
+      '<div class="tn__art">' + BOOK +
+        '<p class="tn__verse"><span class="tn__sr">' + esc(VERSE) + '</span><span aria-hidden="true">' + verseHtml + '<i class="tn__end" style="--n:' + n + '"></i></span></p>' +
+        '<span class="tn__ref">' + esc(REF) + '</span></div>' +
+      '<div class="tn__body"><span class="tn__eyebrow">말씀을 마음에 새기는 시간</span><h2 id="tn-title">성경 타자</h2>' +
+        '<p class="tn__lead">말씀을 한 절씩 <strong>따라 쓰며</strong> 마음에 새겨 보세요. 글자마다 맞고 틀림을 바로 알려 드리고, 쓴 장은 기록해 드립니다.</p>' +
+        '<ul class="tn__chips"><li>개역개정 · 개역한글</li><li>66권 1,189장</li><li>찬양 들으며 쓰기</li></ul>' +
+        '<a class="btn btn--primary tn__go" href="' + esc(link('worship/typing.html')) + '">' + ico('pen') + ' 성경 타자 시작하기</a>' +
+        '<div class="tn__foot"><button type="button" class="tn__skip">오늘 하루 열지 않기</button><button type="button" class="tn__close">닫기</button></div></div>' +
+    '</div></div>';
+    var box = $('.tn', el), panel = $('.tn__panel', el);
+    function focusables() { return $$('button, a[href]', panel).filter(function (x) { return !x.disabled && x.offsetParent !== null; }); }
+    function open() {
+      if (!box.hidden) return;
+      prev = document.activeElement; box.hidden = false; document.documentElement.classList.add('tn-open');
+      try { sessionStorage.setItem('kosin-typing-seen', '1'); } catch (e) {}
+      var go = $('.tn__go', el); if (go) go.focus({ preventScroll: true });
+    }
+    function close() {
+      if (box.hidden) return;
+      box.hidden = true; document.documentElement.classList.remove('tn-open'); D._noticeOpen = false;
+      if (prev && prev.focus) { try { prev.focus({ preventScroll: true }); } catch (e) {} }
+      document.dispatchEvent(new CustomEvent('kosin:notice-closed'));
+    }
+    box.addEventListener('click', function (e) { if (e.target === box) close(); });
+    $('.tn__x', el).addEventListener('click', close); $('.tn__close', el).addEventListener('click', close);
+    $('.tn__skip', el).addEventListener('click', function () { try { localStorage.setItem('kosin-typing-skip', new Date().toDateString()); } catch (e) {} close(); });
+    document.addEventListener('keydown', function (e) {
+      if (box.hidden) return;
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'Tab') { var f = focusables(); if (!f.length) return; var first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } }
+    });
+    document.addEventListener('kosin:video-open', close);   // 영상을 틀면 안내 팝업은 닫습니다
+    if (cfg.autoOpen !== false && !skip && !seen) {
+      // 통역 안내 팝업이 먼저 뜨는 중이면 그것을 닫은 뒤에, 아니면 곧바로 띄웁니다. 그 동안 D._noticeOpen 을 켜 두어 찬양 팝업이 기다리게 합니다
+      if (D._noticeOpen) document.addEventListener('kosin:notice-closed', function () { D._noticeOpen = true; setTimeout(open, 350); }, { once: true });
+      else { D._noticeOpen = true; setTimeout(open, 450); }
+    }
   };
 
   /* ---------------------------------------------------------------- 시작 */
