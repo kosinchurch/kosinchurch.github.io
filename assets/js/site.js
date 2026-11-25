@@ -366,7 +366,8 @@
     return s.youtube ? '<a class="card" href="' + ytWatch(s.youtube) + '" target="_blank" rel="noopener" aria-label="' + esc(s.title) + ' · ' + fmtDate(s.date) + ' · 유튜브에서 보기">' + inner + '</a>' : '<div class="card">' + inner + '</div>';
   }
   function bookCover(b) {
-    return '<div class="book-cover">' + (b.cover
+    /* coverRatio : (선택) 표지가 3:4 보다 길쭉할 때 '900 / 1323' 처럼 가로 / 세로 로 적으면 표지가 잘리지 않고 통째로 보입니다 */
+    return '<div class="book-cover"' + (b.coverRatio && /^[\d.]+ ?\/ ?[\d.]+$/.test(b.coverRatio) ? ' style="aspect-ratio:' + b.coverRatio + '"' : '') + '>' + (b.cover
       ? '<img src="' + esc(link(b.cover)) + '" alt="' + esc(b.title) + ' 표지" loading="lazy">'
       : '<div class="book-cover__ph">' + ico('book') + '<strong>' + esc(b.title) + '</strong><span>표지 이미지 준비 중</span></div>') +
       (b.sample ? '<span class="badge badge--sample">샘플</span>' : '') + '</div>';
