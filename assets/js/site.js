@@ -952,12 +952,25 @@
     /* 연혁: 연도마다 items: ['04 내용', '12 내용'] (앞의 두 자리는 월). 예전 방식 { year, text } 도 됩니다. */
     var list = visible(D.history).slice().sort(function (a, b) { return String(a.year).localeCompare(String(b.year)); });
     if (!list.length) { el.innerHTML = '<div class="empty">연혁을 준비하고 있습니다.</div>'; return; }
-    function line(s) { var m = /^(\d{2})\s+(.*)$/.exec(s); return m ? '<span class="tl-m">' + (+m[1]) + '월</span><span class="tl-t">' + esc(m[2]) + '</span>' : '<span class="tl-m"></span><span class="tl-t">' + esc(s) + '</span>'; }
+    /* 같은 달이 이어지면 한 묶음으로 만들어 "월"은 묶음 왼쪽 칸에 한 번만(가운데) 보이고, 묶음 사이에는 가로선이 그어집니다. 월이 없는 줄은 월 칸이 빈 묶음이 됩니다. */
+    function groups(items) {
+      var out = [];
+      items.forEach(function (s) {
+        var m = /^(\d{2})\s+(.*)$/.exec(s), mo = m ? +m[1] : 0, t = m ? m[2] : s, g = out[out.length - 1];
+        if (g && g.mo === mo) g.t.push(t); else out.push({ mo: mo, t: [t] });
+      });
+      return out;
+    }
+    function lines(items) {
+      return '<ul class="tl-lines">' + groups(items).map(function (g) {
+        return '<li class="tl-g"><span class="tl-m">' + (g.mo ? g.mo + '월' : '') + '</span><ul class="tl-gi">' + g.t.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></li>';
+      }).join('') + '</ul>';
+    }
     var decades = [], seen = {};
     var rows = list.map(function (h) {
       var dec = String(h.year).slice(0, 3) + '0', id = '';
       if (/^\d{4}$/.test(String(h.year)) && !seen[dec]) { seen[dec] = 1; decades.push(dec); id = ' id="dec-' + dec + '"'; }
-      var body = h.items ? '<ul class="tl-lines">' + h.items.map(function (s) { return '<li>' + line(s) + '</li>'; }).join('') + '</ul>' : '<span class="tl-text">' + esc(h.text || '') + '</span>';
+      var body = h.items ? lines(h.items) : '<span class="tl-text">' + esc(h.text || '') + '</span>';
       return '<li' + id + '><b>' + esc(h.year) + sampleTag(h) + '</b>' + body + '</li>';
     }).join('');
     el.innerHTML = (decades.length > 1 ? '<nav class="fac-nav tl-nav" aria-label="연대 바로가기">' + decades.map(function (d) { return '<a href="#dec-' + d + '">' + d + '년대</a>'; }).join('') + '</nav>' : '') + '<ol class="timeline">' + rows + '</ol>';
