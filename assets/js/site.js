@@ -10,7 +10,7 @@
 
   var ROOT = document.body.getAttribute('data-root') || './';
   var NAVREF = document.body.getAttribute('data-nav-url');   // 상세 페이지에서 "현재 메뉴"를 지정할 때 사용
-  var DATA_FILES = ['church', 'worship', 'sermons', 'news', 'missions', 'books', 'departments', 'about', 'music', 'youtube'];
+  var DATA_FILES = ['church', 'worship', 'sermons', 'news', 'missions', 'books', 'departments', 'about', 'music', 'youtube', 'share-pages'];
   window.KOSIN = window.KOSIN || {};
   var D = window.KOSIN;
   var R = {};   // 화면을 그리는 함수 모음
@@ -294,6 +294,9 @@
   function fieldType(r) { return r && r.type === 'construction' ? 'construction' : 'mission'; }
   function fieldPath(f, type) { return 'mission/field.html?id=' + encodeURIComponent(f.id) + '&type=' + (type === 'construction' ? 'construction' : 'mission'); }
   function reportPath(f, id, type) { return fieldPath(f, type) + '#' + id; }
+  /* 공유할 때 쓰는 주소: share/글id.html (카톡 등에서 글 제목·사진 미리보기가 뜨는 전용 페이지, 열면 바로 글로 이동).
+     data/share-pages.js 에 이름이 있는 글만 쓰고, 없으면 글 주소를 그대로 씁니다. */
+  function sharePathOf(f, id, type) { var sp = D.sharePages; return sp && sp[id] ? 'share/' + id + '.html' : reportPath(f, id, type); }
   function eventPage(x) { return x && x.category === '선교행사' ? 'mission/events.html' : 'news/events.html'; }
   function shareBtn(x, extraClass) {
     if (!x.sharePath) return '';
@@ -893,7 +896,7 @@
       var meta = latestMode ? (latest ? '<time>' + fmtDate(latest.date) + '</time>' : '') : (latest ? '<time>최근 소식 · ' + fmtDate(latest.date) + '</time>' : '');
       var toReport = latestMode && latest;   // 메인: 최신 선교보고 한 건 / 선교 첫 페이지: 선교지 소개
       var path = toReport ? reportPath(f, reportId(latest), fieldType(latest)) : fieldPath(f, 'mission');
-      var share = shareBtn({ title: title, sharePath: path, shareTitle: toReport ? f.name + ' 선교 · ' + latest.title : (f.title || f.name + ' 선교'), shareText: toReport ? f.name + ' 선교보고 · ' + fmtDate(latest.date) : (f.summary || '') }, 'row-share--card');
+      var share = shareBtn({ title: title, sharePath: toReport ? sharePathOf(f, reportId(latest), fieldType(latest)) : path, shareTitle: toReport ? f.name + ' 선교 · ' + latest.title : (f.title || f.name + ' 선교'), shareText: toReport ? f.name + ' 선교보고 · ' + fmtDate(latest.date) : (f.summary || '') }, 'row-share--card');
       return '<div class="mission-card-wrap"><a class="mission-card" href="' + esc(link(path)) + '"><span class="badge">' + esc(f.name) + '</span><h3>' + esc(title) + '</h3><p>' + esc(f.summary || '') + '</p>' + meta + '</a>' + share + '</div>';
     }).join('') + '</div>';
   };
@@ -962,7 +965,7 @@
     var other = (D.missionFields || []).filter(function (x) { return x.id !== f.id; })[0];
     var reports = (f.reports || []).filter(function (r) { return fieldType(r) === type; }).map(function (r) {
       var rid = reportId(r);
-      return Object.assign({}, r, { id: rid, category: r.category || (build ? '공사 소식' : '선교보고'), sharePath: reportPath(f, rid, type), shareTitle: (build ? buildTitle : f.name + ' 선교') + ' · ' + r.title, shareText: (build ? buildTitle + ' 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) });
+      return Object.assign({}, r, { id: rid, category: r.category || (build ? '공사 소식' : '선교보고'), sharePath: sharePathOf(f, rid, type), shareTitle: (build && String(r.title).indexOf(f.name) > -1 ? '' : (build ? buildTitle : f.name + ' 선교') + ' · ') + r.title, shareText: (build ? buildTitle + ' 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) });
     }).sort(byDateDesc);
     var intro = build ? f.constructionIntro : f.intro;
     el.innerHTML = (intro ? '<div class="prose">' + rich(intro) + '</div>' : placeholder(pageTitle + ' 소개글을 입력하세요. (data/missions.js 의 ' + (build ? 'constructionIntro' : 'intro') + ')')) +
@@ -1243,7 +1246,7 @@
     if (!el.matches('.post-list > li')) return;
     el.classList.add('is-target');
     var det = $('details', el); if (det) det.open = true;
-    setTimeout(function () { el.scrollIntoView({ block: 'center' }); }, 60);
+    setTimeout(function () { el.scrollIntoView({ block: el.getBoundingClientRect().height > window.innerHeight * 0.7 ? 'start' : 'center' }); }, 60);   // 사진이 많은 긴 글은 가운데가 아니라 제목이 보이는 맨 위로
   }
 
   R.share = function (el) {
@@ -1525,11 +1528,20 @@
   }
   function init() {
     mergeYoutubeAuto();
+    /* 공사 소식은 제목이 모두 같아서, 제목 끝에 날짜를 붙여 "(2026.11.25)" 처럼 보여 줍니다 (목록·공유 제목·검색에 모두 반영).
+       이미 제목에 그 날짜가 들어 있으면 붙이지 않고, 주소(#id)가 제목 때문에 바뀌지 않도록 id 를 먼저 고정합니다. */
+    (D.missionFields || []).forEach(function (f) {
+      (f.reports || []).forEach(function (r) {
+        if (fieldType(r) !== 'construction' || !r.date || String(r.title).indexOf(fmtDate(r.date)) > -1) return;
+        if (!r.id) r.id = reportId(r);
+        r.title = r.title + ' (' + fmtDate(r.date) + ')';
+      });
+    });
     D.missionReports = [];   // 선교지별 보고를 하나로 합친 목록 (선교 첫 페이지·검색에서 사용)
     (D.missionFields || []).forEach(function (f) {
       (f.reports || []).forEach(function (r) {
         var rid = reportId(r), ty = fieldType(r), path = reportPath(f, rid, ty), build = ty === 'construction';
-        D.missionReports.push(Object.assign({}, r, { id: rid, category: build ? f.name + ' 공사' : f.name, link: path, sharePath: path, shareTitle: (build ? (f.constructionTitle || f.name + ' 공사') : f.name + ' 선교') + ' · ' + r.title, shareText: (build ? f.name + ' 공사 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) }));
+        D.missionReports.push(Object.assign({}, r, { id: rid, category: build ? f.name + ' 공사' : f.name, link: path, sharePath: sharePathOf(f, rid, ty), shareTitle: (build && String(r.title).indexOf(f.name) > -1 ? '' : (build ? (f.constructionTitle || f.name + ' 공사') : f.name + ' 선교') + ' · ') + r.title, shareText: (build ? f.name + ' 공사 소식' : f.name + ' 선교보고') + ' · ' + fmtDate(r.date) }));
       });
     });
     renderHeader();
