@@ -74,3 +74,34 @@
   .ty-input { font-size: 16px; }
   .ty-bar .btn { flex: 1 1 auto; }
 }
+
+/* 로그인 상자는 타자 화면과 같은 폭으로 */
+#account-bar { max-width: 860px; margin: 0 auto; }
+
+/* 내 타자 기록 현황 (쓰는 동안 숫자가 실시간으로 올라갑니다) */
+.ty-stats { margin: 22px 0 0; padding: 18px 20px 14px; background: #fff; border: 1px solid var(--c-line); border-radius: var(--radius); box-shadow: var(--shadow-1); }
+.ty-stats__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 12px; }
+.ty-stats__head h3 { margin: 0; font-family: var(--f-serif); font-size: 1.1rem; color: var(--c-primary-deep); }
+.ty-stats__live { font-size: .82rem; font-weight: 700; color: var(--c-ok); }
+.ty-stats__live::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--c-ok); vertical-align: 1px; }
+.ty-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ty-tile { padding: 12px 8px 10px; border-radius: 12px; background: var(--c-bg-soft); text-align: center; }
+.ty-tile span { display: block; font-size: .8rem; font-weight: 700; color: var(--c-muted); }
+.ty-tile b { display: block; margin: 2px 0 1px; font-size: 1.65rem; line-height: 1.2; color: var(--c-primary); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ty-tile small { display: block; font-size: .76rem; line-height: 1.4; color: var(--c-muted); }
+.ty-tile.is-live { background: #eaf5ee; }
+.ty-tile.is-live b { color: var(--c-ok); }
+.ty-books { margin-top: 12px; }
+.ty-books summary { display: inline-block; padding: 8px 2px; font-weight: 700; font-size: .95rem; color: var(--c-primary); cursor: pointer; }
+.ty-bkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; margin-top: 6px; }
+.ty-bk span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ty-bk { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 40px; padding: 6px 9px; border: 1px solid var(--c-line); border-radius: 8px; background: linear-gradient(90deg, #f1d3dc var(--p), #fff var(--p)); font: inherit; font-size: .82rem; color: var(--c-ink); text-align: left; cursor: pointer; }
+.ty-bk:hover { border-color: var(--c-primary); }
+.ty-bk i { font-style: normal; font-size: .72rem; color: var(--c-muted); white-space: nowrap; }
+.ty-bk.is-full { border-color: var(--c-ok); }
+.ty-bk.is-full i { color: var(--c-ok); font-weight: 700; }
+.ty-bk.is-cur { outline: 2px solid var(--c-gold); outline-offset: -1px; }
+@media (max-width: 560px) {
+  .ty-stats { padding: 16px 14px 12px; }
+  .ty-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
