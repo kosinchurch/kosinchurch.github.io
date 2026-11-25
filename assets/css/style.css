@@ -271,7 +271,8 @@ a.msl-slide:hover, a.msl-slide:focus-visible { transform: translateY(-3px); box-
   50% { opacity: .6; box-shadow: 0 0 0 0 rgba(201, 162, 39, 0); }
 }
 /* 선교현황 머리(짙은 버건디 배경) 안의 점등 — 연한 금색 테두리·글자로 맞춤 */
-.page-hero__stats { margin-top: 18px; }
+.page-hero__titlerow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 8px; }
+.page-hero .page-hero__titlerow h1 { margin: 0; }
 .page-hero .ms-item { background: rgba(255, 255, 255, .12); border-color: var(--c-gold-light); color: #fff; animation-name: ms-lit-dark; }
 .page-hero .ms-num { color: var(--c-gold-light); }
 .page-hero .ms-dot { background: var(--c-gold-light); box-shadow: 0 0 10px 3px rgba(243, 220, 171, .7); }
