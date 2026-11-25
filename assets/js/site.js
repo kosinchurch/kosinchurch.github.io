@@ -386,8 +386,11 @@
     menu().forEach(function (m) { if (!group && hasCurrent(m)) group = m; });
     var crumbs = '<a href="' + esc(link('index.html')) + '">홈</a>' + (group ? ' &rsaquo; <a href="' + esc(link(group.url)) + '">' + esc(group.label) + '</a>' : '') + ' &rsaquo; <span data-current>' + esc(title) + '</span>';
     /* data-stats="mission" 이면 제목 아래에 대문과 같은 "교회·우물 점등"을 띄웁니다 (숫자는 대문과 같은 data/missions.js 의 missionStats) */
-    var stats = el.getAttribute('data-stats') === 'mission' ? '<div class="page-hero__stats"></div>' : '';
-    var html = '<section class="page-hero"><div class="container"><div class="crumbs">' + crumbs + '</div><h1>' + esc(title) + '</h1>' + (lead ? '<p class="page-hero__lead">' + esc(lead) + '</p>' : '') + stats + '</div></section>';
+    var withStats = el.getAttribute('data-stats') === 'mission';
+    var h1 = '<h1>' + esc(title) + '</h1>';
+    var html = '<section class="page-hero"><div class="container"><div class="crumbs">' + crumbs + '</div>' +
+      (withStats ? '<div class="page-hero__titlerow">' + h1 + '<div class="page-hero__stats"></div></div>' : h1) +
+      (lead ? '<p class="page-hero__lead">' + esc(lead) + '</p>' : '') + '</div></section>';
     var tabs = group && group.children;
     if (group) {   // 메뉴 칸에 sub 가 있으면 (예: 네팔 선교 → 네팔 선교 / 네팔 공사) 그 칸의 페이지에서는 sub 를 하위 메뉴로 보여 줍니다
       var own = group.children.filter(function (c) { return c.sub && hasCurrent(c); })[0];
