@@ -16,10 +16,14 @@
 <!-- ?v=… 는 버전 표시입니다 (CSS·JS·자료를 고친 뒤 새 값으로 바꿔 올리면 휴대폰이 예전 파일을 붙들지 않습니다) -->
 <link rel="stylesheet" href="../assets/css/tokens.css?v=20261125w">
 <link rel="stylesheet" href="../assets/css/style.css?v=20261125w">
-<link rel="stylesheet" href="../assets/css/typing.css?v=20261125w">
+<link rel="stylesheet" href="../assets/css/typing.css?v=20261125y">
+<link rel="stylesheet" href="../assets/css/account.css?v=20261125y">
 <script src="../assets/js/site.js?v=20261125w" defer></script>
 <script src="../data/bible.js?v=20261125w" defer></script>
-<script src="../assets/js/typing.js?v=20261125w" defer></script>
+<!-- 로그인(카카오·구글)·기록 저장: 설정 data/account.js 가 비어 있으면 아무것도 보이지 않습니다. account.js 는 typing.js 보다 먼저 -->
+<script src="../data/account.js?v=20261125y" defer></script>
+<script src="../assets/js/account.js?v=20261125y" defer></script>
+<script src="../assets/js/typing.js?v=20261125y" defer></script>
 </head>
 <body data-root="../">
 <div id="site-header"></div>
@@ -28,6 +32,7 @@
   <section class="section">
     <div class="container">
       <!-- 성경 타자 화면은 assets/js/typing.js 가 그립니다. 본문은 assets/bible/nkrv(개역개정)·krv(개역한글)/01.json ~ 66.json (책별) 입니다. -->
+      <div id="account-bar"></div>
       <div id="typing-app" class="ty"><p>성경 타자를 불러오는 중입니다…</p></div>
     </div>
   </section>
