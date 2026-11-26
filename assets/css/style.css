@@ -51,6 +51,7 @@ button { font: inherit; cursor: pointer; }
 /* ---------- 3. 버튼 ---------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); padding: 0 26px; border-radius: 999px; font-weight: 700; border: 2px solid transparent; text-decoration: none !important; transition: background .2s, color .2s, border-color .2s, transform .2s; cursor: pointer; }
 .btn:hover { transform: translateY(-1px); }
+.btn small { font-size: .82em; font-weight: 500; opacity: .85; }
 .btn--primary { background: var(--c-primary); color: #fff; }
 .btn--primary:hover { background: var(--c-primary-dark); }
 .btn--light { background: #fff; color: var(--c-primary-deep); }
