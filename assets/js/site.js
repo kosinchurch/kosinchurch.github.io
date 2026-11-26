@@ -800,6 +800,17 @@
     if (!buy && showSamples()) buy = '<span class="btn btn--outline" aria-disabled="true">구매 링크 준비 중</span>';
     /* pdf: { url, label, size } — 책 PDF 파일을 새 창에서 열어 보거나 내려받는 버튼 */
     var pdf = (b.pdf && b.pdf.url) ? '<a class="btn btn--primary" href="' + esc(link(b.pdf.url)) + '" target="_blank" rel="noopener">' + ico('download') + ' ' + esc(b.pdf.label || 'PDF로 보기·내려받기') + (b.pdf.size ? ' <small>(' + esc(b.pdf.size) + ')</small>' : '') + '</a>' : '';
+    /* 목차 항목: 글자 하나이면 그대로, { t: 제목, p: 책 쪽번호 } 이고 책에 PDF 가 있으면 눌러서 PDF 의 그 쪽(#page=)이 열립니다. PDF 쪽 = 책 쪽 + pdf.pageOffset */
+    var tocLinked = false;
+    function tocItem(t) {
+      if (typeof t === 'string') return '<li>' + esc(t) + '</li>';
+      var title = '<span class="toc-t">' + esc(t.t) + '</span>', pg = t.p ? '<span class="toc-p">' + esc(t.p) + '쪽</span>' : '';
+      if (b.pdf && b.pdf.url && t.p) {
+        tocLinked = true;
+        return '<li><a href="' + esc(link(b.pdf.url)) + '#page=' + (+t.p + (+b.pdf.pageOffset || 0)) + '" target="_blank" rel="noopener">' + title + pg + '</a></li>';
+      }
+      return '<li><span class="toc-row">' + title + pg + '</span></li>';
+    }
     function block(title, html, hint) { var body = html || placeholder(hint); return body ? '<section class="detail-block"><h2>' + esc(title) + '</h2>' + body + '</section>' : ''; }
     var pastor = (D.people || [])[0] || {};
     var others = books.filter(function (x) { return x.id !== b.id; });
@@ -815,7 +826,7 @@
         var f = link(p.img);
         return '<a href="' + esc(f) + '" data-full="' + esc(f) + '" data-caption="' + esc(b.title + (p.caption ? ' · ' + p.caption : '')) + '"><img src="' + esc(f) + '" alt="' + esc(b.title + ' ' + (p.caption || '미리보기')) + '" loading="lazy">' + (p.caption ? '<span>' + esc(p.caption) + '</span>' : '') + '</a>';
       }).join('') + '</div></section>' : '') +
-      block('목차', (b.toc && b.toc.length) ? '<ol class="toc">' + b.toc.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>' : '', '목차를 입력하세요. (data/books.js 의 toc)') +
+      block('목차', (b.toc && b.toc.length) ? '<ol class="toc">' + b.toc.map(tocItem).join('') + '</ol>' + (tocLinked ? '<p class="toc-hint">목차를 누르면 PDF의 그 쪽이 열립니다.</p>' : '') : '', '목차를 입력하세요. (data/books.js 의 toc)') +
       block('추천사', (b.endorsements && b.endorsements.length) ? b.endorsements.map(function (e) { return '<blockquote class="quote">' + esc(e.text) + '<cite>' + esc(e.by) + '</cite></blockquote>'; }).join('') : '', '추천사를 입력하세요. (data/books.js 의 endorsements)') +
       (church_ ? '' : block('저자 소개', '<p><strong>' + esc(church().pastor) + ' ' + esc(church().pastorTitle) + '</strong> · ' + esc(church().name) + '</p>' + (pastor.bio ? '<p>' + esc(pastor.bio) + '</p>' : ''), '')) +
       (others.length ? '<section class="detail-block"><h2>' + (church_ ? '다른 교회출판도서 보기' : '다른 저서 보기') + '</h2><div class="book-grid">' + others.map(bookCard).join('') + '</div></section>' : '') +
