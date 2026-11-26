@@ -160,14 +160,24 @@ body.menu-open { overflow: hidden; }
 .time-card__time { font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 700; color: var(--c-primary); margin: 0; line-height: 1.3; }
 .time-card__place { display: flex; align-items: center; gap: 6px; color: var(--c-ink-soft); margin: 6px 0 0; }
 .quick-more { text-align: center; margin-top: 16px; }
-/* 홈 "이번 주 말씀" 아래 성경 통독 바로가기 버튼 */
-.home-bible { margin: 28px 0 0; text-align: center; }
+/* 홈 "이번 주 말씀" 아래 성경 통독·성경 타자 바로가기 (성경 그림 카드 두 개) */
+.home-bible { margin: 32px auto 0; max-width: 780px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.hb-card { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--c-beige); border: 1px solid var(--c-beige-deep); border-radius: 20px; color: var(--c-ink); text-decoration: none !important; transition: transform .2s, box-shadow .2s, border-color .2s; }
+.hb-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--c-gold); }
+.hb-card:focus-visible { outline: 3px solid var(--c-gold); outline-offset: 3px; }
+.hb-ico { flex: none; width: 60px; height: 60px; border-radius: 17px; display: grid; place-items: center; background: radial-gradient(70px 44px at 28% 12%, rgba(243, 220, 171, .38), rgba(243, 220, 171, 0) 70%), linear-gradient(145deg, #8f1740, #3d0d1f); box-shadow: 0 6px 14px rgba(61, 13, 31, .28); }
+.hb-ico svg { width: 42px; height: 42px; display: block; }
+.hb-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.hb-text strong { font-size: 1.14rem; color: var(--c-primary-deep); line-height: 1.35; }
+.hb-text small { font-size: .92rem; color: var(--c-ink-soft); line-height: 1.45; }
+.hb-go { flex: none; font-size: 1.45rem; font-weight: 700; color: var(--c-gold-text); transition: transform .2s; }
+.hb-card:hover .hb-go { transform: translateX(3px); }
 @media (max-width: 768px) {
-  /* 모바일: 이 부분의 위아래 간격을 줄이고, 버튼은 화면 너비로 */
+  /* 모바일: 이 부분의 위아래 간격을 줄이고, 카드는 화면 너비로 한 줄씩 */
   #sermon { padding-bottom: 28px; }
   #sermon + .section { padding-top: 40px; }
-  .home-bible { margin-top: 18px; }
-  .home-bible .btn { width: 100%; }
+  .home-bible { grid-template-columns: 1fr; margin-top: 20px; gap: 12px; }
+  .hb-card { padding: 14px 16px; }
 }
 .sermon-feature { display: grid; grid-template-columns: 1.35fr 1fr; gap: 36px; align-items: start; }
 .video { position: relative; aspect-ratio: 16 / 9; background: #2a0a16; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-2); }
