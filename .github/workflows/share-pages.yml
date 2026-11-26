@@ -1,0 +1,74 @@
+# 선교 글 공유 미리보기 페이지 자동 만들기
+# - data/missions.js 나 선교 사진(assets/img/mission, assets/img/events)이 바뀌어 올라오면,
+#   글마다 카카오톡 미리보기용 공유 페이지(share/글id.html)와 목록(data/share-pages.js)을 자동으로 만들어 저장합니다.
+# - 저장하면 홈페이지가 자동으로 새로 배포됩니다. (직접 할 일은 없습니다)
+# - 지금 바로 돌리고 싶으면: GitHub 저장소 > Actions > "선교 글 공유 미리보기 자동 만들기" > Run workflow
+#   (dry_run 에 true 를 쓰면 저장하지 않고 지금 파일과 비교만 합니다)
+# - 끄고 싶으면: 이 파일을 지우거나, Actions 화면에서 이 항목을 Disable 하세요. (꺼도 사이트는 그대로 동작하고,
+#   새 글만 일반 링크로 공유됩니다.)
+# - 만드는 규칙은 .github/scripts/make-share-pages.js 에 있습니다.
+name: 선교 글 공유 미리보기 자동 만들기
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/missions.js'
+      - 'assets/img/mission/**'
+      - 'assets/img/events/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '저장하지 않고 지금 파일과 비교만 (true / false)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: share-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 내려받기
+        uses: actions/checkout@v4
+
+      - name: 공유 페이지 만들기
+        env:
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          node --version
+          if [ "$DRY" = "true" ]; then
+            node .github/scripts/make-share-pages.js --dry
+          else
+            node .github/scripts/make-share-pages.js
+          fi
+
+      - name: 바뀐 것이 있으면 저장
+        id: save
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          git add -A share data/share-pages.js
+          if git diff --cached --quiet; then
+            echo "바뀐 것 없음 - 저장할 것이 없습니다"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "kosin-share-pages"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "선교 글 공유 미리보기 페이지 자동 갱신"
+          git pull --rebase origin main
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: 홈페이지 새로 배포 요청
+        if: steps.save.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "배포 요청은 건너뜁니다 (저장은 끝났고 곧 자동으로 반영됩니다)"
