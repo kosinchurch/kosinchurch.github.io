@@ -798,6 +798,8 @@
     if (author) meta.push(['저자', author]);
     var buy = (b.buyLinks || []).filter(function (l) { return l && l.url; }).map(function (l) { return '<a class="btn btn--primary" href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || '구매하기') + '</a>'; }).join('');
     if (!buy && showSamples()) buy = '<span class="btn btn--outline" aria-disabled="true">구매 링크 준비 중</span>';
+    /* pdf: { url, label, size } — 책 PDF 파일을 새 창에서 열어 보거나 내려받는 버튼 */
+    var pdf = (b.pdf && b.pdf.url) ? '<a class="btn btn--primary" href="' + esc(link(b.pdf.url)) + '" target="_blank" rel="noopener">' + ico('download') + ' ' + esc(b.pdf.label || 'PDF로 보기·내려받기') + (b.pdf.size ? ' <small>(' + esc(b.pdf.size) + ')</small>' : '') + '</a>' : '';
     function block(title, html, hint) { var body = html || placeholder(hint); return body ? '<section class="detail-block"><h2>' + esc(title) + '</h2>' + body + '</section>' : ''; }
     var pastor = (D.people || [])[0] || {};
     var others = books.filter(function (x) { return x.id !== b.id; });
@@ -805,7 +807,7 @@
       '<h1>' + esc(b.title) + sampleTag(b) + '</h1>' + (b.subtitle ? '<p class="book-sub">' + esc(b.subtitle) + '</p>' : '') +
       (b.oneLine ? '<p class="lead">' + esc(b.oneLine) + '</p>' : '') +
       '<ul class="meta-list">' + meta.map(function (m) { return '<li><b>' + esc(m[0]) + '</b><span>' + esc(m[1]) + '</span></li>'; }).join('') + '</ul>' +
-      (buy ? '<div class="btn-row">' + buy + '</div>' : '') +
+      ((pdf || buy) ? '<div class="btn-row">' + pdf + buy + '</div>' : '') +
       (b.inChurch ? '<p style="margin-top:18px"><strong>교회 비치 안내</strong><br>' + rich(b.inChurch) + '</p>' : '') + '</div></div>' +
       block('책 소개', b.intro ? '<div class="prose">' + rich(b.intro) + '</div>' : '', '책 소개글을 입력하세요. (data/books.js 의 intro)') +
       ((b.excerpt && b.excerpt.text) ? '<section class="detail-block"><h2>' + esc(b.excerpt.title || '서문 중에서') + '</h2>' + excerptHtml(b.excerpt.text, b.excerpt.compact) + '</section>' : '') +
