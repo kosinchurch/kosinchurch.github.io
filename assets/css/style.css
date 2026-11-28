@@ -956,6 +956,8 @@ html.tn-open { overflow: hidden; }
 .tn__chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 14px 0 0; padding: 0; }
 .tn__chips li { padding: 5px 13px; border-radius: 999px; background: var(--c-beige); color: var(--c-gold-text); font-weight: 700; font-size: .86rem; }
 .tn__go { display: flex; margin: 18px 0 0; }
+.tn__more { display: flex; gap: 8px; margin: 10px 0 0; }
+.tn__more .btn { flex: 1 1 0; min-width: 0; padding-left: 6px; padding-right: 6px; font-size: .9rem; line-height: 1.25; text-align: center; white-space: normal; }
 .tn__go .ico { width: 1.15em; height: 1.15em; }
 .tn__foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
 .tn__skip, .tn__close { padding: 8px 4px; border: 0; background: none; color: var(--c-muted); font-size: .88rem; text-decoration: underline; text-underline-offset: 3px; }
