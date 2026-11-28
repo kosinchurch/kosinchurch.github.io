@@ -60,6 +60,7 @@ KOSIN.menu = [
     { label: '주일예배 설교', url: 'worship/sermons.html' },
     { label: '3분 묵상', url: 'worship/meditation.html' },
     { label: '수요성경공부', url: 'worship/wednesday.html' },
+    { label: '성경 읽기', url: 'worship/reading.html' },
     { label: '성경 통독', url: 'worship/bible.html' },
     { label: '성경 타자', url: 'worship/typing.html' }
   ] },
