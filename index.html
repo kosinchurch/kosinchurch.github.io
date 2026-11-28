@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <!-- 주소 끝의 ?v=… 는 "버전 표시"입니다. CSS·JS 를 고친 뒤 이 값(이 줄과 아래 site.js 줄)을 새 값으로 바꿔 올리면, 휴대폰이 예전 CSS·JS 를 붙들고 있어도 새 것을 받아 옵니다. -->
 <link rel="stylesheet" href="assets/css/tokens.css?v=20261124b">
-<link rel="stylesheet" href="assets/css/style.css?v=20261126f">
+<link rel="stylesheet" href="assets/css/style.css?v=20261128b">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -37,7 +37,7 @@
   "faxNumber": "+82-51-895-2257"
 }
 </script>
-<script src="assets/js/site.js?v=20261126f" defer></script>
+<script src="assets/js/site.js?v=20261128b" defer></script>
 </head>
 <body data-root="./">
 <div id="site-header"></div>
@@ -66,19 +66,29 @@
         <a class="more-link" href="worship/sermons.html">설교 전체보기 &rarr;</a>
       </div>
       <div data-render="sermon-latest"></div>
-      <!-- 성경 통독·성경 타자 바로가기 (예배·말씀 > 성경 통독 : worship/bible.html, 성경 타자 : worship/typing.html) -->
-      <div class="home-bible" role="group" aria-label="성경 바로가기">
-        <a class="hb-card" href="worship/bible.html">
+      <!-- 성경 바로가기: 버튼 하나를 누르면 아래로 펼쳐져 성경 읽기(worship/reading.html)·성경 통독(worship/bible.html)·성경 타자(worship/typing.html)가 나옵니다.
+           처음부터 펼쳐 두려면 아래 <details> 에 open 을 붙이세요. -->
+      <details class="home-bible">
+        <summary class="hb-card" aria-label="성경 바로가기 (누르면 성경 읽기, 성경 통독, 성경 타자가 펼쳐집니다)">
           <span class="hb-ico" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="11" y="6" width="26" height="34" rx="2.6" fill="#f3dcab"/><rect x="11" y="6" width="5.2" height="34" rx="2.6" fill="#d2a95a"/><rect x="13" y="40" width="25" height="3" rx="1.2" fill="#fff8ea"/><rect x="25.1" y="12.5" width="3" height="16" rx=".6" fill="#801237"/><rect x="20.6" y="17.4" width="12" height="3" rx=".6" fill="#801237"/><rect x="21" y="32" width="11" height="1.6" rx=".8" fill="#801237" opacity=".5"/><rect x="23" y="35" width="7" height="1.6" rx=".8" fill="#801237" opacity=".5"/><path d="M31 43v5l2.3-1.7L35.6 48v-5z" fill="#d9486b"/></svg></span>
-          <span class="hb-text"><strong>성경 통독 바로가기</strong><small>오늘 말씀을 영상으로 들어요</small></span>
-          <span class="hb-go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="hb-card" href="worship/typing.html">
-          <span class="hb-ico" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="9" y="6" width="26" height="34" rx="2.6" fill="#f3dcab"/><rect x="9" y="6" width="5.2" height="34" rx="2.6" fill="#d2a95a"/><rect x="11" y="40" width="25" height="3" rx="1.2" fill="#fff8ea"/><rect x="23.1" y="12.5" width="3" height="16" rx=".6" fill="#801237"/><rect x="18.6" y="17.4" width="12" height="3" rx=".6" fill="#801237"/><rect x="19" y="32" width="9" height="1.6" rx=".8" fill="#801237" opacity=".5"/><g transform="rotate(38 38 32)"><rect x="35.6" y="17" width="5.6" height="20" rx="1.6" fill="#fff" stroke="#801237" stroke-width="1.4"/><path d="M35.6 37h5.6l-2.8 6.4z" fill="#d2a95a" stroke="#801237" stroke-width="1.2" stroke-linejoin="round"/></g></svg></span>
-          <span class="hb-text"><strong>성경 타자 바로가기</strong><small>말씀을 한 절씩 따라 써 보세요</small></span>
-          <span class="hb-go" aria-hidden="true">&rarr;</span>
-        </a>
-      </div>
+          <span class="hb-text"><strong>성경 바로가기</strong><small>읽기 · 통독 · 타자</small></span>
+          <span class="hb-go hb-chev" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </summary>
+        <div class="hb-panel">
+          <a class="hb-row" href="worship/reading.html">
+            <span class="hb-text"><strong>성경 읽기</strong><small>개역개정·NIV 본문을 장별로 읽어요</small></span>
+            <span class="hb-go" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="hb-row" href="worship/bible.html">
+            <span class="hb-text"><strong>성경 통독</strong><small>오늘 말씀을 영상으로 들어요</small></span>
+            <span class="hb-go" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="hb-row" href="worship/typing.html">
+            <span class="hb-text"><strong>성경 타자</strong><small>말씀을 한 절씩 따라 써 보세요</small></span>
+            <span class="hb-go" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </details>
     </div>
   </section>
 
