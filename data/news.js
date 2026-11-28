@@ -17,8 +17,9 @@ KOSIN.notices = [
 
 /* ---------- 주보 (매주 교회소식 PDF) ----------
    PDF 를 assets/bulletins 폴더에 올리고, file 에 경로를 적습니다. 날짜가 가장 최근인 것이 메인의 '이번 주 주보'가 됩니다.
-   예) { id: 'b-2026-11-29', title: '2026년 11월 29일 주보 (제48호)', date: '2026-11-29', file: 'assets/bulletins/2026-11-29.pdf' },   */
+   예) { id: 'b-2026-12-06', title: '2026년 12월 6일 주보 (제49호)', date: '2026-12-06', file: 'assets/bulletins/2026-12-06.pdf' },   */
 KOSIN.bulletins = [
+  { id: 'b-2026-11-29', title: '2026년 11월 29일 주보 (제48호)', date: '2026-11-29', file: 'assets/bulletins/2026-11-29.pdf' },
   { id: 'b-2026-11-22', title: '2026년 11월 22일 주보 (제47호)', date: '2026-11-22', file: 'assets/bulletins/2026-11-22.pdf' },
   { id: 'b-2026-11-15', title: '2026년 11월 15일 주보 (제46호)', date: '2026-11-15', file: 'assets/bulletins/2026-11-15.pdf' },
   { id: 'b-2026-11-08', title: '2026년 11월 8일 주보 (제45호)', date: '2026-11-08', file: 'assets/bulletins/2026-11-08.pdf' },
