@@ -62,7 +62,8 @@ KOSIN.menu = [
     { label: '수요성경공부', url: 'worship/wednesday.html' },
     { label: '성경 읽기', url: 'worship/reading.html' },
     { label: '성경 통독', url: 'worship/bible.html' },
-    { label: '성경 타자', url: 'worship/typing.html' }
+    { label: '성경 타자', url: 'worship/typing.html' },
+    { label: '새찬송가 듣기', url: 'worship/hymn.html' }
   ] },
   { label: '교회학교', url: 'next-generation/index.html', auto: 'departments' },
   /* 선교현황: 어느 선교 페이지에 들어가도 아래 줄(하위 메뉴)에 같은 칸이 같은 순서로 보입니다.
