@@ -1441,7 +1441,8 @@
     if (cfg.autoOpen !== false && !skip && !seen) { D._noticeOpen = true; setTimeout(open, 450); }
   };
 
-  /* 성경 타자 안내 팝업 (홈): 통역 안내 팝업 다음, 찬양 듣기 팝업보다 먼저 뜹니다. (설정: data/church.js 의 typingNotice)
+  /* "말씀과 찬양" 안내 팝업 (홈): 성경 읽기·통독·타자와 새찬송가 듣기를 소개합니다. (예전 이름 "성경 타자 안내" — 설정 이름은 그대로 typingNotice)
+     통역 안내 팝업 다음, 찬양 듣기 팝업보다 먼저 뜹니다. (설정: data/church.js 의 typingNotice)
      같은 방문 중에는 다시 뜨지 않고, "오늘 하루 열지 않기"를 누르면 그날은 뜨지 않습니다. 닫으면 찬양 듣기 팝업이 이어서 뜹니다.
      위쪽 그림의 말씀은 한 글자씩 "써지는" 모습으로 보여 줍니다(글자 하나 = span.c, 순서는 --i). */
   R['typing-notice'] = function (el) {
@@ -1449,7 +1450,7 @@
     if (cfg.enabled === false) return;
     var skip = false, seen = false, prev = null, n = 0;
     try { skip = localStorage.getItem('kosin-typing-skip') === new Date().toDateString(); seen = sessionStorage.getItem('kosin-typing-seen') === '1'; } catch (e) {}
-    var VERSE = cfg.verse || '주의 말씀은 내 발에 등이요 내 길에 빛이니이다', REF = cfg.verseRef || '시편 119:105 · 개역한글';
+    var VERSE = cfg.verse || '기쁨으로 여호와를 섬기며 노래하면서 그 앞에 나아갈찌어다', REF = cfg.verseRef || '시편 100:2 · 개역한글';
     var verseHtml = VERSE.split(' ').map(function (w) {
       return '<span class="tn__w">' + w.split('').map(function (ch) { return '<span class="c" style="--i:' + (n++) + '">' + esc(ch) + '</span>'; }).join('') + '</span>';
     }).join(' ');
@@ -1467,10 +1468,11 @@
       '<div class="tn__art">' + BOOK +
         '<p class="tn__verse"><span class="tn__sr">' + esc(VERSE) + '</span><span aria-hidden="true">' + verseHtml + '<i class="tn__end" style="--n:' + n + '"></i></span></p>' +
         '<span class="tn__ref">' + esc(REF) + '</span></div>' +
-      '<div class="tn__body"><span class="tn__eyebrow">말씀을 마음에 새기는 시간</span><h2 id="tn-title">성경 타자</h2>' +
-        '<p class="tn__lead">말씀을 한 절씩 <strong>따라 쓰며</strong> 마음에 새겨 보세요. 글자마다 맞고 틀림을 바로 알려 드리고, 쓴 장은 기록해 드립니다.</p>' +
-        '<ul class="tn__chips"><li>개역개정 · 개역한글</li><li>66권 1,189장</li><li>찬양 들으며 쓰기</li></ul>' +
-        '<a class="btn btn--primary tn__go" href="' + esc(link('worship/typing.html')) + '">' + ico('pen') + ' 성경 타자 시작하기</a>' +
+      '<div class="tn__body"><span class="tn__eyebrow">말씀과 찬양으로 드리는 시간</span><h2 id="tn-title">말씀과 찬양</h2>' +
+        '<p class="tn__lead">성경을 <strong>읽고 · 듣고 · 따라 쓰며</strong>, 새찬송가 645곡도 골라 들어 보세요.</p>' +
+        '<ul class="tn__chips"><li>성경 읽기 · 통독 · 타자</li><li>개역개정 · NIV</li><li>새찬송가 645곡</li></ul>' +
+        '<a class="btn btn--primary tn__go" href="' + esc(link('worship/reading.html')) + '">' + ico('book') + ' 성경 읽기 시작하기</a>' +
+        '<div class="tn__more"><a class="btn btn--outline btn--sm" href="' + esc(link('worship/bible.html')) + '">성경 통독</a><a class="btn btn--outline btn--sm" href="' + esc(link('worship/typing.html')) + '">성경 타자</a><a class="btn btn--outline btn--sm" href="' + esc(link('worship/hymn.html')) + '">새찬송가 듣기</a></div>' +
         '<div class="tn__foot"><button type="button" class="tn__skip">오늘 하루 열지 않기</button><button type="button" class="tn__close">닫기</button></div></div>' +
     '</div></div>';
     var box = $('.tn', el), panel = $('.tn__panel', el);
