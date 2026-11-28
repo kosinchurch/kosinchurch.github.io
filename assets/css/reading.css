@@ -1,0 +1,51 @@
+@charset "UTF-8";
+/* ==========================================================================
+   성경 읽기 페이지 전용 스타일 (worship/reading.html 에서만 불러옵니다)
+   색상·글꼴·모서리 값은 tokens.css 의 값을 그대로 씁니다.
+   본문 글자 크기는 --rd-fs (reading.js 가 "가−/가+" 에 맞춰 바꿉니다)
+   ========================================================================== */
+.rd { max-width: 860px; margin: 0 auto; --rd-fs: 1.35rem; }
+
+/* 번역·책·장 고르기 */
+.rd-bar { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: flex-end; justify-content: space-between; scroll-margin-top: 150px; }
+.rd-pick { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end; }
+.rd-lab { display: grid; gap: 4px; font-weight: 700; font-size: .9rem; color: var(--c-ink-soft); }
+.rd-lab select { min-height: var(--tap); padding: 0 12px; border: 1px solid #b9a9af; border-radius: 10px; font: inherit; font-size: 1rem; color: var(--c-ink); background: #fff; max-width: 100%; }
+.rd-lab select:focus-visible { outline: 3px solid rgba(184, 137, 59, .55); outline-offset: 1px; }
+.rd-size { display: flex; gap: 8px; }
+.rd-size .btn { min-width: 64px; }
+.rd-size .btn:disabled { opacity: .4; cursor: default; }
+
+/* 말씀 본문 */
+.rd-sheet { margin-top: 20px; background: #fff; border: 1px solid var(--c-line); border-top: 4px solid var(--c-primary); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 24px 28px 18px; }
+.rd-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid var(--c-line); }
+.rd-tr { display: inline-block; margin-bottom: 2px; font-size: .86rem; font-weight: 700; letter-spacing: .04em; color: var(--c-gold-text); }
+.rd-title { margin: 0; font-family: var(--f-serif); font-size: clamp(1.6rem, 3.6vw, 2.1rem); line-height: 1.3; color: var(--c-primary-deep); }
+.rd-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.rd-body { min-height: 8em; }
+.rd-verses { list-style: none; margin: 0; padding: 10px 0 0; }
+.rd-verses li { display: grid; grid-template-columns: 2.3em minmax(0, 1fr); gap: 8px; padding: 9px 0; }
+.rd-n { padding-top: .42em; text-align: right; font-size: calc(var(--rd-fs) * .6); font-weight: 700; line-height: 1.4; color: var(--c-gold-text); font-variant-numeric: tabular-nums; }
+.rd-t { font-size: var(--rd-fs); line-height: 1.95; color: var(--c-ink); overflow-wrap: anywhere; word-break: keep-all; }
+.rd[data-lang="en"] .rd-t { word-break: normal; overflow-wrap: break-word; line-height: 1.75; }   /* 영어(NIV)는 단어 중간에서 끊지 않습니다 */
+.rd-verses .is-merged .rd-t { color: var(--c-muted); font-style: italic; font-size: calc(var(--rd-fs) * .8); }
+.rd-msg { margin: 18px 0 8px; color: var(--c-ink-soft); font-weight: 700; }
+
+/* 앞뒤 장 */
+.rd-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.rd-nav .btn { flex: 1 1 200px; }
+.rd-nav [hidden] { display: none; }
+.rd-nav #rd-prev[hidden] + #rd-next { margin-left: auto; }
+
+.rd-credit { margin: 18px 0 0; font-size: .86rem; line-height: 1.7; color: var(--c-muted); }
+.rd-credit a { color: var(--c-primary); }
+
+@media (max-width: 560px) {
+  .rd-sheet { padding: 16px 14px 10px; }
+  .rd-verses li { grid-template-columns: 1.7em minmax(0, 1fr); gap: 6px; padding: 7px 0; }
+  .rd-t { line-height: 1.85; }
+  .rd-lab select { font-size: 16px; }
+  .rd-bar .rd-size { width: 100%; }
+  .rd-size .btn { flex: 1 1 0; }
+  .rd-nav .btn { flex: 1 1 100%; }
+}
